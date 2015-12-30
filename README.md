@@ -4,7 +4,7 @@
 Will be available by then end of 2015
 
 NOVOPlasty is a de novo assembler for short circular genomes.</br>
-For the moment NOVOPlasty supports only the assembly of plastid genomes and with Illumina paired-end reads as input.
+For the moment NOVOPlasty only supports the assembly of plastid genomes with Illumina paired-end reads as input.
 
 # Contact
 
@@ -62,6 +62,7 @@ This is an example of a configuration file for the assembly of a chloroplast.
 To make the assembler work, your configuration file has to have the exact same structure.
 (Make sure there is always a space after the equals sign and every parameter is captured in one single line)
 
+<strong>1\. Example of config file:</strong>
 <pre>
 Project name     = AOB_chloro
 Insert size      = 300
@@ -78,6 +79,22 @@ Forward reads    =
 Reverse reads    = 
 Seed Input       = Seed_AOB.fasta
 </pre>
+
+<strong>2\. Explanation parameters:</strong>
+<pre>
+Project name     = Choose a name for your project, it will be used for the output files.
+Insert size      = Total insert size of your paired end reads, it doesn't have to be accurate but should be close enough.
+Insert size auto = (yes/no) This will finetune your insert size automatically (Default: yes)
+Read Length      = The read length of your reads.
+Type             = (chloro/mito) "chloro" for chloroplast assembly and "mito for mitochondrial assembly
+Encrypt          = no
+Reference        = no
+Mito Range       = (minimum genome size-maximum genome size) The expected genome size of the mitochondrial genome.
+Chloro Range     = (minimum genome size-maximum genome size) The expected genome size of the chloroplast genome.
+K-mer            = 38
+Combined reads   = The path to the file that contains the combined reads (forward and reverse in 1 file)
+Forward reads    = The path to the file that contains the forward reads
+Reverse reads    = The path to the file that contains the reverse reads
+Seed Input       = The path to the file that contains the seed sequence
+</pre>
 </html>
-
-
