@@ -10,3 +10,24 @@ Combined reads   = /path/to/reads/AOB_reads.fastq
 Forward reads    = 
 Reverse reads    = 
 Seed Input       = Seed_AOB.fasta
+
+
+Explanation Parameters:
+
+Project name     = Choose a name for your project, it will be used for the output files.
+Insert size      = Total insert size of your paired end reads, it doesn't have to be accurate but should be close enough.
+Insert size auto = (yes/no) This will finetune your insert size automatically (Default: yes)
+Read Length      = The read length of your reads.
+Type             = (chloro/mito) "chloro" for chloroplast assembly and "mito for mitochondrial assembly
+Genome Range     = (minimum genome size-maximum genome size) The expected genome size range of the genome.
+                   Default value for mito: 12000-20000 / Default value for chloro: 120000-170000
+                   If the expected size is know, you can lower the range, this can be useful when there is a repetitive region,
+                   what could lead to a premature circularization of the genome.
+K-mer            = (integer) This is the length of the overlap between matching reads (Default: 38). 
+                   If reads are shorter then 90 bp, this value should be decreased. 
+                   For reads longer then 101 bp, this value can be increased, but this is not necessary.
+Single/Paired    = For the moment only paired end reads are supported
+Combined reads   = The path to the file that contains the combined reads (forward and reverse in 1 file)
+Forward reads    = The path to the file that contains the forward reads
+Reverse reads    = The path to the file that contains the reverse reads
+Seed Input       = The path to the file that contains the seed sequence
