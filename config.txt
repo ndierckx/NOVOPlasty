@@ -5,6 +5,7 @@ Read Length      = 101
 Type             = chloro
 Genome Range     = 120000-160000
 K-mer            = 38
+Single/Paired    = PE
 Combined reads   = /path/to/reads/AOB_reads.fastq
 Forward reads    = 
 Reverse reads    = 
