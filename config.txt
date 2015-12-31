@@ -1,0 +1,11 @@
+Project name     = AOB_chloro
+Insert size      = 300
+Insert size auto = yes
+Read Length      = 101
+Type             = chloro
+Genome Range     = 120000-160000
+K-mer            = 38
+Combined reads   = /path/to/reads/AOB_reads.fastq
+Forward reads    = 
+Reverse reads    = 
+Seed Input       = Seed_AOB.fasta
