@@ -1,10 +1,10 @@
 <html>
 #NOVOPlasty - The plastid assembler 
 
-Will be available by then end of 2015
+Is currently being beta tested, you can always contact if you want already a copy
 
 NOVOPlasty is a de novo assembler for short circular genomes.</br>
-For the moment NOVOPlasty only supports the assembly of plastid genomes with Illumina paired-end reads as input.
+For the moment NOVOPlasty only supports the assembly of mitochondrial and plastid genomes with Illumina paired-end reads as input.
 
 # Contact
 
@@ -50,13 +50,13 @@ Perl
 
 <strong>4\. Output files</strong>
 
-&nbsp;&nbsp;&nbsp;NOVOPlasty outputs two different files:
+&nbsp;&nbsp;&nbsp;NOVOPlasty outputs four types of files:
 
-&nbsp;&nbsp;&nbsp;1\. Circularized_assemblies_projectname.fasta
+&nbsp;&nbsp;&nbsp;1\. Circularized_assembly_projectname.fasta
 
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;This file contains the assemblies that were succesfully circularized.
 
-&nbsp;&nbsp;&nbsp;2\. Uncircularized_assemblies_projectname.fasta
+&nbsp;&nbsp;&nbsp;2\. Uncircularized_assembly_projectname.fasta
 
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;This file contains the assemblies that were not circularized.
 
@@ -69,38 +69,43 @@ To make the assembler work, your configuration file has to have the exact same s
 
 <strong>1\. Example of configuration file:</strong>
 <pre>
-Project name     = AOB_chloro
-Insert size      = 300
-Insert size auto = yes
-Read Length      = 101
-Type             = chloro
-Genome Range     = 120000-160000
-K-mer            = 38
-Single/Paired    = PE
-Combined reads   = /path/to/reads/AOB_reads.fastq
-Forward reads    = 
-Reverse reads    = 
-Seed Input       = Seed_AOB.fasta
+Project name         = AOB_chloro
+Insert size          = 300
+Insert size aut      = yes
+Read Length          = 101
+Type                 = chloro
+Genome Range         = 120000-160000
+K-mer                = 38
+Insert Range         = 1.45
+Insert Range strict  = 1.2
+Single/Paired        = PE
+Extended log         = 0
+Combined reads       = /path/to/reads/AOB_reads.fastq
+Forward reads        = 
+Reverse reads        = 
+Seed Input           = Seed_AOB.fasta
 </pre>
 
 <strong>2\. Explanation parameters:</strong>
 <pre>
-Project name     = Choose a name for your project, it will be used for the output files.
-Insert size      = Total insert size of your paired end reads, it doesn't have to be accurate but should be close enough.
-Insert size auto = (yes/no) This will finetune your insert size automatically (Default: yes)
-Read Length      = The read length of your reads.
-Type             = (chloro/mito) "chloro" for chloroplast assembly and "mito for mitochondrial assembly
-Genome Range     = (minimum genome size-maximum genome size) The expected genome size range of the genome.
-                   Default value for mito: 12000-20000 / Default value for chloro: 120000-170000
-                   If the expected size is know, you can lower the range, this can be useful when there is a repetitive region,
-                   what could lead to a premature circularization of the genome.
-K-mer            = (integer) This is the length of the overlap between matching reads (Default: 38). 
-                   If reads are shorter then 90 bp, this value should be decreased. 
-                   For reads longer then 101 bp, this value can be increased, but this is not necessary.
-Single/Paired    = For the moment only paired end reads are supported
-Combined reads   = The path to the file that contains the combined reads (forward and reverse in 1 file)
-Forward reads    = The path to the file that contains the forward reads
-Reverse reads    = The path to the file that contains the reverse reads
-Seed Input       = The path to the file that contains the seed sequence
+Project name         = Choose a name for your project, it will be used for the output files.
+Insert size          = Total insert size of your paired end reads, it doesn't have to be accurate but should be close enough.
+Insert size auto     = (yes/no) This will finetune your insert size automatically (Default: yes)
+Read Length          = The read length of your reads.
+Type                 = (chloro/mito) "chloro" for chloroplast assembly and "mito for mitochondrial assembly
+Genome Range         = (minimum genome size-maximum genome size) The expected genome size range of the genome.
+                       Default value for mito: 12000-20000 / Default value for chloro: 120000-170000
+                       If the expected size is know, you can lower the range, this can be useful when there is a repetitive                           region, what could lead to a premature circularization of the genome.
+K-mer                = (integer) This is the length of the overlap between matching reads (Default: 38). 
+                       If reads are shorter then 90 bp, this value should be decreased. 
+                       For reads longer then 101 bp, this value can be increased, but this is not necessary.
+Insert Range         = This variation on the insert size, could lower it when the coverage is very high or raise it when the                          coverage is too low (Default: 1.45). 
+Insert Range strict  = Strict variation to resolve repetitive regions (Default: 1.2). 
+Single/Paired        = For the moment only paired end reads are supported.
+Extended log         = Prints out a very extensive log, could be useful to send me when there is a problem  (0/1).
+Combined reads       = The path to the file that contains the combined reads (forward and reverse in 1 file)
+Forward reads        = The path to the file that contains the forward reads
+Reverse reads        = The path to the file that contains the reverse reads
+Seed Input           = The path to the file that contains the seed sequence
 </pre>
 </html>
