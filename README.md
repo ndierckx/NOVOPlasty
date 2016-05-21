@@ -1,5 +1,5 @@
 <html>
-#NOVOPlasty - The plastid assembler 
+#NOVOPlasty - The plastid assembler                            
 
 Is currently being beta tested, you can always contact if you want already a copy
 
@@ -14,6 +14,8 @@ Or you can contact me directly through the following email address:
 
 nicolasdierckxsens@hotmail.com 
 
+<a href="http://ibsquare.be/"><img border="0" alt="IB2" src="http://ibsquare.be/sites/default/files/logo_1.png" width="100" height="100"></a>                
+
 
 # Prerequisites
 
@@ -27,7 +29,7 @@ Perl
 &nbsp;&nbsp;&nbsp;There are different types of seed possible:</br>
 &nbsp;&nbsp;&nbsp;- A single read from the dataset that originates from the targeted plastid.</br>
 &nbsp;&nbsp;&nbsp;- A plastid sequence derived from the same or a close related species.</br>
-&nbsp;&nbsp;&nbsp;- A complete plastid sequence (recommended when there is no close related sequence available)
+&nbsp;&nbsp;&nbsp;- A complete plastid sequence of a more distant species (recommended when there is no close related sequence &nbsp;&nbsp;&nbsp;&nbsp;available)
 
 &nbsp;&nbsp;&nbsp;The format should be like a standard fasta file (first line: >Id_sequence)
 
@@ -92,14 +94,18 @@ Project name         = Choose a name for your project, it will be used for the o
 Insert size          = Total insert size of your paired end reads, it doesn't have to be accurate but should be close enough.
 Insert size auto     = (yes/no) This will finetune your insert size automatically (Default: yes)
 Read Length          = The read length of your reads.
-Type                 = (chloro/mito) "chloro" for chloroplast assembly and "mito for mitochondrial assembly
+Type                 = (chloro/chloro2/mito) "chloro" for chloroplast assembly and "mito for mitochondrial assembly. It is     
+                       recommended to first try "chloro", and if you don't get a circularized genome or it splits in to many
+                       versions, to try "chloro2". This will create different contigs without circularizing
 Genome Range         = (minimum genome size-maximum genome size) The expected genome size range of the genome.
                        Default value for mito: 12000-20000 / Default value for chloro: 120000-170000
-                       If the expected size is know, you can lower the range, this can be useful when there is a repetitive                           region, what could lead to a premature circularization of the genome.
+                       If the expected size is know, you can lower the range, this can be useful when there is a repetitive
+                       region, what could lead to a premature circularization of the genome.
 K-mer                = (integer) This is the length of the overlap between matching reads (Default: 38). 
                        If reads are shorter then 90 bp, this value should be decreased. 
                        For reads longer then 101 bp, this value can be increased, but this is not necessary.
-Insert Range         = This variation on the insert size, could lower it when the coverage is very high or raise it when the                          coverage is too low (Default: 1.45). 
+Insert Range         = This variation on the insert size, could lower it when the coverage is very high or raise it when the
+                       coverage is too low (Default: 1.45). 
 Insert Range strict  = Strict variation to resolve repetitive regions (Default: 1.2). 
 Single/Paired        = For the moment only paired end reads are supported.
 Extended log         = Prints out a very extensive log, could be useful to send me when there is a problem  (0/1).
