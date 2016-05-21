@@ -14,7 +14,7 @@ Or you can contact me directly through the following email address:
 
 nicolasdierckxsens@hotmail.com 
 
-<a href="http://ibsquare.be/"><img border="0" alt="IB2" src="http://ibsquare.be/sites/default/files/logo_1.png" width="100" height="100"></a>                
+<a href="http://ibsquare.be/"><img border="0" target="_blank" alt="IB2" src="http://ibsquare.be/sites/default/files/logo_1.png" width="100" height="100"></a>                
 
 
 # Prerequisites
