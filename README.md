@@ -62,6 +62,10 @@ Perl
 
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;This file contains the assemblies that were not circularized.
 
+&nbsp;&nbsp;&nbsp;3\. contigs_tmp_projectname.txt
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;If non of the above files are outputted, you can retrieve some contigs from this file.
+
 
 # Configuration file
 
