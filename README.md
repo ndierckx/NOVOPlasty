@@ -29,7 +29,8 @@ Perl
 &nbsp;&nbsp;&nbsp;There are different types of seed possible:</br>
 &nbsp;&nbsp;&nbsp;- A single read from the dataset that originates from the organelle plastid.</br>
 &nbsp;&nbsp;&nbsp;- A organelle sequence derived from the same or a related species.</br>
-&nbsp;&nbsp;&nbsp;- A complete organelle sequence of a more distant species (recommended when there is no close related &nbsp;&nbsp;&nbsp;&nbsp;sequence available)
+&nbsp;&nbsp;&nbsp;- A complete organelle sequence of a more distant species (recommended when there is no close related</br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;sequence available)
 
 &nbsp;&nbsp;&nbsp;The format should be like a standard fasta file (first line: >Id_sequence)
 
