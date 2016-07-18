@@ -1,10 +1,10 @@
 <html>
-#NOVOPlasty - The plastid assembler                            
+#NOVOPlasty - The organelle assembler                            
 
 Is currently being beta tested, you can always contact if you want already a copy
 
 NOVOPlasty is a de novo assembler for short circular genomes.</br>
-For the moment NOVOPlasty only supports the assembly of mitochondrial and plastid genomes with Illumina paired-end reads as input.
+For the moment NOVOPlasty only supports whole genome Illumina paired-end reads as input.
 
 # Contact
 
@@ -27,11 +27,14 @@ Perl
 <strong>1\. Find a suitable seed</strong>
 
 &nbsp;&nbsp;&nbsp;There are different types of seed possible:</br>
-&nbsp;&nbsp;&nbsp;- A single read from the dataset that originates from the targeted plastid.</br>
-&nbsp;&nbsp;&nbsp;- A plastid sequence derived from the same or a close related species.</br>
-&nbsp;&nbsp;&nbsp;- A complete plastid sequence of a more distant species (recommended when there is no close related sequence &nbsp;&nbsp;&nbsp;&nbsp;available)
+&nbsp;&nbsp;&nbsp;- A single read from the dataset that originates from the organelle plastid.</br>
+&nbsp;&nbsp;&nbsp;- A organelle sequence derived from the same or a related species.</br>
+&nbsp;&nbsp;&nbsp;- A complete organelle sequence of a more distant species (recommended when there is no close related &nbsp;&nbsp;&nbsp;&nbsp;sequence available)
 
 &nbsp;&nbsp;&nbsp;The format should be like a standard fasta file (first line: >Id_sequence)
+
+&nbsp;&nbsp;&nbsp;Be cautious for seed sequences that are similar in both mitochondrial and chloroplast genomes.</br>
+&nbsp;&nbsp;&nbsp;We observed good results with RUBP sequences as seeds for chloroplast assembly
 
 <strong>2\. Create configuration file</strong>
 
@@ -41,14 +44,16 @@ Perl
 
 <strong>3\. Run NOVOPlasty</strong>
 
-&nbsp;&nbsp;&nbsp;No futher installation is necessary:
+&nbsp;&nbsp;&nbsp;No further installation is necessary:
 
 &nbsp;&nbsp;&nbsp;<code>perl NOVOPlasty.pl -c config.txt</code>
 
 &nbsp;&nbsp;&nbsp;The input reads have to be uncompressed Illumina reads (fastq files).</br>
-&nbsp;&nbsp;&nbsp;Either two seperate files(forward and reverse) or a merged fastq file.</br>
+&nbsp;&nbsp;&nbsp;Either two separate files(forward and reverse) or a merged fastq file.</br>
 &nbsp;&nbsp;&nbsp;Multiple libraries as input is not yet supported.
 
+&nbsp;&nbsp;&nbsp;Do NOT filter or trim the reads! Use the raw whole genome dataset!</br>
+&nbsp;&nbsp;&nbsp;You can subsample to speed up the process and to reduce the memory requirements. But it is recommended </br> &nbsp;&nbsp;&nbsp;to use as much reads as possible, especially when the organelle genome contains AT-rich stretches.
 
 <strong>4\. Output files</strong>
 
@@ -56,15 +61,22 @@ Perl
 
 &nbsp;&nbsp;&nbsp;1\. Circularized_assembly_projectname.fasta
 
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;This file contains the assemblies that were succesfully circularized.
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;This file contains the assemblies that were successfully circularized. </br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;When using the 'chloro2' stand, all successful asemblies can be found back in</br> 
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;the 'Merged_contigs_projectname.txt' file.
 
 &nbsp;&nbsp;&nbsp;2\. Uncircularized_assembly_projectname.fasta
 
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;This file contains the assemblies that were not circularized.
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;This file contains the assemblies that were not circularized.
 
-&nbsp;&nbsp;&nbsp;3\. contigs_tmp_projectname.txt
+&nbsp;&nbsp;&nbsp;3\. Merged_contigs_projectname.txt
 
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;If non of the above files are outputted, you can retrieve some contigs from this file.
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;When using the 'chloro2' or 'mito' stand, NOVOPlasty will try to combine all contigs </br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;in to a complete circular genome, all the different possibilities can be found in this file.
+
+&nbsp;&nbsp;&nbsp;4\. contigs_tmp_projectname.txt
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;If non of the above files are outputted, you can retrieve some contigs from this file.
 
 
 # Configuration file
@@ -85,6 +97,7 @@ K-mer                = 38
 Insert Range         = 1.45
 Insert Range strict  = 1.2
 Single/Paired        = PE
+Coverage Cut off     = 1000
 Extended log         = 0
 Combined reads       = /path/to/reads/AOB_reads.fastq
 Forward reads        = 
@@ -112,6 +125,7 @@ Insert Range         = This variation on the insert size, could lower it when th
                        coverage is too low (Default: 1.45). 
 Insert Range strict  = Strict variation to resolve repetitive regions (Default: 1.2). 
 Single/Paired        = For the moment only paired end reads are supported.
+Coverage Cut off     = You can speed up the assembly by lowering the coverage cut off, standard it will use up to 1000 coverage
 Extended log         = Prints out a very extensive log, could be useful to send me when there is a problem  (0/1).
 Combined reads       = The path to the file that contains the combined reads (forward and reverse in 1 file)
 Forward reads        = The path to the file that contains the forward reads
