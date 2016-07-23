@@ -2419,7 +2419,6 @@ SEED: foreach $seed_id (keys %seed)
     $no_contig_id2 = "";
     $no_contig_id1 = "";
     $rep_detect2 = "";
-    $hasL = "";
     
     if (exists($indel_split{$seed_id}))
     {
