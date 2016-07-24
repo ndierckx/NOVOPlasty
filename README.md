@@ -1,8 +1,6 @@
 <html>
 #NOVOPlasty - The organelle assembler                            
 
-Is currently being beta tested, you can always contact if you want already a copy
-
 NOVOPlasty is a de novo assembler for short circular genomes.</br>
 For the moment NOVOPlasty only supports whole genome Illumina paired-end reads as input.
 
@@ -56,6 +54,14 @@ Perl
 &nbsp;&nbsp;&nbsp;Do NOT filter or trim the reads! Use the raw whole genome dataset!</br>
 &nbsp;&nbsp;&nbsp;You can subsample to speed up the process and to reduce the memory requirements. But it is recommended </br> &nbsp;&nbsp;&nbsp;to use as much reads as possible, especially when the organelle genome contains AT-rich stretches.
 
+&nbsp;&nbsp;&nbsp;Recommended K-mer lengths:</br>
+
+&nbsp;&nbsp;&nbsp;100 bp reads: +/- 39</br>
+&nbsp;&nbsp;&nbsp;150 bp reads: +/- 53</br>
+&nbsp;&nbsp;&nbsp;250 bp reads: +/- 73</br>
+
+&nbsp;&nbsp;&nbsp;You can always try different K-mer's. In the case of low coverage problems, it's recommended to lower the K-mer.</br>
+
 <strong>4\. Output files</strong>
 
 &nbsp;&nbsp;&nbsp;NOVOPlasty outputs four types of files:
@@ -93,9 +99,9 @@ Insert size          = 300
 Insert size aut      = yes
 Read Length          = 101
 Type                 = chloro
-Genome Range         = 120000-160000
-K-mer                = 38
-Insert Range         = 1.45
+Genome Range         = 120000-200000
+K-mer                = 39
+Insert Range         = 1.5
 Insert Range strict  = 1.2
 Single/Paired        = PE
 Coverage Cut off     = 1000
@@ -116,14 +122,14 @@ Type                 = (chloro/chloro2/mito) "chloro" for chloroplast assembly a
                        recommended to first try "chloro", and if you don't get a circularized genome or it splits in to many
                        versions, to try "chloro2". This will create different contigs without circularizing
 Genome Range         = (minimum genome size-maximum genome size) The expected genome size range of the genome.
-                       Default value for mito: 12000-20000 / Default value for chloro: 120000-170000
+                       Default value for mito: 12000-20000 / Default value for chloro: 120000-200000
                        If the expected size is know, you can lower the range, this can be useful when there is a repetitive
                        region, what could lead to a premature circularization of the genome.
-K-mer                = (integer) This is the length of the overlap between matching reads (Default: 38). 
+K-mer                = (integer) This is the length of the overlap between matching reads (Default: 39). 
                        If reads are shorter then 90 bp, this value should be decreased. 
                        For reads longer then 101 bp, this value can be increased, but this is not necessary.
 Insert Range         = This variation on the insert size, could lower it when the coverage is very high or raise it when the
-                       coverage is too low (Default: 1.45). 
+                       coverage is too low (Default: 1.5). 
 Insert Range strict  = Strict variation to resolve repetitive regions (Default: 1.2). 
 Single/Paired        = For the moment only paired end reads are supported.
 Coverage Cut off     = You can speed up the assembly by lowering the coverage cut off, standard it will use up to 1000 coverage
