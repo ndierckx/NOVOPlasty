@@ -2970,6 +2970,14 @@ ALREADY_X0b:  while ($v0b < $u0b)
                     }
                     delete $tree{$tree_tmp};
                     $tree{$tree_tmp} = $tree3;
+                    foreach my $contigs_end (keys %contigs_end)
+                    {
+                        if ($contigs_end{$contigs_end} eq $old)
+                        {
+                            delete $contigs_end{$contigs_end};
+                            $contigs_end{$contigs_end} = $id_tmp;
+                        }
+                    }
                 }
                 delete $old_id{$id};
                 if ($y > $startprint2)
@@ -3030,6 +3038,14 @@ ALREADY_X0b:  while ($v0b < $u0b)
                     }
                     delete $tree{$tree_tmp};
                     $tree{$tree_tmp} = $tree3;
+                    foreach my $contigs_end (keys %contigs_end)
+                    {
+                        if ($contigs_end{$contigs_end} eq $old)
+                        {
+                            delete $contigs_end{$contigs_end};
+                            $contigs_end{$contigs_end} = $id_tmp;
+                        }
+                    }
                 }
             delete $old_id{$id};
             $noback{$id} = "stop";
