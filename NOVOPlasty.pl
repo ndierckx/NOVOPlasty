@@ -146,7 +146,6 @@ my $contig_read1;
 my $first_contig_start;
 my $first_contig_start_reverse;
 my $finish;
-my $first_id;
 my $repetitive_detect;
 my $repetitive_detect_back;
 my $repetitive_detect2;
@@ -2989,7 +2988,7 @@ ALREADY_X0b:  while ($v0b < $u0b)
                 $noback{$id} = "stop";     
             }
         }
-        if (exists $old_id{$id} && ($noback eq "stop" || $position_back >= ($insert_size*3)) && $position > 1350 )
+        if (exists $old_id{$id} && ($noback eq "stop" || $position_back >= ($insert_size*3)) && $position > 1000 )
         {                                    
             $merge_read_length = length ($read);
             $merge_read = "yes"; 
@@ -3058,12 +3057,17 @@ ALREADY_X0b:  while ($v0b < $u0b)
         }
 
 
-    if (keys %contigs)
+    if (exists $old_id{$id})
+    {
+            
+    }
+    elsif (keys %contigs)
     {
         my $check_start0 = '0';
-        if (exists $old_id{$id})
+        if ($merge_read eq "yes")
         {
-            $check_start0 = $read_short_start2 =~ s/$first_contig_start/$first_contig_start/;
+            my $long_end = substr $read, -1250;
+            $check_start0 = $long_end =~ s/$first_contig_start/$first_contig_start/;
         }
         my $check_start1 = $read_short_end2 =~ s/$first_contig_start/$first_contig_start/;
         my $check_start2 = $read_short_end2 =~ s/$first_contig_start_reverse/$first_contig_start_reverse/;
@@ -3094,7 +3098,7 @@ ALREADY_X0b:  while ($v0b < $u0b)
             }
 
             delete $seed{$id};                                         
-            if ($check_start1 > 0)
+            if ($check_start1 > 0 || $check_start0 > 0)
             {
                 $contigs{$contig_num."+".$id} = $read;
                 $contig_num++;
@@ -3896,6 +3900,14 @@ REPEAT:
                                                         $read_end_b{$read_end_b} = undef;
                                                         $read_end_tmp{$read_end} = undef;
                                                         $read_end_b_tmp{$read_end_b} = undef;
+                                                        if ($y > $startprint2)
+                                                        {
+                                                            print OUTPUT5 $read_end." READ_END\n";
+                                                            foreach (keys %read_end_tmp)
+                                                            {
+                                                                print OUTPUT5 $_."\n";
+                                                            }
+                                                        }
                                                 }
                                                 my $read_end_c = $read_end_d;
                                                 $read_end_c =~ tr/ATCG/TAGC/;
@@ -5200,6 +5212,14 @@ FIND_ID2:       foreach my $matches (@matches)
                 {
                     $old_id{$id} = $old_id{$id_before};
                 }
+                if (exists($nosecond{$id_before}))
+                {
+                    $nosecond{$id} = undef;
+                }
+                if (exists($seed_split{$id_before}))
+                {
+                    $seed_split{$id} = undef;
+                }
             }
             elsif ($split eq "yes3")
             {
@@ -5492,7 +5512,7 @@ FIND_ID1:       foreach my $matches (@matches)
                     }
                 }
                 
-                if ($indel_split > 0 && $before eq "yes")
+                if ($indel_split > 0 && $before eq "yesss")
                 {
                     my @chars;
                     my @chars2;
@@ -6354,10 +6374,6 @@ CORRECT:            my $contig_id2_tmp = substr $contig_id2, 0,-1;
                         $noforward{$id} = "stop";
                         $seed_split{$id} = undef;
                         $best_extension = "";
-                        if ($id =~ m/(.*_|)(\d+)$/)
-                        {
-                            $first_id = $2;
-                        }
                         goto BACK;
                     }
                 }
@@ -6619,7 +6635,7 @@ BEFORE_EXTRA:           if ($delete_first ne "yes" && length($before_extension2)
                                 }
                                 print OUTPUT5 $count1." COUNT1\n";
                                 print OUTPUT5 $count2." COUNT2\n";
-                                if (($count1 > 3 && $count2 > 3) || ($count1 > 4*$count2 && $count2 > 0) || ($count2 > 4*$count1 && $count1 > 0))
+                                if (($count1 > 3 && $count2 > 3) || ($count1 <= $count2*10 && $count2 > 0) || ($count2 <= $count1*10 && $count1 > 0))
                                 {
                                     my $count1b = '0';
                                     my $count2b = '0';
@@ -6703,7 +6719,7 @@ FILTER_2:                               foreach my $line (keys %read_short_end_t
                                         goto BACK;
                                     }
                                 }
-                                elsif ($count1 > 4 && $count2 eq 0)
+                                elsif ((($count1 > 4 && $count2 eq 0) || $count1 > $count2*10) && $repetitive_detect2 ne "yes")
                                 {
                                     delete $seed{$id_split1};
                                     $best_extension = $best_extension1;
@@ -6712,7 +6728,7 @@ FILTER_2:                               foreach my $line (keys %read_short_end_t
                                     delete $before{$id};
                                     goto AFTER_EXT;
                                 }
-                                elsif ($count2 > 4 && $count1 eq 0)
+                                elsif ((($count2 > 4 && $count1 eq 0) || $count2 > $count1*10) && $repetitive_detect2 ne "yes")
                                 {
                                     delete $seed{$id};
                                     print OUTPUT5 "\nREVERSE_DELETE SPLIT_BEFORE8\n\n";
@@ -6727,38 +6743,126 @@ FILTER_2:                               foreach my $line (keys %read_short_end_t
                                 {
                                     my $end_repetitive = substr $read, -$insert_size-150;
                                     print OUTPUT5 $end_repetitive." END_REP\n";
+                                    my $second_try = "";
                                     my %rep_pair;
-                                    undef %rep_pair;
+REP_PAIR0:                          undef %rep_pair;
 REP_PAIR:                           foreach my $rep_pair (keys %repetitive_pair)
                                     {
-                                        my $part1 = substr $rep_pair, 0, $read_length/2;
-                                        my $part2 = substr $rep_pair, $read_length/2;
+                                        print OUTPUT5 $rep_pair." REP_PAIR_TEST\n";   
+                                        my $part1 = substr $rep_pair, 0, ($read_length/3)*2;
+                                        my $part2 = substr $rep_pair, ($read_length/3)*2;
                                         my $r = '0';
                                         while ($r < length($part1)-15)
                                         {
                                             my $testit = substr $part1, $r, 15;
                                             my $found8 = $end_repetitive =~ s/$testit/$testit/;
-                                            if ($found8 > 0)
+                                            
+                                            if ($found8 > 0 || $second_try eq "yes2" || $second_try eq "yes3")
                                             {
                                                 my $s = '0';
-                                                while ($s < length($part2)-15)
+                                                while ($s < length($part2)-12)
                                                 {
-                                                    my $testit2 = substr $part2, $s, 15;
+                                                    my $testit2 = substr $part2, $s, 12;
                                                     my $found7 = $end_repetitive =~ s/$testit2/$testit2/;
-                                                    if ($found7 > 0)
+                                                    my $found9 = $part1 =~ s/$testit2/$testit2/;
+                                                    if ($found7 > 0 || $found9 > 0)
                                                     {
                                                         next REP_PAIR;
                                                     }
-                                                    $s = $s+5;
+                                                    $s = $s+3;
                                                 }
                                                 $rep_pair{$rep_pair} = $repetitive_pair{$rep_pair};
-                                                print OUTPUT5 $rep_pair." REP_PAIR\n";         
+                                                print OUTPUT5 $rep_pair." REP_PAIR_FOUND\n";         
                                                 next REP_PAIR;
                                             }
                                             $r = $r+5;
                                         }
                                     }
-                                    foreach my $rep_pair (keys %rep_pair)
+                                    my $hg = '0';
+                                    foreach (keys %rep_pair)
+                                    {
+                                        $hg++;
+                                    }
+                                    my %temp_rep;
+                                    undef %temp_rep;
+                                    my $search_rev;
+                                    if ($hg eq '0')
+                                    {
+PAIR_OF_PAIR:                           foreach my $rep_pair (keys %repetitive_pair)
+                                        {
+                                            my $ft = '0';
+                                            while ($ft < length($rep_pair) - $overlap)
+                                            {
+                                                my $part_rep = substr $rep_pair, $ft, $overlap;
+                                                if (exists($hash2b{$part_rep}))
+                                                {                       
+                                                    my $search = $hash2b{$part_rep};
+                                                    $search = substr $search, 1;
+                                                    my @search = split /,/,$search;
+                                                                                                
+                                                    foreach my $search (@search)
+                                                    {                             
+                                                        my $search_tmp = substr $search, 0, -1;
+                                                        my $search_end = substr $search, -1;
+                                                        if (exists($hash{$search_tmp}))
+                                                        {
+                                                            my @search_tmp = split /,/,$hash{$search_tmp};
+                                                            my $found;
+                                                            if ($search_end eq "1")
+                                                            {
+                                                                $found = $search_tmp[1];
+                                                                $search_rev = $search_tmp."2";
+                                                            }
+                                                            elsif ($search_end eq "2")
+                                                            {
+                                                                $found = $search_tmp[0];
+                                                                $search_rev = $search_tmp."1";
+                                                            }
+                                                            if ($encrypt eq "yes")
+                                                            {
+                                                                $found = decrypt $found;
+                                                            }
+                                                            $found =~ tr/ACTG/TGAC/;
+                                                            my $found_reverse = reverse($found);
+                                                            delete $repetitive_pair{$rep_pair};
+                                                            $temp_rep{$found_reverse} = $search_rev;
+                                                            next PAIR_OF_PAIR;
+                                                        }
+                                                    }
+                                                }
+                                                $ft++;
+                                            }
+                                            delete $repetitive_pair{$rep_pair};
+                                        }
+                                        %repetitive_pair = %temp_rep;
+                                        my $mm = '0';
+                                        foreach (keys %repetitive_pair)
+                                        {
+                                            $mm++;
+                                        }
+                                        if ($mm > 0)
+                                        {
+                                            print OUTPUT5 "\n";
+                                            if ($second_try eq "yes")
+                                            {
+                                                $second_try = "yes2";
+                                            }
+                                            elsif ($second_try eq "")
+                                            {
+                                                $second_try = "yes";
+                                            }
+                                            elsif ($second_try eq "yes2")
+                                            {
+                                                 $second_try = "yes3";
+                                            }
+                                            elsif ($second_try eq "yes3")
+                                            {
+                                                 goto REP_PAIR1;
+                                            }
+                                            goto REP_PAIR0;
+                                        }
+                                    }
+REP_PAIR1:                          foreach my $rep_pair (keys %rep_pair)
                                     {
                                                 $noforward{$id} = "stop";
                                                 $noforward = "stop";
@@ -6766,7 +6870,7 @@ REP_PAIR:                           foreach my $rep_pair (keys %repetitive_pair)
                                                 my $id_rep = $rep_pair{$rep_pair};
                                                 $noback{$id_rep} = "stop";
                                                 $seed{$id_rep} = $rep_pair;
-                                                $nosecond{$id_rep} = undef;
+                                                $nosecond{$id} = undef;
                                                 $nosecond = "yes";
                                                 $insert_size2{$id_rep} = $insert_size;
                                                 $position{$id_rep} = length($rep_pair);
@@ -6838,10 +6942,6 @@ REP_PAIR:                           foreach my $rep_pair (keys %repetitive_pair)
                                                     $noforward{$id} = "stop";
                                                     $seed_split{$id} = undef;
                                                     $best_extension = "";
-                                                    if ($id =~ m/(.*_|)(\d+)$/)
-                                                    {
-                                                        $first_id = $2;
-                                                    }
                                                     goto BACK;
                                                 }
                                     }
@@ -6935,7 +7035,7 @@ REP_CHECK0:                         foreach my $exts (keys %extensions_original)
                                                 my $id_rep = $rep_check{$rep_pair};
                                                 $noback{$id_rep} = "stop";
                                                 $seed{$id_rep} = $rep_pair;
-                                                $nosecond{$id_rep} = undef;
+                                                $nosecond{$id} = undef;
                                                 $nosecond = "yes";
                                                 $insert_size2{$id_rep} = $insert_size;
                                                 $position{$id_rep} = length($rep_pair);
@@ -7009,11 +7109,6 @@ REP_CHECK0:                         foreach my $exts (keys %extensions_original)
                                                     $noforward{$id} = "stop";
                                                     $seed_split{$id} = undef;
                                                     $best_extension = "";
-                                                    if ($id =~ m/(.*_|)(\d+)$/)
-                                                    {
-                                                        $first_id = $2;
-                                                    }
-                                                    $contig_num++;
                                                     goto BACK;
                                                 }
                                     }
@@ -9064,7 +9159,7 @@ NUCLEO_BACK: while ($l < $read_length - ($overlap+$left-1) + $extra_l)
                 {
                     goto AFTER_EXT_BACK;
                 }
-                if ($before eq "yes")
+                if ($before eq "yessss")
                 {
                     my @chars;
                     my @chars2;
@@ -10207,91 +10302,50 @@ AFTER_EXT_BACK:
                                                 print OUTPUT5 "9B\n";
                                                 if (length($read) > 250)
                                                 {
-                                                    if ($contig_num > 1 && $first_id ne "")
+                                                    if ($id =~ m/(.*_|)(\d+)$/)
                                                     {
-                                                        if ($id =~ m/(.*_|)(\d+)$/)
-                                                        {
-                                                            my $check_id = $2;
-                                                            if ($check_id eq $first_id)
-                                                            { 
-                                                                $contigs{$contig_num."+".$id} = $read;
-                                                                my $start_point = '500';
-                                                                my $check_repetitive = '3';
-                                                                                            
-                                                                while ($check_repetitive > 2)
-                                                                {
-                                                                    my $check_for_rep = substr $read, 0, $start_point+200;
-                                                                    my $repetitive = substr $check_for_rep, $start_point, 15;
-                                                                    $check_repetitive = $check_for_rep =~ s/$repetitive/$repetitive/g;
-                                                                    if ($check_repetitive > 2)
-                                                                    {
-                                                                        $start_point += 20;
-                                                                        print OUTPUT5 "DETECT_REPETITIVE_IN_START_SEQUENCE3\n";
-                                                                    } 
-                                                                }
-                                                                $first_contig_start = substr $read, $start_point, $overlap;
-                                                                my $check_start = $first_contig_start =~ tr/N|K|R|Y|S|W|M|B|D|H|V|\.//;
-                                                                while ($check_start > 0)
-                                                                {
-                                                                    $start_point += 10;
-                                                                    $first_contig_start = substr $read, $start_point, $overlap;
-                                                                    $check_start = $first_contig_start =~ tr/N|K|R|Y|S|W|M|B|D|H|V|\.//;
-                                                                }
-                                                                print OUTPUT5 $first_contig_start." CONTIG_START\n";
-                                                                foreach my $seedie (keys %seed)
-                                                                {
-                                                                    my $seedie_part = substr $seed{$seedie}, 0, 1000;
-                                                                    my $check_seedie = $seedie_part =~ s/$first_contig_start/$first_contig_start/;
-                                                                    if ($check_seedie > 0)
-                                                                    {
-                                                                        delete $seed{$seedie};
-                                                                    }
-                                                                }
-                                                                $first_id = "";
-                                                                goto SKIP1;
-                                                            }   
-                                                        }                                                     
-                                                    }
-                                                    if ($contig_num eq '1')
-                                                    {       
-                                                        $contigs{$contig_num."+".$id} = $read;
-                                                        my $start_point = '500';
-                                                        my $check_repetitive = '3';
-                                                                                            
-                                                        while ($check_repetitive > 2)
-                                                        {
-                                                            my $check_for_rep = substr $read, 0, $start_point+200;
-                                                            my $repetitive = substr $check_for_rep, $start_point, 15;
-                                                            $check_repetitive = $check_for_rep =~ s/$repetitive/$repetitive/g;
+                                                        my $check_id = $2;
+                                                        if ($contig_num eq '1')
+                                                        {       
+                                                            $contigs{$contig_num."+".$check_id} = $read;
+                                                            my $start_point = '500';
+                                                            my $check_repetitive = '3';
+                                                                                                
+                                                            while ($check_repetitive > 2)
                                                             {
-                                                                $start_point += 20;
-                                                                print OUTPUT5 "DETECT_REPETITIVE_IN_START_SEQUENCE\n";
-                                                            } 
-                                                        }
-                                                        $first_contig_start = substr $read, $start_point, $overlap;
-                                                        my $check_start = $first_contig_start =~ tr/N|K|R|Y|S|W|M|B|D|H|V|\.//;
-                                                        while ($check_start > 0)
-                                                        {
-                                                            $start_point += 10;
+                                                                my $check_for_rep = substr $read, 0, $start_point+200;
+                                                                my $repetitive = substr $check_for_rep, $start_point, 15;
+                                                                $check_repetitive = $check_for_rep =~ s/$repetitive/$repetitive/g;
+                                                                {
+                                                                    $start_point += 20;
+                                                                    print OUTPUT5 "DETECT_REPETITIVE_IN_START_SEQUENCE\n";
+                                                                } 
+                                                            }
                                                             $first_contig_start = substr $read, $start_point, $overlap;
-                                                            $check_start = $first_contig_start =~ tr/N|K|R|Y|S|W|M|B|D|H|V|\.//;
-                                                        }
-                                                        print OUTPUT5 $first_contig_start." CONTIG_START\n";
-                                                        foreach my $seedie (keys %seed)
-                                                        {
-                                                            my $seedie_part = substr $seed{$seedie}, 0, 1000;
-                                                            my $check_seedie = $seedie_part =~ s/$first_contig_start/$first_contig_start/;
-                                                            if ($check_seedie > 0)
+                                                            my $check_start = $first_contig_start =~ tr/N|K|R|Y|S|W|M|B|D|H|V|\.//;
+                                                            while ($check_start > 0)
                                                             {
-                                                                delete $seed{$seedie};
+                                                                $start_point += 10;
+                                                                $first_contig_start = substr $read, $start_point, $overlap;
+                                                                $check_start = $first_contig_start =~ tr/N|K|R|Y|S|W|M|B|D|H|V|\.//;
+                                                            }
+                                                            print OUTPUT5 $first_contig_start." CONTIG_START\n";
+                                                            foreach my $seedie (keys %seed)
+                                                            {
+                                                                my $seedie_part = substr $seed{$seedie}, 0, 1000;
+                                                                my $check_seedie = $seedie_part =~ s/$first_contig_start/$first_contig_start/;
+                                                                if ($check_seedie > 0)
+                                                                {
+                                                                    delete $seed{$seedie};
+                                                                }
                                                             }
                                                         }
+                                                        else
+                                                        {
+                                                           $contigs{$contig_num."+".$check_id} = $read; 
+                                                        }
+                                                        $contig_num++;
                                                     }
-                                                    else
-                                                    {
-                                                       $contigs{$contig_num."+".$id} = $read; 
-                                                    }
-                                                    $contig_num++;
                                                 }
 SKIP1:                                          if ($y > $startprint2)
                                                 {                                                                                 
@@ -10543,68 +10597,7 @@ NEXT_SEED:                                      while ($xy > $tt)
                                                                         $seed = correct ($seed);
    
                                                                         $id_bad{$id_b} = undef;
-                                                                        foreach my $conti (keys %contigs)
-                                                                        {
-                                                                            my $skip_seed = $contigs{$conti} =~ s/$seed/$seed/;
-                                                                            if ($skip_seed > 0)
-                                                                            {                                                                             
-                                                                                if (!keys %seed)
-                                                                                {
-                                                                                    $circle = "contigs";
-                                                                                    if (exists($contigs_id{$id}) && length($read) > $read_length+30)
-                                                                                    {
-                                                                                    }
-                                                                                    else
-                                                                                    {
-                                                                                        if ($contig_num eq '1')
-                                                                                        {
-                                                                                            $contigs{$contig_num."+".$id} = $read;
-                                                                                            my $start_point = '500'; 
-                                                                                            my $check_repetitive = '3';
-                                                                                            
-                                                                                            while ($check_repetitive > 2)
-                                                                                            {
-                                                                                                my $check_for_rep = substr $read, 0, $start_point+200;
-                                                                                                my $repetitive = substr $check_for_rep, $start_point, 15;
-                                                                                                $check_repetitive = $check_for_rep =~ s/$repetitive/$repetitive/g;
-                                                                                                if ($check_repetitive > 2)
-                                                                                                {
-                                                                                                    $start_point += 20;
-                                                                                                    print OUTPUT5 "DETECT_REPETITIVE_IN_START_SEQUENCE2\n";
-                                                                                                } 
-                                                                                            }
-                                                                                            $first_contig_start = substr $read, $start_point, $overlap;
-                                                                                            my $check_start = $first_contig_start =~ tr/N|K|R|Y|S|W|M|B|D|H|V|\.//;
-                                                                                            while ($check_start > 0)
-                                                                                            {
-                                                                                                $start_point += 10;
-                                                                                                $first_contig_start = substr $read, $start_point, $overlap;
-                                                                                                $check_start = $first_contig_start =~ tr/N|K|R|Y|S|W|M|B|D|H|V|\.//;
-                                                                                            }
-                                                                                            print OUTPUT5 $first_contig_start." CONTIG_START\n";
-                                                                                            
-                                                                                            foreach my $seedie (keys %seed)
-                                                                                            {
-                                                                                                my $seedie_part = substr $seed{$seedie}, 0, 1000;
-                                                                                                my $check_seedie = $seedie_part =~ s/$first_contig_start/$first_contig_start/;
-                                                                                                if ($check_seedie > 0)
-                                                                                                {
-                                                                                                    delete $seed{$seedie};
-                                                                                                }
-                                                                                            }
-                                                                                        }
-                                                                                        else
-                                                                                        {
-                                                                                            $contigs{$contig_num."+".$id} = $read;
-                                                                                        }
-                                                                                        $contig_num++;
-                                                                                    }
-                                                                                    goto FINISH;
-                                                                                }
-                                                                                goto ITERATION;
-                                                                            }
-                                                                            
-                                                                        }
+                                                                                                                                              
                                                                         $seed{$id} = $seed;
                                                                         $position{$id} = length($seed);
                                                                         $old_id{$id} = $id_old;
@@ -10627,7 +10620,6 @@ NEXT_SEED:                                      while ($xy > $tt)
                                                                         my $gap_max= ($insert_size*1.38)-(2*$read_length)+$xy + $overlap-16 + $yx; 
                                                                         $contig_gap_min{$id."_".$contig_count} = $gap_min;
                                                                         $contig_gap_max{$id."_".$contig_count} = $gap_max;
-
                                                                         goto ITERATION;
 SAME_ID:       
                                                                     }
@@ -10658,7 +10650,7 @@ SAME_ID:
                                                         $contig_num++;
                                                     }
                                                 }
-                                                if (exists($old_id{$id}) && $type eq "chloro")
+                                                elsif (exists($old_id{$id}) && $type eq "chloro")
                                                 {
                                                     my $read_tmp = $seed_old{$old_id{$id}};
                                                                                                     
@@ -10732,6 +10724,56 @@ SAME_ID:
                                                         $finish = "yes";
                                                     }
                                                    
+                                                }
+                                                elsif ($type ne "chloro")
+                                                {
+                                                    if (length($read) > 250)
+                                                    {
+                                                        if ($id =~ m/(.*_|)(\d+)$/)
+                                                        {
+                                                            my $check_id = $2;
+                                                            if ($contig_num eq '1')
+                                                            {       
+                                                                $contigs{$contig_num."+".$check_id} = $read;
+                                                                my $start_point = '500';
+                                                                my $check_repetitive = '3';
+                                                                                                    
+                                                                while ($check_repetitive > 2)
+                                                                {
+                                                                    my $check_for_rep = substr $read, 0, $start_point+200;
+                                                                    my $repetitive = substr $check_for_rep, $start_point, 15;
+                                                                    $check_repetitive = $check_for_rep =~ s/$repetitive/$repetitive/g;
+                                                                    {
+                                                                        $start_point += 20;
+                                                                        print OUTPUT5 "DETECT_REPETITIVE_IN_START_SEQUENCE\n";
+                                                                    } 
+                                                                }
+                                                                $first_contig_start = substr $read, $start_point, $overlap;
+                                                                my $check_start = $first_contig_start =~ tr/N|K|R|Y|S|W|M|B|D|H|V|\.//;
+                                                                while ($check_start > 0)
+                                                                {
+                                                                    $start_point += 10;
+                                                                    $first_contig_start = substr $read, $start_point, $overlap;
+                                                                    $check_start = $first_contig_start =~ tr/N|K|R|Y|S|W|M|B|D|H|V|\.//;
+                                                                }
+                                                                print OUTPUT5 $first_contig_start." CONTIG_START\n";
+                                                                foreach my $seedie (keys %seed)
+                                                                {
+                                                                    my $seedie_part = substr $seed{$seedie}, 0, 1000;
+                                                                    my $check_seedie = $seedie_part =~ s/$first_contig_start/$first_contig_start/;
+                                                                    if ($check_seedie > 0)
+                                                                    {
+                                                                        delete $seed{$seedie};
+                                                                    }
+                                                                }
+                                                            }
+                                                            else
+                                                            {
+                                                               $contigs{$contig_num."+".$check_id} = $read; 
+                                                            }
+                                                            $contig_num++;
+                                                        }
+                                                    }
                                                 }
                                             }
                                             elsif($circle eq "yes")
@@ -11320,7 +11362,8 @@ FINISH2:
                                                 {
                                                     print OUTPUT7 "\n(Contigs broken up by long homopolymer stretches are linked together as one contig with 15 N's, they can be merged manually in some cases)\n\n";
                                                 }                                     
-                                                
+                                                my %row_circle;
+                                                undef %row_circle;
 TERMINATE:                                      while (keys %node)
                                                 {
                                                     foreach my $h1 (keys %node)
@@ -11343,6 +11386,7 @@ TERMINATE:                                      while (keys %node)
                                                             elsif ($tree{$node{$h1}} eq "END")
                                                             {
                                                                 delete $node{$h1};
+                                                                $row_circle{$h1} = $row{$h1};
                                                             }
                                                             elsif ($tree{$node{$h1}} =~ m/(.*)\*(.*)/)
                                                             {                                                          
@@ -11361,7 +11405,7 @@ TERMINATE:                                      while (keys %node)
                                                                     if ($id_node eq $node{$h1})
                                                                     {
                                                                     }
-                                                                    elsif ($count1 > 1)
+                                                                    elsif ($count1 > 0)
                                                                     {
                                                                     }
                                                                     else
@@ -11409,15 +11453,16 @@ TERMINATE:                                      while (keys %node)
                                                            delete $row{$h1};
                                                         }
                                                         $terminate++;
-                                                        if ($terminate > 200)
+                                                        if ($terminate > 1500)
                                                         {
+                                                            delete $row{$h1};
                                                             last TERMINATE;
                                                         } 
                                                     }
                                                 }
                                                 my $g = '1';
 
-                                                foreach my $row (keys %row)
+                                                foreach my $row (keys %row_circle)
                                                 {
                                                     foreach my $contig_num (keys %contig_num)
                                                     {
@@ -11447,32 +11492,50 @@ TERMINATE:                                      while (keys %node)
                                                             else
                                                             {
                                                                 my $end_assembly = substr $assembly, -30;
+                                                                $end_assembly =~ tr/N|K|R|Y|S|W|M|B|D|H|V/\./;
                                                                 my $start_next_contig = substr $contigs2{$cont},0 ,500;
+                                                                $start_next_contig =~ tr/N|K|R|Y|S|W|M|B|D|H|V/\./;
                                                                 my $x1 = length($start_next_contig);
                                                                 $start_next_contig =~ s/.*$end_assembly//;
                                                                 my $x2 = length($start_next_contig);
-                                                                my $next_contig = substr $contigs2{$cont},$x1-$x2;
-                                                                $assembly .= $next_contig;
+                                                                if ($x1-$x2 ne '0')
+                                                                {
+                                                                    my $assembly_tmp = substr $assembly, 0, -($x1-$x2);
+                                                                    $assembly = $assembly_tmp.$contigs2{$cont};
+                                                                }
+                                                                else
+                                                                {
+                                                                    $assembly .= "2RRRRRRRRRRRRRR".$contigs2{$cont};
+                                                                }  
                                                             }
                                                         }
                                                     }
                                                     my $start_assembly = substr $assembly, 50, 30;
+                                                    $start_assembly =~ tr/N|K|R|Y|S|W|M|B|D|H|V/\./;
                                                     my $end_last_contig = substr $assembly, -1000;
+                                                    $end_last_contig =~ tr/N|K|R|Y|S|W|M|B|D|H|V/\./;
                                                     my $x1 = length($end_last_contig);
                                                     $end_last_contig =~ s/$start_assembly.*//;
                                                     my $x2 = length($end_last_contig);
-                                                    my $assembly2 = substr $assembly, 50, -$x1+$x2;
+                                                    my $assembly2;
+                                                    if (-$x1+$x2 ne '0')
+                                                    {
+                                                        $assembly2 = substr $assembly, 50, -$x1+$x2;
+                                                    }
+                                                    else
+                                                    {
+                                                        $assembly2 = $assembly;
+                                                    }  
                                                     $assembly = $assembly2;
                                                     $assembly =~ tr/\./N/;
                                                     
                                                     if (length($assembly) > 500)
                                                     {
                                                         print OUTPUT7 "\n\nOPTION ".$g."\n-------------------\n";
-                                                        $g++;
                                                         print OUTPUT7 "Contig Arrangement : ";
                                                         print OUTPUT7 $row{$row}."\n";
                                                         print OUTPUT7 "Assembly length    : ".length($assembly)." bp\n\n";
-                                                        my @contigs0 = split /R+/, $assembly;
+                                                        my @contigs0 = split /RRRRRRRRRRRRRR/, $assembly;
                                                         my $size_c = @contigs0;
                                                         my $jj = '0';
                                                         my $t ='0';
@@ -11515,14 +11578,42 @@ ORDER:                                                      foreach my $tmp (@or
                                                             
                                                             
                                                             print OUTPUT7 ">Contig ".$order."\n";
+                                                            my $fail = substr $fin, -1;
+                                                            if ($fail eq '2')
+                                                            {
+                                                                substr $fin, -1, 1, "";
+                                                            }
                                                             print OUTPUT7 $fin."\n";
-                                                            if ($size_c > 1 && $jj < $size_c)
+                                                            
+                                                            if ($size_c > 1 && $jj < $size_c && $fail ne '2')
                                                             {
                                                                 print OUTPUT7 "\n-------Repetitive region detected, exact length unknown-------\n\n";
+                                                            }
+                                                            elsif ($size_c > 1 && $jj < $size_c && $fail eq '2')
+                                                            {
+                                                                print OUTPUT7 "\n-------Couldn't merge automatically, try manually-------\n\n";
                                                             }
                                                         }
                                                          
                                                         print OUTPUT7 "\n";
+                                                        
+                                                        my $output_file9  = "Option_".$g."_".$project.".fasta";
+                                                        open(OUTPUT9, ">" .$output_file9) or die "Can't open file $output_file9, $!\n";
+                                                        $assembly =~ tr/L/N/;
+                                                        my @contigs2 = split /R+/, $assembly;
+                                                        my $ww = '0';
+                                                        foreach (@contigs2)
+                                                        {
+                                                            $ww++;
+                                                            my $fin = $_;
+                                                            my $fin2 = $fin;
+                                                            $fin =~ s/(.{1,150})/$1\n/gs;
+                                                                                                     
+                                                            print OUTPUT9 ">Contig".$ww."\n";
+                                                            print OUTPUT9 $fin;
+                                                        }
+                                                        close OUTPUT9;
+                                                        $g++;
                                                     }                                                   
                                                 }
     }
