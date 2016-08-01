@@ -4,10 +4,12 @@
 NOVOPlasty is a de novo assembler for short circular genomes.</br>
 For the moment NOVOPlasty only supports whole genome Illumina paired-end reads as input.
 
-<strong>Last updates: 31/07/16</strong>
+<strong>Last updates: 1/08/16</strong></br>
+- Resolved bug in contig arrangement (some possible arrangement were not shown in the output file 'Merged_contigs...)</br>
+<strong>30/07/16</strong>
 - Improved merging of contigs with the 'chloro2' option
 - Resolved bugs for the 'chloro2' option
-- Generates a seperate fasta file for each assembly option (for 'chloro2' and 'mito')
+- Generates a seperate fasta file for each assembly option (for 'chloro2' and 'mito')</br>
 
 
 
