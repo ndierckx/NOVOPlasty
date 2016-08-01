@@ -7,6 +7,7 @@
 #         See file LICENSE for details.              #
 ######################################################
 #           NOVOPlasty - The plastid assembler
+#           nicolasdierckxsens@hotmail.com
 use Getopt::Long;
 use strict;
 
@@ -6930,18 +6931,45 @@ PAIR_OF_PAIR:                           foreach my $rep_pair (keys %repetitive_p
                                             goto REP_PAIR0;
                                         }
                                     }
+                                    my $most_match_max = '0';
+                                    my $id_rep;
+                                    my $rep_pair2;
 REP_PAIR1:                          foreach my $rep_pair (keys %rep_pair)
+                                    {
+                                        my $part2 = substr $rep_pair, ($read_length/3)*2;
+                                        my $s = '0';
+                                        my $most_match_total = '0';
+                                        while ($s < length($part2)-12)
+                                        {
+                                            my $part2b = substr $rep_pair, $s, 12;
+                                            foreach my $rep_pair (keys %rep_pair)
+                                            {
+                                                my $check = $rep_pair =~ s/$part2b/$part2b/;
+                                                if ($check > 0)
+                                                {
+                                                    $most_match_total++;
+                                                }
+                                            }
+                                            $s += 5;
+                                        }
+                                        if ($most_match_total > $most_match_max)
+                                        {
+                                            $most_match_max = $most_match_total;
+                                            $id_rep = $rep_pair{$rep_pair};
+                                            $rep_pair2 = $rep_pair;
+                                        }
+                                    }
+                                    if ($id_rep ne "")
                                     {
                                                 $noforward{$id} = "stop";
                                                 $noforward = "stop";
-                                                my $id_rep = $rep_pair{$rep_pair};
-                                                $rep_pair = correct ($rep_pair);
+                                                
                                                 $noback{$id_rep} = "stop";
-                                                $seed{$id_rep} = $rep_pair;
+                                                $seed{$id_rep} = $rep_pair2;
                                                 $nosecond{$id} = undef;
                                                 $nosecond = "yes";
                                                 $insert_size2{$id_rep} = $insert_size;
-                                                $position{$id_rep} = length($rep_pair);
+                                                $position{$id_rep} = length($rep_pair2);
                                                 $tree{$id} = $id_rep."REP";
                                                 
                                                 $read_new = $read;     
