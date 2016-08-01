@@ -7,7 +7,6 @@
 #         See file LICENSE for details.              #
 ######################################################
 #           NOVOPlasty - The plastid assembler
-#           nicolasdierckxsens@hotmail.com
 use Getopt::Long;
 use strict;
 
@@ -2641,7 +2640,7 @@ ALREADY_X0b:  while ($v0b < $u0b)
 
             if ($y eq '1' || ($correct_after_split eq "yesssss" && length($read) <= $read_length+1))
             {   
-                correct ($read);
+                $read = correct ($read);
             }
             delete $old_id2{$id};
         }
@@ -3915,7 +3914,7 @@ REPEAT:
                                                 
                                                 if ($use_regex eq "yes")
                                                 {
-                                                    my %list = build_partial2b $read_end_e;
+                                                    my %list = build_partial3b $read_end_e;
                                                 
                                                     foreach my $list (keys %list)
                                                     {
@@ -3983,6 +3982,75 @@ REPEAT:
                                                                 }
                                                             }
                                                     } 
+                                                }
+                                                if ($last_chance eq "yes")
+                                                {
+                                                    my %read_end_d;
+                                                    undef %read_end_d;
+                                                
+                                                    if ($contain_dot_short_end2 > 0 || $containX_short_end2 > 0)
+                                                    {
+                                                        my $dot = $read_end_d =~ tr/\.//;
+                                                        my $X = $read_end_d =~ tr/X|\*//;
+                                                        if ($X > 0 || $dot > 0)
+                                                        {
+                                                            %read_end_d = build_partial3b $read_end_d, "";
+                                                        }
+                                                        else
+                                                        {
+                                                            $read_end_d{$read_end_d} = undef;
+                                                        }
+                                                    }
+                                                    else
+                                                    {
+                                                        $read_end_d{$read_end_d} = undef;
+                                                    }
+                                                    
+                                                    my $X_test = $read_end_d =~ tr/\./\./;
+                                                    my %list;
+                                                    undef %list;
+                                                    if ($X_test < 2)
+                                                    {
+                                                        %list = build_partial2b %read_end_d;
+                                                    }
+                                                    else
+                                                    {
+                                                        %list = %read_end_d;
+                                                    }
+                                                        foreach my $list (keys %list) 
+                                                        {
+                                                            if (exists($hash2b{$list}))
+                                                            {
+                                                                my $search = $hash2b{$list};
+                                                                
+                                                                $search = substr $search, 1;
+                                                                my @search = split /,/,$search;
+                                                                            
+                                                                foreach my $search (@search)
+                                                                {
+                                                                    my $search_tmp = substr $search, 0, -1;
+                                                                    my $search_end = substr $search, -1;
+                                                                    if (exists($hash{$search_tmp}))
+                                                                    {
+                                                                        my @search_tmp = split /,/,$hash{$search_tmp};
+                                                                        my $found;
+                                                                        if ($search_end eq "1")
+                                                                        {
+                                                                            $found = $search_tmp[0];
+                                                                        }
+                                                                        elsif ($search_end eq "2")
+                                                                        {
+                                                                            $found = $search_tmp[1];
+                                                                        }
+                                                                        if ($encrypt eq "yes")
+                                                                        {
+                                                                            $found = decrypt $found;
+                                                                        }
+                                                                        $merged_match{$search} = $found;
+                                                                    }
+                                                                }
+                                                            }
+                                                        }
                                                 }
                                             $s++;
                                         }
@@ -6866,8 +6934,8 @@ REP_PAIR1:                          foreach my $rep_pair (keys %rep_pair)
                                     {
                                                 $noforward{$id} = "stop";
                                                 $noforward = "stop";
-                                                correct ($rep_pair);
                                                 my $id_rep = $rep_pair{$rep_pair};
+                                                $rep_pair = correct ($rep_pair);
                                                 $noback{$id_rep} = "stop";
                                                 $seed{$id_rep} = $rep_pair;
                                                 $nosecond{$id} = undef;
@@ -7031,8 +7099,8 @@ REP_CHECK0:                         foreach my $exts (keys %extensions_original)
                                     {
                                                 $noforward{$id} = "stop";
                                                 $noforward = "stop";
-                                                correct ($rep_pair);
                                                 my $id_rep = $rep_check{$rep_pair};
+                                                $rep_pair = correct ($rep_pair);
                                                 $noback{$id_rep} = "stop";
                                                 $seed{$id_rep} = $rep_pair;
                                                 $nosecond{$id} = undef;
@@ -11390,11 +11458,10 @@ TERMINATE:                                      while (keys %node)
                                                             }
                                                             elsif ($tree{$node{$h1}} =~ m/(.*)\*(.*)/)
                                                             {                                                          
-                                                                my $count1 = '0';
-                                                                my $count2 = '0';
                                                                 my @id_node = split /\*/, $tree{$node{$h1}};
                                                                 foreach my $id_node (@id_node)
                                                                 {
+                                                                    my $count1 = '0';
                                                                     foreach my $row_n (@row_nodes)
                                                                     {
                                                                         if ($id_node eq $row_n)
