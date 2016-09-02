@@ -1,5 +1,6 @@
 
-#!/usr/bin/perl -w
+#!/usr/bin/perl
+
 ######################################################
 #         SOFTWARE COPYRIGHT NOTICE AGREEMENT        #
 #  Copyright (C) {2015-2016}  {Nicolas Dierckxsens}  #
