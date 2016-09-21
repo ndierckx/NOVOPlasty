@@ -13,6 +13,12 @@ For the moment NOVOPlasty only supports whole genome Illumina paired-end reads a
 
 
 
+# Cite
+
+The manuscript of NOVOPlasty will be available soon.
+For now you can cite the github.
+
+
 # Contact
 
 Any issues/requests/problems/comments can be posted on [Github issues](https://github.com/ndierckx/NOVOPlasty/issues) and I will try to reply the same day.
@@ -63,13 +69,13 @@ Perl
 &nbsp;&nbsp;&nbsp;Do NOT filter or trim the reads! Use the raw whole genome dataset!</br>
 &nbsp;&nbsp;&nbsp;You can subsample to speed up the process and to reduce the memory requirements. But it is recommended </br> &nbsp;&nbsp;&nbsp;to use as much reads as possible, especially when the organelle genome contains AT-rich stretches.
 
-&nbsp;&nbsp;&nbsp;Recommended K-mer lengths:</br>
+&nbsp;&nbsp;&nbsp;Recommended maximum K-mer lengths:</br>
 
 &nbsp;&nbsp;&nbsp;100 bp reads: +/- 39</br>
 &nbsp;&nbsp;&nbsp;150 bp reads: +/- 53</br>
-&nbsp;&nbsp;&nbsp;250 bp reads: +/- 73</br>
+&nbsp;&nbsp;&nbsp;250 bp reads: +/- 83</br>
 
-&nbsp;&nbsp;&nbsp;You can always try different K-mer's. In the case of low coverage problems, it's recommended to lower the K-mer.</br>
+&nbsp;&nbsp;&nbsp;You can always try different K-mer's. In the case of low coverage problems or an invalid seed error message, it's recommended to lower the K-mer.</br>
 
 <strong>4\. Output files</strong>
 
