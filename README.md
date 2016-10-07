@@ -72,8 +72,8 @@ Perl
 &nbsp;&nbsp;&nbsp;Recommended maximum K-mer lengths:</br>
 
 &nbsp;&nbsp;&nbsp;100 bp reads: +/- 39</br>
-&nbsp;&nbsp;&nbsp;150 bp reads: +/- 53</br>
-&nbsp;&nbsp;&nbsp;250 bp reads: +/- 83</br>
+&nbsp;&nbsp;&nbsp;150 bp reads: +/- 49</br>
+&nbsp;&nbsp;&nbsp;250 bp reads: +/- 73</br>
 
 &nbsp;&nbsp;&nbsp;You can always try different K-mer's. In the case of low coverage problems or an invalid seed error</br> &nbsp;&nbsp;&nbsp;message, it's recommended to lower the K-mer (set to 39)!!!.</br>
 
