@@ -15,7 +15,7 @@ For the moment NOVOPlasty only supports whole genome Illumina paired-end reads a
 
 # Cite
 
-The manuscript of NOVOPlasty will be available soon.
+The manuscript of NOVOPlasty is accepted by <i>Nucleic Acids Research</i> and will be available soon.
 For now you can cite the github.
 
 
