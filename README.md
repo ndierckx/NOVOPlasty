@@ -75,9 +75,9 @@ Perl
 &nbsp;&nbsp;&nbsp;150 bp reads: +/- 53</br>
 &nbsp;&nbsp;&nbsp;250 bp reads: +/- 83</br>
 
-&nbsp;&nbsp;&nbsp;You can always try different K-mer's. In the case of low coverage problems or an invalid seed error message, it's recommended to lower the K-mer.</br>
+&nbsp;&nbsp;&nbsp;You can always try different K-mer's. In the case of low coverage problems or an invalid seed error</br> &nbsp;&nbsp;&nbsp;message, it's recommended to lower the K-mer (set to 39)!!!.</br>
 
-<strong>4\. Output files</strong>
+&nbsp;&nbsp;&nbsp;<strong>4\. Output files</strong>
 
 &nbsp;&nbsp;&nbsp;NOVOPlasty outputs four types of files:
 
