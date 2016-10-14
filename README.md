@@ -16,7 +16,7 @@ For the moment NOVOPlasty only supports whole genome Illumina paired-end reads a
 # Cite
 
 The manuscript of NOVOPlasty is accepted by <i>Nucleic Acids Research</i> and will be available soon.
-For now you can cite the github.
+For now you can cite: Dierckxsens N., Mardulyn P. and Smits G. (2016) NOVOPlasty: De novo assembly of organelle genomes from whole genome data. <i>Nucleic Acids Research</i>, in press
 
 
 # Contact
