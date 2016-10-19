@@ -4,7 +4,9 @@
 NOVOPlasty is a de novo assembler for short circular genomes.</br>
 For the moment NOVOPlasty only supports whole genome Illumina paired-end reads as input.
 
-<strong>Last updates: 1/08/16</strong></br>
+<strong>Last updates: 19/10/16 version 1.1</strong></br>
+- Improved seed retrieval: now independant from k-mer (reduced seed error)</br>
+<strong>1/08/16</strong>
 - Resolved bug in contig arrangement (some possible arrangement were not shown in the output file 'Merged_contigs...)</br>
 <strong>30/07/16</strong>
 - Improved merging of contigs with the 'chloro2' option
@@ -75,7 +77,8 @@ Perl
 &nbsp;&nbsp;&nbsp;150 bp reads: +/- 49</br>
 &nbsp;&nbsp;&nbsp;250 bp reads: +/- 73</br>
 
-&nbsp;&nbsp;&nbsp;You can always try different K-mer's. In the case of low coverage problems or an invalid seed error</br> &nbsp;&nbsp;&nbsp;message, it's recommended to lower the K-mer (set to 39)!!!.</br>
+&nbsp;&nbsp;&nbsp;You can always try different K-mer's. In the case of low coverage problems, </br> 
+&nbsp;&nbsp;&nbsp;it's recommended to lower the K-mer (set to 39)!!!.</br>
 
 &nbsp;&nbsp;&nbsp;<strong>4\. Output files</strong>
 
