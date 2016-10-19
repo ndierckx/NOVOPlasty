@@ -1,6 +1,5 @@
 
-#!/usr/bin/perl
-
+#!/usr/bin/perl -w
 ######################################################
 #         SOFTWARE COPYRIGHT NOTICE AGREEMENT        #
 #  Copyright (C) {2015-2016}  {Nicolas Dierckxsens}  #
@@ -1920,9 +1919,14 @@ if ($seed_input_tmp ne "")
     my $build = "";
 REF0:
     my $n = '0';
-    while ($n < length($seed_input_tmp) - $overlap)
+    my $overlap_tmp = $overlap;
+    if ($build eq "yes2" && $overlap > '39')
     {
-        my $first_seed = substr $seed_input_tmp, $n, $overlap;
+        $overlap_tmp = '39';
+    }
+    while ($n < length($seed_input_tmp) - $overlap_tmp)
+    {
+        my $first_seed = substr $seed_input_tmp, $n, $overlap_tmp;
         my %first_seed;
         undef %first_seed;
         if ($build eq "yes")
@@ -1932,6 +1936,17 @@ REF0:
         else
         {
             $first_seed{$first_seed} = undef;
+        }
+        if ($build eq "yes2" && $overlap > '39')
+        {          
+            my @match1 = grep {$_ =~ /.*($first_seed).+$/} keys %hash2b;
+            my @match2 = grep {$_ =~ /.*($first_seed).+$/} keys %hash2c;
+            my @match3 = (@match1,@match2);
+            undef %first_seed;
+            foreach $first_seed (@match3)
+            {
+                $first_seed{$first_seed} = undef;
+            }
         }
 FIRST_SEED2:foreach my $first_seed (keys %first_seed)
         {
@@ -1981,7 +1996,7 @@ FIRST_SEED2:foreach my $first_seed (keys %first_seed)
                             $seed{$seed_input_id} = $seed_input_new2;
                             $read1{$seed_input_new2} =undef;
                             $contig_count{$seed_input_id} = '0';
-                            $position{$seed_input_id} = length ($seed{$seed_input_id});
+                            $position{$seed_input_id} = length($seed{$seed_input_id});
                             $bad_read{$seed_input_id} = "yes";
                             print "\nInitial read retrieved successfully: ".$seed_input_new2."\n";
                             print OUTPUT4 "\nInitial read retrieved successfully: ".$seed_input_new2."\n";
@@ -2053,7 +2068,7 @@ FIRST_SEED2:foreach my $first_seed (keys %first_seed)
                             $seed{$seed_input_id} = $seed_input_new2;
                             $read1{$seed_input_new2} =undef;
                             $contig_count{$seed_input_id} = '0';
-                            $position{$seed_input_id} = length ($seed{$seed_input_id});
+                            $position{$seed_input_id} = length($seed{$seed_input_id});
                             $bad_read{$seed_input_id} = "yes";
                             print "\nInitial read retrieved successfully: ".$seed_input_new2."\n";
                             print OUTPUT4 "\nInitial read retrieved successfully: ".$seed_input_new2."\n";
@@ -2084,6 +2099,11 @@ FIRST_SEED2:foreach my $first_seed (keys %first_seed)
     if ($build ne "yes")
     {
         $build = "yes";
+        goto REF0;
+    }
+    elsif ($build ne "yes2")
+    {
+        $build = "yes2";
         goto REF0;
     }
     else
@@ -3318,12 +3338,12 @@ REPEAT:
                                                 }
                                                 if (keys %contigs)
                                                 {
-                                                    my $total_length = '0';
+                                                    my $total_length = length($read);
                                                     foreach my $contig_tmp (keys %contigs)
                                                     {
                                                         $total_length = $total_length + length($contigs{$contig_tmp});
                                                     }
-                                                    if ($total_length > $genome_range_high + $genome_range_high/2)
+                                                    if ($total_length > $genome_range_high + $genome_range_high/3)
                                                     {
                                                         $circle = "contigs";
                                                         $noback = "stop";
@@ -3331,7 +3351,7 @@ REPEAT:
                                                         $contigs{$contig_num."+".$id} = $read;
                                                         $contig_num++;
                                                         delete $seed{$id};
-                                                         goto SEED;
+                                                         goto FINISH2;
                                                     }
                                                 }
                                                 if (length($read) > $genome_range_high)
@@ -3344,7 +3364,7 @@ REPEAT:
                                                         $contigs{$contig_num."+".$id} = $read;
                                                         $contig_num++;
                                                         delete $seed{$id};
-                                                        goto SEED;
+                                                        goto FINISH2;
                                                     }
                                                     
                                                     
