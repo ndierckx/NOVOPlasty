@@ -8485,7 +8485,7 @@ SKIP_BACK:                                      if ($extension_match ne "NOOO" &
             my $position_SNP3 = $position_back;
             my $pos_SNP3 = '0';
             
-            if ($SNR_read_back ne "" && $SNR_read_back2 ne "" && $last_chance_back ne "yes" && $ext < 10 && $indel_split_back eq '0')
+            if ($SNR_read_back ne "" && $SNR_read_back2 ne "" && $last_chance_back ne "yes" && $ext < 5 && $indel_split_back eq '0')
             {
                 goto AFTER_EXT_BACK;
             }
