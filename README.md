@@ -17,7 +17,8 @@ For the moment NOVOPlasty only supports whole genome Illumina paired-end reads a
 
 # Cite
 
-Dierckxsens N., Mardulyn P. and Smits G. (2016) NOVOPlasty: De novo assembly of organelle genomes from whole genome data. <i>Nucleic Acids Research</i>, doi: 10.1093/nar/gkw955
+<a href="http://nar.oxfordjournals.org/cgi/content/full/gkw955?
+ijkey=Zj72e1zmjReCqRz&keytype=ref ">Dierckxsens N., Mardulyn P. and Smits G. (2016) NOVOPlasty: De novo assembly of organelle genomes from whole genome data. <i>Nucleic Acids Research</i>, doi: 10.1093/nar/gkw955<a>
 
 
 # Getting help
