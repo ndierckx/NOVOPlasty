@@ -17,8 +17,7 @@ For the moment NOVOPlasty only supports whole genome Illumina paired-end reads a
 
 # Cite
 
-The manuscript of NOVOPlasty is accepted by <i>Nucleic Acids Research</i> and will be available soon.
-For now you can cite: Dierckxsens N., Mardulyn P. and Smits G. (2016) NOVOPlasty: De novo assembly of organelle genomes from whole genome data. <i>Nucleic Acids Research</i>, in press
+Dierckxsens N., Mardulyn P. and Smits G. (2016) NOVOPlasty: De novo assembly of organelle genomes from whole genome data. <i>Nucleic Acids Research</i>, doi: 10.1093/nar/gkw955
 
 
 # Contact
@@ -28,6 +27,8 @@ Any issues/requests/problems/comments can be posted on [Github issues](https://g
 Or you can contact me directly through the following email address:
 
 nicolasdierckxsens@hotmail.com 
+
+If your assembly was unsuccessful, you could already add the log file and the configuration file to the mail, this could help me to identify the problem!
 
 <a href="http://ibsquare.be/" target="_blank"><img border="0" src="http://ibsquare.be/sites/default/files/logo_1.png" width="100" height="100" ></a>           
 
