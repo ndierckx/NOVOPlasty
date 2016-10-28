@@ -4,15 +4,11 @@
 NOVOPlasty is a de novo assembler for short circular genomes.</br>
 For the moment NOVOPlasty only supports whole genome Illumina paired-end reads as input.
 
-<strong>Last updates: 19/10/16 version 1.1</strong></br>
+<strong>Last updates: 28/10/16 version 1.2</strong></br>
+- Additional metrics are automatically calculated (Total reads, aligned reads, assembled reads, percentage organelle reads, average organelle coverage)
+- Bugs in contig output fixed
+<strong>19/10/16</strong>
 - Improved seed retrieval: now independent from k-mer (reduced seed error)</br>
-<strong>1/08/16</strong>
-- Resolved bug in contig arrangement (some possible arrangement were not shown in the output file 'Merged_contigs...)</br>
-<strong>30/07/16</strong>
-- Improved merging of contigs with the 'chloro2' option
-- Resolved bugs for the 'chloro2' option
-- Generates a seperate fasta file for each assembly option (for 'chloro2' and 'mito')</br>
-
 
 
 # Cite
