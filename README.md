@@ -6,7 +6,7 @@ For the moment NOVOPlasty only supports whole genome Illumina paired-end reads a
 
 <strong>Last updates: 28/10/16 version 1.2</strong></br>
 - Additional metrics are automatically calculated (Total reads, aligned reads, assembled reads, percentage organelle reads, average organelle coverage)
-- Bugs in contig output fixed
+- Bugs in contig output fixed</br>
 <strong>19/10/16</strong>
 - Improved seed retrieval: now independent from k-mer (reduced seed error)</br>
 
