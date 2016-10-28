@@ -1927,7 +1927,6 @@ REF0:
     {
         $overlap_tmp = '39';
         print OUTPUT5 "\n\nGREP-SEED\n\n";
-        print "\n\nGREP-SEED\n\n";
     }
     while ($n < length($seed_input_tmp) - $overlap_tmp)
     {
