@@ -93,7 +93,7 @@ Perl
 
 &nbsp;&nbsp;&nbsp;3\. Contigs_projectname.txt
 
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; This file contains the contigs of the assemblies that were not circularized in 'chloro2' or 'mito' stand. 
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; This file contains the contigs of the assemblies that were not circularized in 'chloro2' or 'mito' stand.</br> 
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; These contigs could still be circularized in the 'Merged_contigs' file.
 
 &nbsp;&nbsp;&nbsp;4\. Merged_contigs_projectname.txt
