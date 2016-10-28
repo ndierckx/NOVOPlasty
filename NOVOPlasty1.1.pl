@@ -6,7 +6,7 @@
 #              All Rights Reserved                   #
 #         See file LICENSE for details.              #
 ######################################################
-#           NOVOPlasty - The plastid assembler
+#           NOVOPlasty - The Organelle Assembler
 #           nicolasdierckxsens@hotmail.com
 use Getopt::Long;
 use strict;
@@ -133,6 +133,10 @@ my %filter_before1;
 my %filter_before2;
 my %nosecond;
 my %repetitive_pair;
+my %count_reads;
+my %count_reads_all;
+my $assembly_length = '1';
+my $assembly_success;
 
 my $reads12;
 my $reads1;
@@ -279,13 +283,13 @@ close CONFIG;
 my $USAGE = 	"\nUsage: perl NOVOPlasty.pl -c config_example.txt";
 
 print "\n\n-----------------------------------------------";
-print "\nNOVOPlasty: The Plastid Assembler\n";
-print "Version 1.0\n";
+print "\nNOVOPlasty: The Organelle Assembler\n";
+print "Version 1.2\n";
 print "Author: Nicolas Dierckxsens, (c) 2015-2016\n";
 print "-----------------------------------------------\n\n";
 print OUTPUT4 "\n\n-----------------------------------------------";
-print OUTPUT4 "\nNOVOPlasty: The Plastid Assembler\n";
-print OUTPUT4 "Version 1.0\n";
+print OUTPUT4 "\nNOVOPlasty: The Organelle Assembler\n";
+print OUTPUT4 "Version 1.2\n";
 print OUTPUT4 "Author: Nicolas Dierckxsens, (c) 2015-2016\n";
 print OUTPUT4 "-----------------------------------------------\n\n";
 
@@ -1632,7 +1636,6 @@ open(INPUT, $reads_tmp[0]) or die "No input file found, make sure it are fastq f
 open(INPUT3, $seed_input0)  or die "Can't open the seed file, $!\n";
 open(OUTPUT4, ">" .$output_file4) or die "Can't open file $output_file4, $!\n";
 open(OUTPUT6, ">" .$output_file6) or die "Can't open file $output_file6, $!\n";
-open(OUTPUT7, ">" .$output_file7) or die "Can't open file $output_file7, $!\n";
 
 if ($print_log eq '1' || $print_log eq '2')
 {
@@ -1920,9 +1923,11 @@ if ($seed_input_tmp ne "")
 REF0:
     my $n = '0';
     my $overlap_tmp = $overlap;
-    if ($build eq "yes2" && $overlap > '39')
+    if ($build eq "yes2" && $overlap > 39)
     {
         $overlap_tmp = '39';
+        print OUTPUT5 "\n\nGREP-SEED\n\n";
+        print "\n\nGREP-SEED\n\n";
     }
     while ($n < length($seed_input_tmp) - $overlap_tmp)
     {
@@ -2291,10 +2296,8 @@ if ($bad_read ne "yes" || $sc eq '1')
 {
     foreach $seed_id (keys %seed)
     {
-        print "\nStart Assembly...\n";
-        print "\n----------------------------------------------------------------------------------------------------\n\n";
-        print OUTPUT4 "\nStart Assembly...\n";
-        print OUTPUT4 "\n----------------------------------------------------------------------------------------------------\n\n";
+        print "\nStart Assembly...\n\n";
+        print OUTPUT4 "\nStart Assembly...\n\n";    
     }
 }
 ITERATION: while ($y < $iterations)
@@ -4092,6 +4095,16 @@ REPEAT:
                 }
                 print OUTPUT5 $mmr." MATCH_ARRAY_READ\n";
                 print OUTPUT5 $mmbr." MATCH_ARRAY_BACK_READ\n";
+            }
+            foreach my $add_read2 (keys %merged_match)
+            {
+                my $add_read = substr $add_read2, 0, -1;
+                $count_reads_all{$add_read} = undef;
+            }
+            foreach my $add_read2 (keys %merged_match_back)
+            {
+                my $add_read = substr $add_read2, 0, -1;
+                $count_reads_all{$add_read} = undef;
             }
     
 REGEX:
@@ -6384,7 +6397,7 @@ CORRECT:            my $contig_id2_tmp = substr $contig_id2, 0,-1;
                                         $first_contig_start = substr $read_tmp, $start_point, $overlap;
                                         $check_start = $first_contig_start =~ tr/N|K|R|Y|S|W|M|B|D|H|V|\.//;
                                     }
-                                    print OUTPUT5 $first_contig_start." CONTIG_START\n";
+                                    print OUTPUT5 $first_contig_start." CONTIG_START1\n";
                                     foreach my $seedie (keys %seed)
                                     {
                                         my $seedie_part = substr $seed{$seedie}, 0, 1000;
@@ -6430,7 +6443,7 @@ CORRECT:            my $contig_id2_tmp = substr $contig_id2, 0,-1;
                                     $first_contig_start = substr $read, $start_point, $overlap;
                                     $check_start = $first_contig_start =~ tr/N|K|R|Y|S|W|M|B|D|H|V|\.//;
                                 }
-                                print OUTPUT5 $first_contig_start." CONTIG_START\n";
+                                print OUTPUT5 $first_contig_start." CONTIG_START2\n";
                                 foreach my $seedie (keys %seed)
                                 {
                                     my $seedie_part = substr $seed{$seedie}, 0, 1000;
@@ -7025,7 +7038,7 @@ REP_PAIR1:                          foreach my $rep_pair (keys %rep_pair)
                                                                 $first_contig_start = substr $read, $start_point, $overlap;
                                                                 $check_start = $first_contig_start =~ tr/N|K|R|Y|S|W|M|B|D|H|V|\.//;
                                                             }
-                                                            print OUTPUT5 $first_contig_start." CONTIG_START\n";
+                                                            print OUTPUT5 $first_contig_start." CONTIG_START3\n";
                                                             foreach my $seedie (keys %seed)
                                                             {
                                                                 my $seedie_part = substr $seed{$seedie}, 0, 1000;
@@ -7041,6 +7054,15 @@ REP_PAIR1:                          foreach my $rep_pair (keys %rep_pair)
                                                             $contigs{$contig_num."+".$id} = $read;
                                                         }
                                                         $contig_num++;
+                                                        
+                                                        print OUTPUT5 ">".$id."\n\n";
+                                                        print OUTPUT5 $read."\n\n";
+                                                        if ($type eq 'chloro')
+                                                        {
+                                                            print OUTPUT4 "\n\n\n!!!!!Assembly terminated due to long repetitive regions, please use 'chloro2' setting!!!!!\n\n\n";
+                                                            print "\n\n\n!!!!!Assembly terminated due to long repetitive regions, please use 'chloro2' setting!!!!!\n\n\n";
+                                                            goto FINISH2;
+                                                        }
 
                                                     delete $seed{$id};
                                                     if (!keys %seed)
@@ -7192,7 +7214,7 @@ REP_CHECK0:                         foreach my $exts (keys %extensions_original)
                                                                 $first_contig_start = substr $read, $start_point, $overlap;
                                                                 $check_start = $first_contig_start =~ tr/N|K|R|Y|S|W|M|B|D|H|V|\.//;
                                                             }
-                                                            print OUTPUT5 $first_contig_start." CONTIG_START\n";
+                                                            print OUTPUT5 $first_contig_start." CONTIG_START4\n";
                                                             foreach my $seedie (keys %seed)
                                                             {
                                                                 my $seedie_part = substr $seed{$seedie}, 0, 1000;
@@ -7967,6 +7989,14 @@ EXTEND_READ:
                                                 $last_chance = "";
                                                                         
                                                 $id_test = $id;
+                                                if ($split eq "")
+                                                {
+                                                    foreach my $add_read2 (keys %extensions)
+                                                    {
+                                                        my $add_read = substr $extensions{$add_read2}, 0, -1;
+                                                        $count_reads{$add_read} = undef;
+                                                    }
+                                                }
                                             }
                                             elsif ($use_regex eq "" && $indel_split > 0)
                                             {                                              
@@ -10305,6 +10335,7 @@ AFTER_EXT_BACK:
                                                     if ($best_extension =~ m/(.*?(AAAAAA|CCCCCC|GGGGGG|TTTTTT)).*/)
                                                     {
                                                         $best_extension = $1;
+                                                        print OUTPUT5 reverse($best_extension)." BEST_EXTENSION_SHORT_BACK\n\n";
                                                     }
                                                 }
                                             }
@@ -10334,7 +10365,16 @@ AFTER_EXT_BACK:
                                                     delete $before_back{$id};
                                                 }   
                                                 
-                                                $id_test = $id;                                               
+                                                $id_test = $id;
+
+                                                if ($split eq "")
+                                                {
+                                                    foreach my $add_read2 (keys %extensions)
+                                                    {
+                                                        my $add_read = substr $extensions{$add_read2}, 0, -1;
+                                                        $count_reads{$add_read} = undef;
+                                                    }
+                                                }
                                             }
                                             elsif ($check_before_end_back ne "")
                                             {
@@ -10446,7 +10486,7 @@ AFTER_EXT_BACK:
                                                                 $first_contig_start = substr $read, $start_point, $overlap;
                                                                 $check_start = $first_contig_start =~ tr/N|K|R|Y|S|W|M|B|D|H|V|\.//;
                                                             }
-                                                            print OUTPUT5 $first_contig_start." CONTIG_START\n";
+                                                            print OUTPUT5 $first_contig_start." CONTIG_START5\n";
                                                             foreach my $seedie (keys %seed)
                                                             {
                                                                 my $seedie_part = substr $seed{$seedie}, 0, 1000;
@@ -10581,7 +10621,7 @@ FINISH:
                                                                     $first_contig_start = substr $read, $start_point, $overlap;
                                                                     $check_start = $first_contig_start =~ tr/N|K|R|Y|S|W|M|B|D|H|V|\.//;
                                                                 }
-                                                                print OUTPUT5 $first_contig_start." CONTIG_START\n";
+                                                                print OUTPUT5 $first_contig_start." CONTIG_START6\n";
                                                                 
                                                                 foreach my $seedie (keys %seed)
                                                                 {
@@ -10873,7 +10913,7 @@ SAME_ID:
                                                                     $first_contig_start = substr $read, $start_point, $overlap;
                                                                     $check_start = $first_contig_start =~ tr/N|K|R|Y|S|W|M|B|D|H|V|\.//;
                                                                 }
-                                                                print OUTPUT5 $first_contig_start." CONTIG_START\n";
+                                                                print OUTPUT5 $first_contig_start." CONTIG_START7\n";
                                                                 foreach my $seedie (keys %seed)
                                                                 {
                                                                     my $seedie_part = substr $seed{$seedie}, 0, 1000;
@@ -10909,10 +10949,10 @@ SAME_ID:
                                                 print "\b" x length($progress_before);
                                                 print ' ' x length($progress_before);
                                                 print "\b" x length($progress_before);
-                                                print "\nAssembly ".$option." finished successfully: The genome has been circularized\n\n";
-                                                print OUTPUT4 "\nAssembly ".$option." finished successfully: The genome has been circularized\n\n";
-                                                print OUTPUT5 "\nAssembly ".$option." finished successfully: The genome has been circularized\n\n";
-
+                                                print "\n-----------------Assembly ".$option." finished successfully: The genome has been circularized-----------------\n\n";
+                                                print OUTPUT4 "\n-----------------Assembly ".$option." finished successfully: The genome has been circularized-----------------\n\n";
+                                                print OUTPUT5 "\n-----------------Assembly ".$option." finished successfully: The genome has been circularized-----------------\n\n";
+                                                $assembly_length = '1';            
                                                 foreach (@contigs)
                                                 {
                                                     $l++;
@@ -10945,135 +10985,30 @@ SAME_ID:
                                                     {
                                                         $miminum_contig = length($fin2);
                                                     }
-                                                    print "Contig ".$l."           : ".length($fin2)." bp\n";
-                                                }                                              
+                                                    print "Contig ".$l."                  : ".length($fin2)." bp\n";
+                                                    print OUTPUT4 "Contig ".$l."                  : ".length($fin2)." bp\n";
+                                                    $assembly_length += length($fin2);
+                                                }
+                                                $assembly_success = "yes";
                                                 if ($y > $startprint2)
                                                 {                                                                                 
                                                     print OUTPUT5 ">".$id."\n";
                                                     print OUTPUT5 $read."\n\n\n";
                                                 }
-                                                print "\nTotal contigs          : ".$l."\n";
-                                                print "Largest contig         : ".$largest_contig." bp\n";
-                                                print "Smallest contig        : ".$miminum_contig." bp\n";
-                                                print "Average insert size    : ".$insert_size." bp\n\n";
-                                                print "----------------------------------------------------------------------------------------------------\n\n";
-                                                print OUTPUT4 "\nTotal contigs          : ".$l."\n";
-                                                print OUTPUT4 "Largest contig         : ".$largest_contig." bp\n";
-                                                print OUTPUT4 "Smallest contig        : ".$miminum_contig." bp\n";
-                                                print OUTPUT4 "Average insert size    : ".$insert_size." bp\n\n";
-                                                print OUTPUT4 "----------------------------------------------------------------------------------------------------\n\n";
+                                                
+                                                print "\nTotal contigs              : ".$l."\n";
+                                                print "Largest contig             : ".$largest_contig." bp\n";
+                                                print "Smallest contig            : ".$miminum_contig." bp\n";
+                                                print "Average insert size        : ".$insert_size." bp\n\n";
+                                                print OUTPUT4 "\nTotal contigs              : ".$l."\n";
+                                                print OUTPUT4 "Largest contig             : ".$largest_contig." bp\n";
+                                                print OUTPUT4 "Smallest contig            : ".$miminum_contig." bp\n";
+                                                print OUTPUT4 "Average insert size        : ".$insert_size." bp\n\n";
                                                 $option++;
                                                 close OUTPUT;
                                                 $finish = "yes";
                                             }
-                                            elsif ($circle eq "contigs")
-                                            {
-                                                foreach my $seed_id_tmp (keys %seed)
-                                                {
-                                                    if (length($seed{$seed_id_tmp}) > 250)
-                                                    {
-                                                        $contigs{$contig_num."+".$seed_id_tmp} = $seed{$seed_id_tmp};
-                                                        $contig_num++; 
-                                                    }
-                                                    delete $seed{$seed_id_tmp};
-                                                }
-                                                
-                                                my $output_file2  = "Uncircularized_assemblies_".$project.".fasta";
-                                                open(OUTPUT2, ">" .$output_file2) or die "Can't open file $output_file2, $!\n";
-                                                
-                                                print "\b" x length($progress_before);
-                                                print ' ' x length($progress_before);
-                                                print "\b" x length($progress_before);
-                                                print "\n\nAssembly ".$option." finished incomplete: The genome has not been circularized\n\n";
-                                                print OUTPUT4 "\n\nAssembly ".$option." finished incomplete: The genome has not been circularized\n\n";
-                                                print OUTPUT5 "\n\nAssembly ".$option." finished incomplete: The genome has not been circularized1\n\n";
-                                                
-                                                delete $seed{$id};
-                                                my $l = '0';
-                                                my $largest_contig = '0';
-                                                my $miminum_contig = '100000000000000000000000000000';
-                                                
-                                                foreach my $contig_tmp (keys %contigs)
-                                                {
-                                                    if ($contig_tmp =~ m/(\d+)\+*\d*/)
-                                                    {
-                                                        my $contig_tmp3 = $1;
-                                                        if ($contig_tmp3 < 10)
-                                                        {
-                                                            $contigs{"0".$contig_tmp} = $contigs{$contig_tmp};
-                                                            delete $contigs{$contig_tmp};
-                                                        }
-                                                    }
-                                                }
-                                                foreach my $contig_tmp (sort keys %contigs)
-                                                {
-                                                    my $contig_tmp2;
-                                                    if ($contig_tmp =~ m/(\d+)\+*\d*/)
-                                                    {
-                                                        $contig_tmp2 = $1;
-                                                    }
-                                                    $read = $contigs{$contig_tmp};
-                                                    $read =~ tr/\./N/;
-                                                    $read =~ tr/X//d;
-                                                    my @contigs = split /L+/, $read;
-                                                    my $jj = '0';
-                                                    foreach (@contigs)
-                                                    {
-                                                        $l++;
-                                                        $jj++;
-                                                        my $fin = $_;
-                                                        my $fin2 = $fin;
-                                                        $fin =~ s/(.{1,150})/$1\n/gs;
-                                                        
-                                                        if ($jj > 1)
-                                                        {
-                                                            print "Estimated gap      : ".$contig_gap_min{$id."_".($jj-1)}." bp to ".$contig_gap_max{$id."_".($jj-1)}." bp";
-                                                            print OUTPUT4 "Estimated gap      : ".$contig_gap_min{$id."_".($jj-1)}." bp to ".$contig_gap_max{$id."_".($jj-1)}." bp";
-                                                            if ($contig_gap_min{$id."_".($jj-1)} < 0)
-                                                            {
-                                                                print " (Check manually if the two contigs overlap to merge them together!)\n";
-                                                                print OUTPUT4 " (Check manually if the two contigs overlap to merge them together!)\n";
-                                                            }
-                                                            else
-                                                            {
-                                                                print "\n";
-                                                                print OUTPUT4 "\n";
-                                                            }
-                                                        }                                          
-                                                        print OUTPUT2 ">Contig".$contig_tmp."\n";
-                                                        print OUTPUT2 $fin;
-                                                        if (length($fin2) > $largest_contig)
-                                                        {
-                                                            $largest_contig = length($fin2);
-                                                        }
-                                                        if (length($fin2) < $miminum_contig)
-                                                        {
-                                                            $miminum_contig = length($fin2);
-                                                        }
-                                                        print "Contig ".$contig_tmp2."           : ".length($fin2)." bp\n";
-                                                        print OUTPUT4 "Contig ".$contig_tmp2."           : ".length($fin2)." bp\n";
-                                                    }
-                                                    if ($y > $startprint2)
-                                                    {                                                                                 
-                                                        print OUTPUT5 ">Contig".$contig_tmp."\n";
-                                                        print OUTPUT5 $read."\n";
-                                                    }
-                                                }
-                                                print "\nTotal contigs          : ".$l."\n";
-                                                print "Largest contig         : ".$largest_contig." bp\n";
-                                                print "Smallest contig        : ".$miminum_contig." bp\n";
-                                                print "Average insert size    : ".$insert_size." bp\n\n";
-                                                print "----------------------------------------------------------------------------------------------------\n\n";
-                                                print OUTPUT4 "\nTotal contigs          : ".$l."\n";
-                                                print OUTPUT4 "Largest contig         : ".$largest_contig." bp\n";
-                                                print OUTPUT4 "Smallest contig        : ".$miminum_contig." bp\n";
-                                                print OUTPUT4 "Average insert size    : ".$insert_size." bp\n\n";
-                                                print OUTPUT4 "----------------------------------------------------------------------------------------------------\n\n";
-                                                $option++;
-                                                close OUTPUT2;
-                                                $finish = "yes";
-                                            }
-                                            else
+                                            elsif ($circle ne "contigs")
                                             {
                                                 my $output_file2  = "Uncircularized_assemblies_".$option."_".$project.".fasta";
                                                 open(OUTPUT2, ">" .$output_file2) or die "Can't open file $output_file2, $!\n";
@@ -11098,7 +11033,7 @@ SAME_ID:
                                                 print "\b" x length($progress_before);
                                                 print "\n\nAssembly ".$option." finished incomplete: The genome has not been circularized\n\n";
                                                 print OUTPUT4 "\n\nAssembly ".$option." finished incomplete: The genome has not been circularized\n\n";
-                                                print OUTPUT5 "\n\nAssembly ".$option." finished incomplete: The genome has not been circularized2\n\n";
+                                                print OUTPUT5 "\n\nAssembly ".$option." finished incomplete: The genome has not been circularized3\n\n";
 
                                                 if ($y > $startprint2)
                                                 {                                                                                 
@@ -11278,114 +11213,36 @@ $y++;
     }
 }
 FINISH2:
-    if ($finish ne "yes")
-    {
-                                                my $output_file2  = "Uncircularized_assemblies_".$option."_".$project.".fasta";
-                                                open(OUTPUT2, ">" .$output_file2) or die "Can't open file $output_file2, $!\n";
-                                    
-                                                my $l = '0';
-                                                my $largest_contig = '0';
-                                                my $miminum_contig = '100000000000000000000000000000';
-                                                
-                                                print "\b" x length($progress_before);
-                                                print ' ' x length($progress_before);
-                                                print "\b" x length($progress_before);
-                                                print "\n\nAssembly ".$option." finished incomplete: The genome has not been circularized\n\n";
-                                                print OUTPUT4 "\n\nAssembly ".$option." finished incomplete: The genome has not been circularized3\n\n";
-                                                print OUTPUT5 "\n\nAssembly ".$option." finished incomplete: The genome has not been circularized3\n\n";
 
-                                                foreach my $seed_id_tmp (keys %seed)
-                                                {
-                                                    if (length($seed{$seed_id_tmp}) > 250)
-                                                    {
-                                                        $contigs{$contig_num."+".$seed_id_tmp} = $seed{$seed_id_tmp};
-                                                        $contig_num++; 
-                                                    }
-                                                    delete $seed{$seed_id_tmp};
-                                                }
+    if ($finish ne "yes" && $type ne "chloro")
+    {
+        foreach my $seed_id_tmp (keys %seed)
+        {
+            if (length($seed{$seed_id_tmp}) > 250)
+            {
+                $contigs{$contig_num."+".$seed_id_tmp} = $seed{$seed_id_tmp};
+                $contig_num++; 
+            }
+            delete $seed{$seed_id_tmp};
+        }
                                                 
-                                                foreach my $contig_tmp (keys %contigs)
-                                                {
-                                                    if ($contig_tmp =~ m/(\d+)\+*\d*/)
-                                                    {
-                                                        my $contig_tmp3 = $1;
-                                                        if ($contig_tmp3 < 10)
-                                                        {
-                                                            $contigs{"0".$contig_tmp} = $contigs{$contig_tmp};
-                                                            delete $contigs{$contig_tmp};
-                                                        }
-                                                    }
-                                                }
-                                                foreach my $contig_tmp (sort keys %contigs)
-                                                {
-                                                    my $contig_tmp2;
-                                                    if ($contig_tmp =~ m/(\d+)\+*\d*/)
-                                                    {
-                                                        $contig_tmp2 = $1;
-                                                    }
-                                                    
-                                                    $read = $contigs{$contig_tmp};
-                                                    $read =~ tr/\./N/;
-                                                    $read =~ tr/X//d;
-                                                    my @contigs = split /L+/, $read;
-                                                    my $jj = '0';
-                                                    foreach (@contigs)
-                                                    {
-                                                        $l++;
-                                                        $jj++;
-                                                        my $fin = $_;
-                                                        my $fin2 = $fin;
-                                                        $fin =~ s/(.{1,150})/$1\n/gs;
-                                                        
-                                                        if ($jj > 1)
-                                                        {
-                                                            print "Estimated gap      : ".$contig_gap_min{$id."_".($jj-1)}." bp to ".$contig_gap_max{$id."_".($jj-1)}." bp";
-                                                            print OUTPUT4 "Estimated gap      : ".$contig_gap_min{$id."_".($jj-1)}." bp to ".$contig_gap_max{$id."_".($jj-1)}." bp";
-                                                            if ($contig_gap_min{$id."_".($jj-1)} < 0)
-                                                            {
-                                                                print " (Check manually if the two contigs overlap to merge them together!)\n";
-                                                                print OUTPUT4 " (Check manually if the two contigs overlap to merge them together!)\n";
-                                                            }
-                                                            else
-                                                            {
-                                                                print "\n";
-                                                                print OUTPUT4 "\n";
-                                                            }
-                                                        }                                          
-                                                        print OUTPUT2 ">Contig".$contig_tmp."\n";
-                                                        print OUTPUT2 $fin;
-                                                        if (length($fin2) > $largest_contig)
-                                                        {
-                                                            $largest_contig = length($fin2);
-                                                        }
-                                                        if (length($fin2) < $miminum_contig)
-                                                        {
-                                                            $miminum_contig = length($fin2);
-                                                        }
-                                                        print "Contig ".$contig_tmp2."           : ".length($fin2)." bp\n";
-                                                        print OUTPUT4 "Contig ".$contig_tmp2."           : ".length($fin2)." bp\n";
-                                                    }
-                                                    if ($y > $startprint2)
-                                                    {                                                                                 
-                                                        print OUTPUT5 ">Contig".$contig_tmp."\n";
-                                                        print OUTPUT5 $read."\n";
-                                                    }
-                                                }
-                                                print "\nTotal contigs          : ".$l."\n";
-                                                print "Largest contig         : ".$largest_contig." bp\n";
-                                                print "Smallest contig        : ".$miminum_contig." bp\n";
-                                                print "Average insert size    : ".$insert_size." bp\n\n";
-                                                print "----------------------------------------------------------------------------------------------------\n\n";
-                                                print OUTPUT4 "\nTotal contigs          : ".$l."\n";
-                                                print OUTPUT4 "Largest contig         : ".$largest_contig." bp\n";
-                                                print OUTPUT4 "Smallest contig        : ".$miminum_contig." bp\n";
-                                                print OUTPUT4 "Average insert size    : ".$insert_size." bp\n\n";
-                                                print OUTPUT4 "----------------------------------------------------------------------------------------------------\n\n";
-                                                $option++;
-                                                
-                                                close OUTPUT2
+        foreach my $contig_tmp (keys %contigs)
+        {
+            if ($contig_tmp =~ m/(\d+)\+*\d*/)
+            {
+                my $contig_tmp3 = $1;
+                if ($contig_tmp3 < 10)
+                {
+                    $contigs{"0".$contig_tmp} = $contigs{$contig_tmp};
+                    delete $contigs{$contig_tmp};
+                }
+            }
+        }
     }
-    if($circle ne "yes" && $type ne "chloro")
+    my $count_contigs = keys %contigs;
+
+    my $tree_succes = "";
+    if($circle ne "yes" && $type ne "chloro" && $count_contigs > 1)
     {
                                                 my $h = '0';
                                                 my $terminate = '0';
@@ -11730,9 +11587,235 @@ ORDER:                                                      foreach my $tmp (@or
                                                         }
                                                         close OUTPUT9;
                                                         $g++;
+                                                        
+                                                        if (length($assembly) > $genome_range_low && length($assembly) < $genome_range_high)
+                                                        {
+                                                            $tree_succes = "yes";
+                                                            $assembly_length = length($assembly);
+                                                        }
                                                     }                                                   
                                                 }
+                                                print OUTPUT7 "\n\nEach option has a seperate fasta file\n";
     }
+    elsif ($count_contigs eq 1)
+    {
+        foreach my $contig_tmp1 (keys %contigs)
+        {
+            $assembly_length = length($contigs{$contig_tmp1});
+        } 
+    }
+    if ($finish ne "yes" && $type ne "chloro")
+    {
+                                                my $output_file2  = "Contigs_".$option."_".$project.".fasta";
+                                                open(OUTPUT2, ">" .$output_file2) or die "Can't open file $output_file2, $!\n";
+                                    
+                                                my $l = '0';
+                                                my $largest_contig = '0';
+                                                my $miminum_contig = '1000000000000000000000000000000000';
+                                                
+                                                print "\b" x length($progress_before);
+                                                print ' ' x length($progress_before);
+                                                print "\b" x length($progress_before);
+                                                print "\n------------Assembly ".$option." finished: Contigs are automatically merged in Merged_contigs file------------\n\n";
+                                                print OUTPUT4 "\n------------Assembly ".$option." finished: Contigs are automatically merged in Merged_contigs file------------\n\n";
+                                                print OUTPUT5 "\n------------Assembly ".$option." finished: Contigs are automatically merged in Merged_contigs file------------\n\n";                                     
+                                                
+                                                
+                                                foreach my $contig_tmp (sort keys %contigs)
+                                                {
+                                                    my $contig_tmp2;
+                                                    if ($contig_tmp =~ m/(\d+)\+*\d*/)
+                                                    {
+                                                        $contig_tmp2 = $1;
+                                                    }
+                                                    
+                                                    $read = $contigs{$contig_tmp};
+                                                    $read =~ tr/\./N/;
+                                                    $read =~ tr/X//d;
+                                                    my @contigs = split /L+/, $read;
+                                                    my $jj = '0';
+                                                    
+                                                    foreach (@contigs)
+                                                    {
+                                                        $l++;
+                                                        $jj++;
+                                                        my $fin = $_;
+                                                        my $fin2 = $fin;
+                                                        $fin =~ s/(.{1,150})/$1\n/gs;
+                                                        
+                                                        if ($jj > 1)
+                                                        {
+                                                            print "Estimated gap      : ".$contig_gap_min{$id."_".($jj-1)}." bp to ".$contig_gap_max{$id."_".($jj-1)}." bp";
+                                                            print OUTPUT4 "Estimated gap      : ".$contig_gap_min{$id."_".($jj-1)}." bp to ".$contig_gap_max{$id."_".($jj-1)}." bp";
+                                                            if ($contig_gap_min{$id."_".($jj-1)} < 0)
+                                                            {
+                                                                print " (Check manually if the two contigs overlap to merge them together!)\n";
+                                                                print OUTPUT4 " (Check manually if the two contigs overlap to merge them together!)\n";
+                                                            }
+                                                            else
+                                                            {
+                                                                print "\n";
+                                                                print OUTPUT4 "\n";
+                                                            }
+                                                        }                                          
+                                                        print OUTPUT2 ">Contig".$contig_tmp."\n";
+                                                        print OUTPUT2 $fin;
+                                                        if (length($fin2) > $largest_contig)
+                                                        {
+                                                            $largest_contig = length($fin2);
+                                                        }
+                                                        if (length($fin2) < $miminum_contig)
+                                                        {
+                                                            $miminum_contig = length($fin2);
+                                                        }
+                                                        print "Contig ".$contig_tmp2."                  : ".length($fin2)." bp\n";
+                                                        print OUTPUT4 "Contig ".$contig_tmp2."                  : ".length($fin2)." bp\n";
+                                                    }
+                                                    if ($y > $startprint2)
+                                                    {                                                                                 
+                                                        print OUTPUT5 ">Contig".$contig_tmp."\n";
+                                                        print OUTPUT5 $read."\n";
+                                                    }
+                                                }
+                                                
+                                                print "\nTotal contigs              : ".$l."\n";
+                                                print "Largest contig             : ".$largest_contig." bp\n";
+                                                print "Smallest contig            : ".$miminum_contig." bp\n";
+                                                print "Average insert size        : ".$insert_size." bp\n\n";
+                                                print OUTPUT4 "\nTotal contigs              : ".$l."\n";
+                                                print OUTPUT4 "Largest contig             : ".$largest_contig." bp\n";
+                                                print OUTPUT4 "Smallest contig            : ".$miminum_contig." bp\n";
+                                                print OUTPUT4 "Average insert size        : ".$insert_size." bp\n\n";
+                                                $option++;
+                                                
+                                                close OUTPUT2
+    }
+    elsif ($finish ne "yes" && $type eq "chloro")
+    {
+                                        foreach my $seed_id_tmp (keys %seed)
+                                        {
+                                            if (length($seed{$seed_id_tmp}) > 250)
+                                            {
+                                                my $output_file2  = "Uncircularized_assemblies_".$option."_".$project.".fasta";
+                                                open(OUTPUT2, ">" .$output_file2) or die "Can't open file $output_file2, $!\n";
+                                    
+                                                my $l = '0';
+                                                my $largest_contig = '0';
+                                                my $miminum_contig = '100000000000000000000000000000';
+                                                
+                                                print "\b" x length($progress_before);
+                                                print ' ' x length($progress_before);
+                                                print "\b" x length($progress_before);
+                                                print "\n----------------Assembly ".$option." finished incomplete: The genome has not been circularized----------------\n\n";
+                                                print OUTPUT4 "\n----------------Assembly ".$option." finished incomplete: The genome has not been circularized----------------\n\n";
+                                                print OUTPUT5 "\n----------------Assembly ".$option." finished incomplete: The genome has not been circularized4----------------\n\n";                                              
+                                                                                                                                               
+                                                    $read = $seed{$seed_id_tmp};
+                                                    $read =~ tr/\./N/;
+                                                    $read =~ tr/X//d;
+                                                    my @contigs = split /L+/, $read;
+                                                    my $jj = '0';
+                                                    
+                                                    my $assembly_length2 = '1';
+                                                    
+                                                    foreach (@contigs)
+                                                    {
+                                                        $l++;
+                                                        $jj++;
+                                                        my $fin = $_;
+                                                        my $fin2 = $fin;
+                                                        $fin =~ s/(.{1,150})/$1\n/gs;
+                                                        
+                                                        if ($jj > 1)
+                                                        {
+                                                            print "Estimated gap      : ".$contig_gap_min{$id."_".($jj-1)}." bp to ".$contig_gap_max{$id."_".($jj-1)}." bp";
+                                                            print OUTPUT4 "Estimated gap      : ".$contig_gap_min{$id."_".($jj-1)}." bp to ".$contig_gap_max{$id."_".($jj-1)}." bp";
+                                                            if ($contig_gap_min{$id."_".($jj-1)} < 0)
+                                                            {
+                                                                print " (Check manually if the two contigs overlap to merge them together!)\n";
+                                                                print OUTPUT4 " (Check manually if the two contigs overlap to merge them together!)\n";
+                                                            }
+                                                            else
+                                                            {
+                                                                print "\n";
+                                                                print OUTPUT4 "\n";
+                                                            }
+                                                        }                                          
+                                                        print OUTPUT2 ">Contig".$seed_id_tmp."\n";
+                                                        print OUTPUT2 $fin;
+                                                        if (length($fin2) > $largest_contig)
+                                                        {
+                                                            $largest_contig = length($fin2);
+                                                        }
+                                                        if (length($fin2) < $miminum_contig)
+                                                        {
+                                                            $miminum_contig = length($fin2);
+                                                        }
+                                                        print "Contig ".$l."                  : ".length($fin2)." bp\n";
+                                                        print OUTPUT4 "Contig ".$l."                  : ".length($fin2)." bp\n";
+                                                        
+                                                        if ($assembly_success ne "yes")
+                                                        {
+                                                            $assembly_length2 += length($fin2);
+                                                        }
+                                                    }
+                                                    if ($y > $startprint2)
+                                                    {                                                                                 
+                                                        print OUTPUT5 ">Contig".$l."\n";
+                                                        print OUTPUT5 $read."\n";
+                                                    }
+                                                
+                                                print "\nTotal contigs              : ".$l."\n";
+                                                print "Largest contig             : ".$largest_contig." bp\n";
+                                                print "Smallest contig            : ".$miminum_contig." bp\n";
+                                                print "Average insert size        : ".$insert_size." bp\n\n";
+                                                print OUTPUT4 "\nTotal contigs              : ".$l."\n";
+                                                print OUTPUT4 "Largest contig             : ".$largest_contig." bp\n";
+                                                print OUTPUT4 "Smallest contig            : ".$miminum_contig." bp\n";
+                                                print OUTPUT4 "Average insert size        : ".$insert_size." bp\n\n";
+                                                $option++;
+                                                
+                                                close OUTPUT2;
+                                                if ($assembly_length2 > $assembly_length && $assembly_success ne "yes")
+                                                {
+                                                    $assembly_length = $assembly_length2;
+                                                }
+                                            }
+                                        }
+    }
+
+
+                                                my $total_reads_organelle = (keys %count_reads)*2;
+                                                my $total_reads_organelle_all = (keys %count_reads_all)*2;
+                                                my $total_reads = (keys %hash)*2;
+                                                my $organelle_percentage = sprintf("%.2f",($total_reads_organelle_all*100)/$total_reads);
+                                                my $average_coverage = sprintf("%.0f",$total_reads_organelle_all*$read_length/$assembly_length);
+                                                
+                                                print "\n-----------------------------------------Input data metrics-----------------------------------------\n\n";
+                                                print "Total reads                : ".$total_reads."\n";
+                                                print "Aligned reads              : ".$total_reads_organelle_all."\n";
+                                                print "Assembled reads            : ".$total_reads_organelle."\n";
+                                                if ($assembly_success eq "yes" ||  $tree_succes eq "yes")
+                                                {
+                                                   print "Organelle genome %         : ".$organelle_percentage." %\n"; 
+                                                }
+                                                if ($assembly_length > 5000)
+                                                {
+                                                   print "Average organelle coverage : ".$average_coverage."\n\n"; 
+                                                }
+                                                print "----------------------------------------------------------------------------------------------------\n\n";
+                                                print OUTPUT4 "\n-----------------------------------------Input data metrics-----------------------------------------\n\n";
+                                                print OUTPUT4 "Total reads                : ".$total_reads."\n";
+                                                print OUTPUT4 "Assembled reads            : ".$total_reads_organelle."\n";
+                                                if ($assembly_success eq "yes" ||  $tree_succes eq "yes")
+                                                {
+                                                   print OUTPUT4 "Organelle genome %         : ".$organelle_percentage." %\n"; 
+                                                }
+                                                if ($assembly_length > 5000)
+                                                {
+                                                   print OUTPUT4 "Average organelle coverage : ".$average_coverage."\n\n"; 
+                                                }
+                                                print OUTPUT4 "----------------------------------------------------------------------------------------------------\n\n";
 print "\nThank you for using NOVOPlasty!\n\n";
 close INPUT;
 close OUTPUT4;
