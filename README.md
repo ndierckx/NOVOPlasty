@@ -85,21 +85,25 @@ Perl
 &nbsp;&nbsp;&nbsp;1\. Circularized_assembly_projectname.fasta
 
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;This file contains the assemblies that were successfully circularized. </br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;When using the 'chloro2' stand, all successful asemblies can be found back in</br> 
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;the 'Merged_contigs_projectname.txt' file.
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;When using the 'chloro2' stand, all successful asemblies can be found back in the 'Merged_contigs_projectname.txt' file.
 
 &nbsp;&nbsp;&nbsp;2\. Uncircularized_assembly_projectname.fasta
 
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;This file contains the assemblies that were not circularized.
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;This file contains the assemblies that were not circularized in 'chloro' stand.
 
-&nbsp;&nbsp;&nbsp;3\. Merged_contigs_projectname.txt
+&nbsp;&nbsp;&nbsp;3\. Contigs_projectname.txt
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; This file contains the contigs of the assemblies that were not circularized in 'chloro2' or 'mito' stand. 
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; These contigs could still be circularized in the 'Merged_contigs' file.
+
+&nbsp;&nbsp;&nbsp;4\. Merged_contigs_projectname.txt
 
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;When using the 'chloro2' or 'mito' stand, NOVOPlasty will try to combine all contigs </br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;in to a complete circular genome, all the different possibilities can be found in this file.
 
-&nbsp;&nbsp;&nbsp;4\. contigs_tmp_projectname.txt
+&nbsp;&nbsp;&nbsp;5\. contigs_tmp_projectname.txt
 
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;If non of the above files are outputted, you can retrieve some contigs from this file.
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;If non of the above files are outputted or are empty, you can retrieve some contigs from this file.
 
 
 # Configuration file
