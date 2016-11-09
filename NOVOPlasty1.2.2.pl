@@ -280,16 +280,16 @@ while (my $line = <CONFIG>)
 
 close CONFIG;
 
-my $USAGE = 	"\nUsage: perl NOVOPlasty.pl -c config_example.txt";
+my $USAGE = "\nUsage: perl NOVOPlasty.pl -c config_example.txt";
 
 print "\n\n-----------------------------------------------";
 print "\nNOVOPlasty: The Organelle Assembler\n";
-print "Version 1.2.1\n";
+print "Version 1.2.2\n";
 print "Author: Nicolas Dierckxsens, (c) 2015-2016\n";
 print "-----------------------------------------------\n\n";
 print OUTPUT4 "\n\n-----------------------------------------------";
 print OUTPUT4 "\nNOVOPlasty: The Organelle Assembler\n";
-print OUTPUT4 "Version 1.2.1\n";
+print OUTPUT4 "Version 1.2.2\n";
 print OUTPUT4 "Author: Nicolas Dierckxsens, (c) 2015-2016\n";
 print OUTPUT4 "-----------------------------------------------\n\n";
 
@@ -1223,31 +1223,31 @@ sub IUPAC
     my @snps = @_;
     my $A = $snps[0];
     my $C = $snps[1];
-    my $G = $snps[2];
-    my $T = $snps[3];
+    my $T = $snps[2];
+    my $G = $snps[3];
     my $iupac;
     
-    if ($A + $C > 0.9*($A+$C+$T+$G))
+    if ($A + $C > 0.93*($A+$C+$T+$G))
     {
         $iupac = "M";
     }
-    elsif ($A + $G > 0.9*($A+$C+$T+$G))
+    elsif ($A + $G > 0.93*($A+$C+$T+$G))
     {
         $iupac = "R"; 
     }
-    elsif ($A + $T > 0.9*($A+$C+$T+$G))
+    elsif ($A + $T > 0.93*($A+$C+$T+$G))
     {
         $iupac = "W"; 
     }
-    elsif ($C + $G > 0.9*($A+$C+$T+$G))
+    elsif ($C + $G > 0.93*($A+$C+$T+$G))
     {
         $iupac = "S"; 
     }
-    elsif ($C + $T > 0.9*($A+$C+$T+$G))
+    elsif ($C + $T > 0.93*($A+$C+$T+$G))
     {
         $iupac = "Y"; 
     }
-    elsif ($G + $T > 0.9*($A+$C+$T+$G))
+    elsif ($G + $T > 0.93*($A+$C+$T+$G))
     {
         $iupac = "K"; 
     }
@@ -1695,7 +1695,7 @@ print "Seed Input           = ".$seed_input0."\n\n";
 
 print OUTPUT4 "\n\n-----------------------------------------------";
 print OUTPUT4 "\nNOVOPlasty: The Plastid Assembler\n";
-print OUTPUT4 "Version 1.2.1\n";
+print OUTPUT4 "Version 1.2.2\n";
 print OUTPUT4 "Author: Nicolas Dierckxsens, (c) 2015-2016\n";
 print OUTPUT4 "-----------------------------------------------\n\n";
 
@@ -2515,7 +2515,7 @@ ALREADY_X0:  while ($v0 < $u0)
                 $SNR_read = "X";
                 last ALREADY_X0;
             }
-            elsif(($v0 > 7 && $other eq "") || $v0 > 9)
+            elsif(($v0 > 7 && $other eq "") || $v0 > 10)
             {     
                 $SNR_read = "yes";
                 if (length($best_extension_prev{$id}) > 1)
@@ -2650,9 +2650,6 @@ ALREADY_X0b:  while ($v0b < $u0b)
         $containX_short_start2 = $read_short_start2 =~ tr/X|\*//;
         $contain_dot_short_start2 = $read_short_start2 =~ tr/\.//;
         
-        if ($use_regex eq "yes")
-        {
-        }
         if ($y eq '1' || exists($old_id2{$id}) || exists($bad_read{$id}))
         {
             delete $bad_read{$id};
@@ -2880,7 +2877,7 @@ ALREADY_X0b:  while ($v0b < $u0b)
             my $read_end_dot_check = $read_end_dot =~ tr/\./\./;
             if ($read_end_dot_check > 0)
             {
-                $use_regex = "yes_read";
+                $use_regex = "yes";
             }
         }
         if ($y > $startprint2)
@@ -3136,7 +3133,7 @@ REPEAT:
         
         if ($y > $startprint2)
         {
-            if ($use_regex eq "yes" || $use_regex eq "yes_read")
+            if ($use_regex eq "yes")
             {
                 print OUTPUT5 "USE_REGEX\n";
             }
@@ -3910,10 +3907,12 @@ REPEAT:
                                     while ($s < $read_length-($overlap+$right))
                                     {                          
                                             my $read_end_d = substr $read, -($s+$overlap), $overlap;
+                                            $read_end_d =~ tr/N|K|R|Y|S|W|M|B|D|H|V/\./;
   
                                                 if ($s eq 0)
                                                 {
                                                         $read_end = substr $read, -$overlap, $overlap;
+                                                        $read_end =~ tr/N|K|R|Y|S|W|M|B|D|H|V/\./;
 
                                                         my $read_end_c = $read_end;
                                                         $read_end_c =~ tr/ATCG/TAGC/;
@@ -4624,7 +4623,6 @@ SKIP3:
             }
             
             my $id_original      = $id;
-            my $id_pair_original = $id_pair;
             
             my @extensions_group1;
             my @extensions_group2;
@@ -4797,7 +4795,9 @@ NUCLEO:     while ($l < $read_length - ($overlap+$left-1) + $extra_l)
                 
                 if ($SNR_read ne "" && $l > 0 && $check_before_end eq "")
                 {
-                    my $last_nuc = substr $best_extension, -1;
+                    my $best_extension_tmp8 = $best_extension;
+                    $best_extension_tmp8 =~ tr/N|K|R|Y|S|W|M|B|D|H|V/\./;
+                    my $last_nuc = substr $best_extension_tmp8, -1;
                     my $arrSize1 = @extensions;
                     if ($last_nuc ne '.' && $arrSize1 > 4)
                     {
@@ -4818,7 +4818,7 @@ NUCLEO:     while ($l < $read_length - ($overlap+$left-1) + $extra_l)
                             undef @extensions;
                             @extensions = @extensions_tmp;
                                                        
-                            my $best_extension_dot = $best_extension =~ tr/\./\./;
+                            my $best_extension_dot = $best_extension_tmp8 =~ tr/\./\./;
                             if ($best_extension_dot > 0)
                             {
                                 $l = 0;
@@ -4924,8 +4924,10 @@ NUCLEO:     while ($l < $read_length - ($overlap+$left-1) + $extra_l)
                     $T_SNP = $T;
                     $G_SNP = $G;
                     $position_SNP += $l;
-                    $pos_SNP = $l;            
-                    $best_extension = $best_extension."."; 
+                    $pos_SNP = $l;
+                    
+                    my $IUPAC = IUPAC($A,$C,$T,$G);
+                    $best_extension = $best_extension.$IUPAC;
                 }
                 elsif ($SNP eq "yes" && ($A + $T + $G + $C) > 4  && $l < 15)
                 {
@@ -4935,8 +4937,10 @@ NUCLEO:     while ($l < $read_length - ($overlap+$left-1) + $extra_l)
                     $T_SNP2 = $T;
                     $G_SNP2 = $G;
                     $position_SNP2 += $l;
-                    $pos_SNP2 = $l;            
-                    $best_extension = $best_extension.".";
+                    $pos_SNP2 = $l;
+                    
+                    my $IUPAC = IUPAC($A,$C,$T,$G);
+                    $best_extension = $best_extension.$IUPAC;
                 }
                 elsif ($SNP eq "yes2" && ($A + $T + $G + $C) > 4  && $l < 15)
                 {
@@ -4947,7 +4951,9 @@ NUCLEO:     while ($l < $read_length - ($overlap+$left-1) + $extra_l)
                     $G_SNP3 = $G;
                     $position_SNP3 += $l;
                     $pos_SNP3 = $l;
-                    $best_extension = $best_extension.".";
+                    
+                    my $IUPAC = IUPAC($A,$C,$T,$G);
+                    $best_extension = $best_extension.$IUPAC;
                 }
                 elsif ($SNP eq "yes3" && ($pos_SNP ne 0 || ($pos_SNP3 > $pos_SNP+12 && $l > 15)))
                 {
@@ -5100,9 +5106,11 @@ print OUTPUT5 $G_SNP." G\n";
                     print OUTPUT5 $best_extension." BEST_EXTENSION_REP2\n";
                     my @extensions_temp;
                     undef @extensions_temp;
+                    my $best_extension_tmp5 = $best_extension;
+                    $best_extension_tmp5 =~ tr/N|K|R|Y|S|W|M|B|D|H|V/\./;
                     foreach my $extensions (@extensions)
                     {
-                        $extensions =~ s/.*$best_extension//g;
+                        $extensions =~ s/.*$best_extension_tmp5//g;
                         push @extensions_temp, $extensions;
                     }
                     undef @extensions;
@@ -5213,6 +5221,8 @@ FIND_ID2:       foreach my $matches (@matches)
                     my $best_extension2_reverse2 = $best_extension2;
                     $best_extension2_reverse2 =~ tr/ATCG/TAGC/;
                     my $best_extension2_reverse = reverse($best_extension2_reverse2);
+                    
+                    $best_extension2_reverse =~ tr/N|K|R|Y|S|W|M|B|D|H|V/\./;
                     
                     my $read_cp = $read;
                     my $read_end_rev_tmp = reverse($read_end);
@@ -5455,6 +5465,7 @@ FIND_ID1:       foreach my $matches (@matches)
                     my $read_end_rev_tmpb = $read_end.$best_extension1;
                     my $read_end_rev_tmp = reverse($read_end_rev_tmpb);
                     $read_end_rev_tmp =~ tr/ATCG/TAGC/;
+                    $read_end_rev_tmp =~ tr/N|K|R|Y|S|W|M|B|D|H|V/\./;
                     if (length($read) > 80000)
                     {
                         $read_cp = substr $read, -80000;
@@ -5534,7 +5545,7 @@ FIND_ID1:       foreach my $matches (@matches)
                     {
                         print OUTPUT5 "\nDELETE BEST EXTENSION 1 (CONTIG_END)\n\n";
                     }
-                    my $contigs_end1 = substr $best_extension2, 0, 10;
+                    my $contigs_end1 = substr $best_extension1, 0, 10;
                     $contigs_end1 =~ tr/N|K|R|Y|S|W|M|B|D|H|V/\./;
                     my $contigs_end0 = substr $read_end, -15;
                     my $repetitive_test = $contigs_end0.$contigs_end1;
@@ -5702,7 +5713,7 @@ FIND_ID1:       foreach my $matches (@matches)
                             $deletion = "yes";
                                                   
                             my $indel = substr $best_extension_short,0, $p;
-                             $indel =~ tr/N|K|R|Y|S|W|M|B|D|H|V/\./;
+                            $indel =~ tr/N|K|R|Y|S|W|M|B|D|H|V/\./;
                             $indel =~ s/A/A*/g;
                             $indel =~ s/T/T*/g;
                             $indel =~ s/G/G*/g;
@@ -5712,7 +5723,7 @@ FIND_ID1:       foreach my $matches (@matches)
                             if ($nomatch > 0)
                             {
                                 my $after_indel1 = substr $best_extension_short, $p;
-                                 $after_indel1 =~ tr/N|K|R|Y|S|W|M|B|D|H|V/\./;
+                                $after_indel1 =~ tr/N|K|R|Y|S|W|M|B|D|H|V/\./;
                                 my @chars3 = split //, $after_indel1;
                                 my $f = '0';
                                 
@@ -6110,8 +6121,6 @@ INDEL:
                             }
                             $s++;
                         }
-                    if (!@extensions_before1)
-                    {
                         undef @extensions;
                         $best_extension = "";
                         @extensions = @extensions_before1;
@@ -6119,17 +6128,6 @@ INDEL:
                         $l = '0';
                         $extra_l = $overlap+$left+25;
                         goto NUCLEO;
-                    }
-                    else
-                    {
-                        undef @extensions;
-                        $best_extension = "";
-                        @extensions = @extensions_before1;
-                        $check_before_end = "yes";
-                        $l = '0';
-                        $extra_l = $overlap+$left+25;
-                        goto NUCLEO;
-                    }
                 }
                 
                 if ($SNP_active eq "" && $first_before ne "yes" && $contig_end ne "yes" && $delete_first ne "yes" && $indel_split eq 0)
@@ -6530,7 +6528,11 @@ CORRECT:            my $contig_id2_tmp = substr $contig_id2, 0,-1;
                 if ($repetitive_check ne "" && $best_extension ne "")
                 {
                     my $end_repetitive8 = substr $read, -($read_length+250);
-                    my $check8 = $end_repetitive8 =~ s/$best_extension/$best_extension/g;
+                    $end_repetitive8 =~ tr/N|K|R|Y|S|W|M|B|D|H|V|\./\./;
+                    my $best_extension_tmp4 = $best_extension;
+                    $best_extension_tmp4 =~ tr/N|K|R|Y|S|W|M|B|D|H|V|\./\./;
+                    
+                    my $check8 = $end_repetitive8 =~ s/$best_extension_tmp4/$best_extension_tmp4/g;
                     if ($check8 > 1)
                     {
                         $repetitive_check = "yes2";
@@ -7953,8 +7955,11 @@ AFTER_EXT:
                                             my $vk2 = '0';
                                             if ($SNR_read eq "")
                                             {
-                                                my @dot2 = split //, $best_extension;
-                                                my $ut2 = length($best_extension);
+                                                my $best_extension_tmp7 = $best_extension;
+                                                $best_extension_tmp7 =~ tr/N|K|R|Y|S|W|M|B|D|H|V/\./;
+
+                                                my @dot2 = split //, $best_extension_tmp7;
+                                                my $ut2 = length($best_extension_tmp7);
                                                 
                                                 while ($dot2[$ut2-1] eq "." || $dot2[$ut2-1] eq "*")
                                                 {              
@@ -8717,9 +8722,10 @@ NUCLEO_BACK: while ($l < $read_length - ($overlap+$left-1) + $extra_l)
                 
                 if ($SNR_read_back ne "" && $l > 0 && $check_before_end_back eq "")
                 {
-                    my $last_nuc = substr $best_extension, -1;
+                    my $best_extension_tmp8 = $best_extension;
+                    $best_extension_tmp8 =~ tr/N|K|R|Y|S|W|M|B|D|H|V/\./;
+                    my $last_nuc = substr $best_extension_tmp8, -1;
                     my $arrSize1 = @extensions;
-                    $last_nuc =~ tr/N|K|R|Y|S|W|M|B|D|H|V|\./\./;
 
                     if ($last_nuc ne "." && $arrSize1 > 4)
                     {
@@ -8739,7 +8745,7 @@ NUCLEO_BACK: while ($l < $read_length - ($overlap+$left-1) + $extra_l)
                         {
                             undef @extensions;
                             @extensions = @extensions_tmp;
-                            my $best_extension_dot = $best_extension =~ tr/N|K|R|Y|S|W|M|B|D|H|V|\.//;
+                            my $best_extension_dot = $best_extension_tmp8 =~ tr/N|K|R|Y|S|W|M|B|D|H|V|\./\./;
               
                             if ($best_extension_dot > 0)
                             {
@@ -9054,10 +9060,13 @@ NUCLEO_BACK: while ($l < $read_length - ($overlap+$left-1) + $extra_l)
                     my $best_extension2_reverse2 = $best_extension2;
                     $best_extension2_reverse2 =~ tr/ATCG/TAGC/;
                     my $best_extension2_reverse = reverse($best_extension2_reverse2);
+                    $best_extension2_reverse =~ tr/N|K|R|Y|S|W|M|B|D|H|V/\./;
                     
                     my $read_cp = $read;
                     my $read_start_rev_tmp = reverse($read_start);
-                     $read_start_rev_tmp =~ tr/ATCG/TAGC/;
+                    $read_start_rev_tmp =~ tr/ATCG/TAGC/;
+                    $read_start_rev_tmp =~ tr/N|K|R|Y|S|W|M|B|D|H|V/\./;
+                    
                     if (length($read) > $genome_range_low)
                     {
   }                 
@@ -9221,6 +9230,7 @@ NUCLEO_BACK: while ($l < $read_length - ($overlap+$left-1) + $extra_l)
                     my $best_extension1_reverse2 = $best_extension1;
                     $best_extension1_reverse2 =~ tr/ATCG/TAGC/;
                     my $best_extension1_reverse = reverse($best_extension1_reverse2);
+                    $best_extension1_reverse =~ tr/N|K|R|Y|S|W|M|B|D|H|V/\./;
                     
                     my $read_cp = $read;
                     my $read_start_rev_tmp = reverse($read_start);
@@ -10341,8 +10351,10 @@ AFTER_EXT_BACK:
                                             
                                             if ($SNR_read_back eq "")
                                             {
-                                                my @dot2 = split //, $best_extension;
-                                                my $ut2 = length($best_extension);
+                                                my $best_extension_tmp1 = $best_extension;
+                                                $best_extension_tmp1 =~ tr/N|K|R|Y|S|W|M|B|D|H|V/\./;
+                                                my @dot2 = split //, $best_extension_tmp1;
+                                                my $ut2 = length($best_extension_tmp1);
                                                 
                                                 while ($dot2[$ut2-1] eq "." || $dot2[$ut2-1] eq "*")
                                                 {              
