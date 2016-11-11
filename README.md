@@ -4,7 +4,10 @@
 NOVOPlasty is a de novo assembler for short circular genomes.</br>
 For the moment NOVOPlasty only supports whole genome Illumina paired-end reads as input.
 
-<strong>Last updates: 09/11/16 version 1.2.2</strong></br>
+<strong>Last updates: 11/11/16 version 1.2.3</strong></br>
+- Improved seed retrieval with low coverage
+- Data files without quality scores can be used as input file</br>
+<strong>09/11/16</strong>
 - IUPAC codes are correctly called, in stead of to many 'N's
 - Bugs fixed</br>
 <strong>28/10/16</strong>
@@ -63,7 +66,7 @@ Perl
 
 &nbsp;&nbsp;&nbsp;<code>perl NOVOPlasty.pl -c config.txt</code>
 
-&nbsp;&nbsp;&nbsp;The input reads have to be uncompressed Illumina reads (fastq files).</br>
+&nbsp;&nbsp;&nbsp;The input reads have to be uncompressed Illumina reads (fastq/fasta files).</br>
 &nbsp;&nbsp;&nbsp;Either two separate files(forward and reverse) or a merged fastq file.</br>
 &nbsp;&nbsp;&nbsp;Multiple libraries as input is not yet supported.
 
@@ -156,8 +159,8 @@ Single/Paired        = For the moment only paired end reads are supported.
 Coverage Cut off     = You can speed up the assembly by lowering the coverage cut off, standard it will use up to 1000 coverage
 Extended log         = Prints out a very extensive log, could be useful to send me when there is a problem  (0/1).
 Combined reads       = The path to the file that contains the combined reads (forward and reverse in 1 file)
-Forward reads        = The path to the file that contains the forward reads
-Reverse reads        = The path to the file that contains the reverse reads
+Forward reads        = The path to the file that contains the forward reads (not necessary when there is a merged file)
+Reverse reads        = The path to the file that contains the reverse reads (not necessary when there is a merged file)
 Seed Input           = The path to the file that contains the seed sequence
 </pre>
 </html>
