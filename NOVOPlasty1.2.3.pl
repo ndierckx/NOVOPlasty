@@ -6,7 +6,7 @@
 #              All Rights Reserved                   #
 #         See file LICENSE for details.              #
 ######################################################
-#           NOVOPlasty - The Organelle Assembler
+#           NOVOPlasty - The Organelle assembler
 #           nicolasdierckxsens@hotmail.com
 use Getopt::Long;
 use strict;
@@ -284,12 +284,12 @@ my $USAGE = "\nUsage: perl NOVOPlasty.pl -c config_example.txt";
 
 print "\n\n-----------------------------------------------";
 print "\nNOVOPlasty: The Organelle Assembler\n";
-print "Version 1.2.2\n";
+print "Version 1.2.3\n";
 print "Author: Nicolas Dierckxsens, (c) 2015-2016\n";
 print "-----------------------------------------------\n\n";
 print OUTPUT4 "\n\n-----------------------------------------------";
 print OUTPUT4 "\nNOVOPlasty: The Organelle Assembler\n";
-print OUTPUT4 "Version 1.2.2\n";
+print OUTPUT4 "Version 1.2.3\n";
 print OUTPUT4 "Author: Nicolas Dierckxsens, (c) 2015-2016\n";
 print OUTPUT4 "-----------------------------------------------\n\n";
 
@@ -1652,6 +1652,10 @@ print "\nReading Input...\n";
 
 my $firstLine = <INPUT>;
 chomp $firstLine;
+my $secondLine = <INPUT>;
+my $thirdLine = <INPUT>;
+
+my $no_quality_score = substr $thirdLine, 0, 1;
 
 my $type_of_file;
 my $code_before_end = substr $firstLine, -2,1;
@@ -1695,7 +1699,7 @@ print "Seed Input           = ".$seed_input0."\n\n";
 
 print OUTPUT4 "\n\n-----------------------------------------------";
 print OUTPUT4 "\nNOVOPlasty: The Plastid Assembler\n";
-print OUTPUT4 "Version 1.2.2\n";
+print OUTPUT4 "Version 1.2.3\n";
 print OUTPUT4 "Author: Nicolas Dierckxsens, (c) 2015-2016\n";
 print OUTPUT4 "-----------------------------------------------\n\n";
 
@@ -1747,10 +1751,15 @@ foreach my $reads_tmp (@reads_tmp)
     {
         chomp $line;
        
-        if ($f eq "yes")
+        if ($f eq "yes" && $no_quality_score ne "@")
         {
             $f = "yes2";
             next;
+        }
+        if ($f eq "yes" && $no_quality_score eq "@")
+        {
+            $code = $line;
+            $f = "no";
         }
         elsif ($f eq "yes2")
         {
@@ -1761,7 +1770,7 @@ foreach my $reads_tmp (@reads_tmp)
         {
             $value = $line;
             my $containN = $line =~ tr/N//;
-            if ($containN < 2 && length($line) > $read_length/1.5)
+            if ($containN < 3 && length($line) > $read_length/1.5)
             {
                 my $code2 = $code;
                 my $code_end = substr $code2, $type_of_file,1;
@@ -1995,6 +2004,10 @@ FIRST_SEED2:foreach my $first_seed (keys %first_seed)
                         {
                             $pp2++;
                         }
+                        if (exists($hash2c{$seed_check}))
+                        {
+                            $pp2++;
+                        }
                         if ($pp2 > 4)
                         {
                             $seed{$seed_input_id} = $seed_input_new2;
@@ -2064,6 +2077,10 @@ FIRST_SEED2:foreach my $first_seed (keys %first_seed)
                     {
                         my $seed_check = substr $seed_input_new2, $pp, $overlap;
                         if (exists($hash2b{$seed_check}))
+                        {
+                            $pp2++;
+                        }
+                        if (exists($hash2c{$seed_check}))
                         {
                             $pp2++;
                         }
@@ -5181,7 +5198,7 @@ FIND_ID2:       foreach my $matches (@matches)
                                 $contig_id2 = $matchesb[0];
                                 $contig_id2{$contig_id2_prev} = $matchesb[0];
                                 $contig_id2_prev = $contig_id2;
-                                if ($test_match =~ m/.*($read_end_extra).*$/)
+                                if ($test_match =~ m/..*($read_end_extra).*$/)
                                 {
                                     $contig_read2 = $1.$best_extension2;
                                 }
