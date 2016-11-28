@@ -70,7 +70,7 @@ Perl
 &nbsp;&nbsp;&nbsp;Either two separate files(forward and reverse) or a merged fastq file.</br>
 &nbsp;&nbsp;&nbsp;Multiple libraries as input is not yet supported.
 
-&nbsp;&nbsp;&nbsp;Do NOT filter or trim the reads! Use the raw whole genome dataset!</br>
+&nbsp;&nbsp;&nbsp;DO NOT filter or quality trim the reads!!! Use the raw whole genome dataset!</br>
 &nbsp;&nbsp;&nbsp;You can subsample to speed up the process and to reduce the memory requirements. But it is recommended </br> &nbsp;&nbsp;&nbsp;to use as much reads as possible, especially when the organelle genome contains AT-rich stretches.
 
 &nbsp;&nbsp;&nbsp;Recommended maximum K-mer lengths:</br>
