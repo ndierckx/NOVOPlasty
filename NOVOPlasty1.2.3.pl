@@ -6,7 +6,7 @@
 #              All Rights Reserved                   #
 #         See file LICENSE for details.              #
 ######################################################
-#           NOVOPlasty - The Organelle assembler
+#           NOVOPlasty - The Organelle Assembler
 #           nicolasdierckxsens@hotmail.com
 use Getopt::Long;
 use strict;
@@ -131,6 +131,8 @@ my %first_before_back;
 my %SNP_active_back;
 my %filter_before1;
 my %filter_before2;
+my %filter_before1_pair;
+my %filter_before2_pair;
 my %nosecond;
 my %repetitive_pair;
 my %count_reads;
@@ -284,12 +286,12 @@ my $USAGE = "\nUsage: perl NOVOPlasty.pl -c config_example.txt";
 
 print "\n\n-----------------------------------------------";
 print "\nNOVOPlasty: The Organelle Assembler\n";
-print "Version 1.2.3\n";
+print "Version 1.2.4\n";
 print "Author: Nicolas Dierckxsens, (c) 2015-2016\n";
 print "-----------------------------------------------\n\n";
 print OUTPUT4 "\n\n-----------------------------------------------";
 print OUTPUT4 "\nNOVOPlasty: The Organelle Assembler\n";
-print OUTPUT4 "Version 1.2.3\n";
+print OUTPUT4 "Version 1.2.4\n";
 print OUTPUT4 "Author: Nicolas Dierckxsens, (c) 2015-2016\n";
 print OUTPUT4 "-----------------------------------------------\n\n";
 
@@ -1699,7 +1701,7 @@ print "Seed Input           = ".$seed_input0."\n\n";
 
 print OUTPUT4 "\n\n-----------------------------------------------";
 print OUTPUT4 "\nNOVOPlasty: The Plastid Assembler\n";
-print OUTPUT4 "Version 1.2.3\n";
+print OUTPUT4 "Version 1.2.4\n";
 print OUTPUT4 "Author: Nicolas Dierckxsens, (c) 2015-2016\n";
 print OUTPUT4 "-----------------------------------------------\n\n";
 
@@ -1769,7 +1771,7 @@ foreach my $reads_tmp (@reads_tmp)
         elsif ($f eq "no")
         {
             $value = $line;
-            my $containN = $line =~ tr/N//;
+            my $containN = $line =~ tr/N/N/;
             if ($containN < 3 && length($line) > $read_length/1.5)
             {
                 my $code2 = $code;
@@ -2419,6 +2421,8 @@ SEED: foreach $seed_id (keys %seed)
     undef @extensions_before2;
     undef %filter_before1;
     undef %filter_before2;
+    undef %filter_before1_pair;
+    undef %filter_before2_pair;
     $containX_short_end2 = '0';
     $contain_dot_short_end2 = '0';
     $containX_short_start2 = '0';
@@ -2888,13 +2892,22 @@ ALREADY_X0b:  while ($v0b < $u0b)
                 $repetitive_check = "no";
             }
         }
-        if ($use_regex eq "")
+         if ($use_regex eq "")
         {
             my $read_end_dot = substr $read_short_end2, -$overlap;
             my $read_end_dot_check = $read_end_dot =~ tr/\./\./;
             if ($read_end_dot_check > 0)
             {
-                $use_regex = "yes";
+                $use_regex = "yes2";
+            }
+        }
+        if ($use_regex_back eq "")
+        {
+            my $read_start_dot = substr $read_short_start2, 0, $overlap;
+            my $read_start_dot_check = $read_start_dot =~ tr/\./\./;
+            if ($read_start_dot_check > 0)
+            {
+                $use_regex_back = "yes2";
             }
         }
         if ($y > $startprint2)
@@ -3585,13 +3598,13 @@ REPEAT:
                                                 {
                                                     $read_end_e{$read_end_e} = undef;
                                                 }
-                                                if ($use_regex eq "yes" || $last_chance eq "yes")
+                                                if ($use_regex ne "" || $last_chance eq "yes")
                                                 {
                                                     my %read_end_e = build_partial3b ($read_end_e, "reverse");
                                                     my $X_test = $read_end_e =~ tr/\./\./;
                                                     my %list;
                                                     undef %list;
-                                                    if ($X_test < 2)
+                                                    if ($X_test < 2 && $use_regex ne "yes2")
                                                     {
                                                         %list = build_partial2b %read_end_e;
                                                         %read_end_e = %list;
@@ -3694,7 +3707,7 @@ REPEAT:
                                                     my $X_test = $read_end_d =~ tr/\./\./;
                                                     my %list;
                                                     undef %list;
-                                                    if ($X_test < 2)
+                                                    if ($X_test < 2 && $use_regex ne "yes2")
                                                     {
                                                         %list = build_partial2b %read_end_d;
                                                     }
@@ -3761,13 +3774,13 @@ REPEAT:
                                 $read_start_t{$read_start_t} = undef;
                             }
                                                              
-                                if ($use_regex_back eq "yes" || $last_chance_back eq "yes")
+                                if ($use_regex_back ne "" || $last_chance_back eq "yes")
                                 {
                                     my %read_start_t = build_partial3b ($read_start_t, "reverse");
                                     my $X_test = $read_start_t =~ tr/\./\./;
                                     my %list;
                                     undef %list;
-                                    if ($X_test < 2)
+                                    if ($X_test < 2 && $use_regex_back ne "yes2")
                                     {
                                         %list = build_partial2b %read_start_t;
                                         %read_start_t = %list;
@@ -3873,7 +3886,7 @@ REPEAT:
                                     my $X_test = $read_start_e =~ tr/\./\./;
                                     my %list;
                                     undef %list;
-                                    if ($X_test < 2)
+                                    if ($X_test < 2 && $use_regex_back ne "yes2")
                                     {
                                         %list = build_partial2b %read_start_e;
                                         %read_start_e = %list;
@@ -3952,7 +3965,7 @@ REPEAT:
                                                 $read_end_c =~ tr/ATCG/TAGC/;
                                                 my $read_end_e = reverse($read_end_c);
                                                 
-                                                if ($use_regex eq "yes")
+                                                if ($use_regex eq "yes" || $use_regex eq "yes2")
                                                 {
                                                     my %list = build_partial3b $read_end_e;
                                                 
@@ -4049,7 +4062,7 @@ REPEAT:
                                                     my $X_test = $read_end_d =~ tr/\./\./;
                                                     my %list;
                                                     undef %list;
-                                                    if ($X_test < 2)
+                                                    if ($X_test < 2 && $use_regex ne "yes2")
                                                     {
                                                         %list = build_partial2b %read_end_d;
                                                     }
@@ -4096,18 +4109,18 @@ REPEAT:
                                         }
                                     }
                                                                       
+            my $mmr = '0';
+            foreach (keys %merged_match)
+            {
+                $mmr++;
+            }
+            my $mmbr = '0';
+            foreach (keys %merged_match_back)
+            {
+                $mmbr++;
+            }
             if ($y > $startprint2)
             {
-                my $mmr = '0';
-                foreach (keys %merged_match)
-                {
-                    $mmr++;
-                }
-                my $mmbr = '0';
-                foreach (keys %merged_match_back)
-                {
-                    $mmbr++;
-                }
                 print OUTPUT5 $mmr." MATCH_ARRAY_READ\n";
                 print OUTPUT5 $mmbr." MATCH_ARRAY_BACK_READ\n";
             }
@@ -4605,7 +4618,7 @@ SKIP3:
             }
             
             
-            if ($ext < 8 && $extra_regex eq "" && $last_chance ne "yes" && $indel_split eq '0')
+            if ($ext < 8 && $extra_regex eq "" && $last_chance ne "yes" && $indel_split eq '0' && $ext < $mmr)
             {
                 undef %extensions1;
                 undef %extensions2;
@@ -4977,7 +4990,7 @@ NUCLEO:     while ($l < $read_length - ($overlap+$left-1) + $extra_l)
                     $SNP = "yes4";
                     my $g = $l;
                     my $pos_SNP_tmp = $pos_SNP;
-                    if ($pos_SNP3 > $pos_SNP+15)
+                    if ($pos_SNP3 > $pos_SNP+12)
                     {
                         $pos_SNP_tmp = $pos_SNP3;
                     }
@@ -5268,7 +5281,7 @@ FIND_ID2:       foreach my $matches (@matches)
                 my $TTTT = $end_SNR =~ tr/T/T/;
                 my $CCCC = $end_SNR =~ tr/C/C/;
                 my $AAAA = $end_SNR =~ tr/A/A/;
-                if ($GGGG eq '4' || $TTTT eq '4' || $CCCC eq '4' || $AAAA eq '4')
+                if (($GGGG eq '4' || $TTTT eq '4' || $CCCC eq '4' || $AAAA eq '4') && $before eq "yes")
                 {
                     $GGGG = $best_extension2 =~ tr/G/G/;
                     $TTTT = $best_extension2 =~ tr/T/T/;
@@ -5520,7 +5533,7 @@ FIND_ID1:       foreach my $matches (@matches)
                 my $TTTT = $end_SNR =~ tr/T/T/;
                 my $CCCC = $end_SNR =~ tr/C/C/;
                 my $AAAA = $end_SNR =~ tr/A/A/;
-                if ($GGGG eq '4' || $TTTT eq '4' || $CCCC eq '4' || $AAAA eq '4')
+                if (($GGGG eq '4' || $TTTT eq '4' || $CCCC eq '4' || $AAAA eq '4') && $before eq "yes")
                 {
                     $GGGG = $best_extension1 =~ tr/G/G/;
                     $TTTT = $best_extension1 =~ tr/T/T/;
@@ -8511,7 +8524,7 @@ SKIP_BACK:                                      if ($extension_match ne "NOOO" &
                 print OUTPUT5 $ext ." EXTENSIONS_BACK\n";
             }            
 
-            if ($ext < 8 && $extra_regex eq "" && $last_chance_back ne "yes" && $indel_split_back eq '0')
+            if ($ext < 8 && $extra_regex eq "" && $last_chance_back ne "yes" && $indel_split_back eq '0' && $ext < $mmbr)
             {
                 undef %extensions1;
                 undef %extensions2;
@@ -10932,12 +10945,11 @@ SAME_ID:
                                                         print "Largest contig         : ".$largest_contig." bp\n";
                                                         print "Smallest contig        : ".$miminum_contig." bp\n";
                                                         print "Average insert size    : ".$insert_size." bp\n\n";
-                                                        print "----------------------------------------------------------------------------------------------------\n\n";
                                                         print OUTPUT4 "\nTotal contigs          : ".$l."\n";
                                                         print OUTPUT4 "Largest contig         : ".$largest_contig." bp\n";
                                                         print OUTPUT4 "Smallest contig        : ".$miminum_contig." bp\n";
                                                         print OUTPUT4 "Average insert size    : ".$insert_size." bp\n\n";
-                                                        print OUTPUT4 "----------------------------------------------------------------------------------------------------\n\n";
+                                                        
                                                         $option++;
                                                         close OUTPUT2;
                                                         $finish = "yes";
@@ -11396,7 +11408,9 @@ FINISH2:
                                                 }
                                                 if ($hasL eq "yes")
                                                 {
-                                                    print OUTPUT7 "\n(Contigs broken up by long homopolymer stretches are linked together as one contig with 15 N's, they can be merged manually in some cases)\n\n";
+                                                    print OUTPUT7 "\n(Contigs broken up by long homopolymer stretches are linked together as one contig with 15 N's, they can be merged manually in some cases)\n";
+                                                    print OUTPUT7 "\n(If the region before and after the N zone overlaps, you can merge them by deleting the regions next to N zone from both sides (those are the least reliable))\n\n";
+
                                                 }                                     
                                                 my %row_circle;
                                                 undef %row_circle;
