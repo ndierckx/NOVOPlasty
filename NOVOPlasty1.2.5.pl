@@ -183,6 +183,7 @@ my $no_contig_id2;
 my $no_contig_id1;
 my $rep_detect2;
 my $hasL;
+my $no_next_seed;
 
 GetOptions (
             "c=s" => \$config,
@@ -286,12 +287,12 @@ my $USAGE = "\nUsage: perl NOVOPlasty.pl -c config_example.txt";
 
 print "\n\n-----------------------------------------------";
 print "\nNOVOPlasty: The Organelle Assembler\n";
-print "Version 1.2.4\n";
+print "Version 1.2.5\n";
 print "Author: Nicolas Dierckxsens, (c) 2015-2016\n";
 print "-----------------------------------------------\n\n";
 print OUTPUT4 "\n\n-----------------------------------------------";
 print OUTPUT4 "\nNOVOPlasty: The Organelle Assembler\n";
-print OUTPUT4 "Version 1.2.4\n";
+print OUTPUT4 "Version 1.2.5\n";
 print OUTPUT4 "Author: Nicolas Dierckxsens, (c) 2015-2016\n";
 print OUTPUT4 "-----------------------------------------------\n\n";
 
@@ -1701,7 +1702,7 @@ print "Seed Input           = ".$seed_input0."\n\n";
 
 print OUTPUT4 "\n\n-----------------------------------------------";
 print OUTPUT4 "\nNOVOPlasty: The Plastid Assembler\n";
-print OUTPUT4 "Version 1.2.4\n";
+print OUTPUT4 "Version 1.2.5\n";
 print OUTPUT4 "Author: Nicolas Dierckxsens, (c) 2015-2016\n";
 print OUTPUT4 "-----------------------------------------------\n\n";
 
@@ -2314,8 +2315,16 @@ if ($bad_read ne "yes" || $sc eq '1')
 {
     foreach $seed_id (keys %seed)
     {
+    }
+    if ($y > $startprint2)
+    {
         print "\nStart Assembly...\n\n";
-        print OUTPUT4 "\nStart Assembly...\n\n";    
+        print OUTPUT4 "\nStart Assembly...\n\n";
+        if ($type eq "chloro")
+        {
+            print "When the assembly was not successful or NOVOPlasty ouputs too many assemblies, it is recommended to use the 'chloro2' setting.\n\n";
+            print OUTPUT4 "When the assembly was not successful or NOVOPlasty ouputs too many assemblies, it is recommended to use the 'chloro2' setting.\n\n";
+        }
     }
 }
 ITERATION: while ($y < $iterations)
@@ -2462,6 +2471,7 @@ SEED: foreach $seed_id (keys %seed)
     $no_contig_id2 = "";
     $no_contig_id1 = "";
     $rep_detect2 = "";
+    $no_next_seed = "";
     
     if (exists($indel_split{$seed_id}))
     {
@@ -3183,8 +3193,11 @@ REPEAT:
         if ($check_repetitive > 0)
         {
             $repetitive_detect_back = "yes";
-            print OUTPUT5 "DETECT_REPETITIVE_back\n";
-            print OUTPUT5 $start_repetitive." END_READ\n";
+            if ($y > $startprint2)
+            {
+                print OUTPUT5 "DETECT_REPETITIVE_back\n";
+                print OUTPUT5 $start_repetitive." END_READ\n";
+            }
             if ($check_repetitive > 1)
             {
                 my $start_repetitive1 = substr $read, 0, 800;
@@ -3192,7 +3205,10 @@ REPEAT:
                 if ($check_repetitive > 6)
                 {
                     $repetitive_detect_back2 = "yes";
-                    print OUTPUT5 "DETECT_REPETITIVE_back2\n";
+                    if ($y > $startprint2)
+                    {
+                        print OUTPUT5 "DETECT_REPETITIVE_back2\n";
+                    }
                 }
             }
         }
@@ -3203,8 +3219,11 @@ REPEAT:
         if ($check_repetitive2 > 0)
         {
             $repetitive_detect = "yes";
-            print OUTPUT5 "DETECT_REPETITIVE\n";
-            print OUTPUT5 $end_repetitive." END_READ\n";
+            if ($y > $startprint2)
+            {
+                print OUTPUT5 "DETECT_REPETITIVE\n";
+                print OUTPUT5 $end_repetitive." END_READ\n";
+            }
             if ($check_repetitive2 > 1)
             {
                 my $end_repetitive1 = substr $read, -800;
@@ -3212,7 +3231,10 @@ REPEAT:
                 if ($check_repetitive21 > 6)
                 {
                     $repetitive_detect2 = "yes";
-                    print OUTPUT5 "DETECT_REPETITIVE2\n";
+                    if ($y > $startprint2)
+                    {
+                        print OUTPUT5 "DETECT_REPETITIVE2\n";
+                    }
                 }
             }
         }
@@ -3365,7 +3387,7 @@ REPEAT:
                                                         }
                                                     }
                                                 }
-                                                if (keys %contigs)
+                                                if (keys %contigs && $type ne "chloro")
                                                 {
                                                     my $total_length = length($read);
                                                     foreach my $contig_tmp (keys %contigs)
@@ -3380,7 +3402,11 @@ REPEAT:
                                                         $contigs{$contig_num."+".$id} = $read;
                                                         $contig_num++;
                                                         delete $seed{$id};
-                                                         goto FINISH2;
+                                                        if ($y > $startprint2)
+                                                        {
+                                                            print OUTPUT5 "TOTAL_LENGTH_ABOVE_UP_LIMIT\n";
+                                                        }
+                                                        goto FINISH2;
                                                     }
                                                 }
                                                 if (length($read) > $genome_range_high)
@@ -3393,13 +3419,19 @@ REPEAT:
                                                         $contigs{$contig_num."+".$id} = $read;
                                                         $contig_num++;
                                                         delete $seed{$id};
+                                                        if ($y > $startprint2)
+                                                        {
+                                                            print OUTPUT5 "READ_ABOVE_UP_LIMIT\n";
+                                                        }
                                                         goto FINISH2;
                                                     }
-                                                    
-                                                    
                                                 }
                                 chomp $read;
                            
+                                if ($y > $startprint2)
+                                {
+                                    print OUTPUT5 "START_SCAN\n";
+                                }                     
                                 if ($position > $insert_size2 - $read_length + 300)
                                 {
                                     my $read_end_AT = substr $read_short_end2, -$overlap, $overlap;
@@ -10623,12 +10655,20 @@ FINISH:
                                                 $indel_split_skip = "yes";
                                                 delete $indel_split{$id};
                                                 $noforward{$id} = "";
-                                                $seed{$id} = $read_new;                                         
+                                                $seed{$id} = $read_new;
+                                                if ($y > $startprint2)
+                                                {
+                                                    print OUTPUT5 "FINISH1\n";
+                                                }
                                             } 
                                             elsif ($merge ne "yes" && $circle eq "" && ($noback ne "stop" || ($noforward ne "stop" && $delete_first ne "yes2")) && $AT_rich ne "yes" && $bad_read ne "yes")
                                             {
                                                 delete $seed{$id};                                         
                                                 $seed{$id} = $read_new;
+                                                if ($y > $startprint2)
+                                                {
+                                                    print OUTPUT5 "FINISH2\n";
+                                                }
                                             }
                                             elsif ($merge ne "yes" && $circle eq "" && $AT_rich ne "yes" && $bad_read ne "yes" &&  $delete_first eq "yes2" && $last_chance ne "yes")
                                             {
@@ -10636,10 +10676,14 @@ FINISH:
                                                 $seed{$id} = $read_new;
                                                 delete $last_chance{$id};
                                                 $last_chance{$id} = "yes";
+                                                if ($y > $startprint2)
+                                                {
+                                                    print OUTPUT5 "FINISH3\n";
+                                                }
                                             }
 
                                             
-                                            elsif ($nosecond eq "" && $CP_check ne "yes" && length($read) > $read_length+150 && $circle eq "" && (($last_chance eq "yes" || $noforward eq "stop") && ($last_chance_back eq "yes" || $noback eq "stop")) || ($AT_rich eq "yes" && $count_seed ne "0") || ($bad_read eq "yes" && $count_seed ne "0"))
+                                            elsif ($no_next_seed ne "yes" && $nosecond eq "" && $CP_check ne "yes" && length($read) > $read_length+150 && $circle eq "" && (($last_chance eq "yes" || $noforward eq "stop") && ($last_chance_back eq "yes" || $noback eq "stop")) || ($AT_rich eq "yes" && $count_seed ne "0") || ($bad_read eq "yes" && $count_seed ne "0"))
                                             {
                                                 if ($bad_read eq "yes")
                                                 {
@@ -10718,9 +10762,7 @@ FINISH:
                                                     }
                                                     $seed_old{$id} = $read;
                                                     $id_old = $id;
-                                                }
- 
-                                                delete $seed{$id};                                         
+                                                }                                     
                                                 
                                                 my $xy = -($overlap+3);
                                                 my $tt = '-250';
@@ -10826,6 +10868,7 @@ NEXT_SEED:                                      while ($xy > $tt)
                                                                             print OUTPUT5 $id." SECOND!!!!\n";
                                                                             print OUTPUT5 $seed." SEED!!!!\n";
                                                                         }
+                                                                        delete $seed{$id};
                                                                         $seed = correct ($seed);
    
                                                                         $id_bad{$id_b} = undef;
@@ -10862,6 +10905,8 @@ SAME_ID:
                                                     }
                                                     $xy--;
                                                 }
+                                                $no_next_seed = "yes";
+                                                goto FINISH;
                                             }
                                             elsif($circle eq "" && (($last_chance eq "yes" || $noforward eq "stop") && ($last_chance_back eq "yes" || $noback eq "stop")) || ($AT_rich eq "yes" && $count_seed ne "0") || ($bad_read eq "yes" && $count_seed ne "0"))
                                             {
@@ -10902,6 +10947,8 @@ SAME_ID:
                                                         print "\b" x length($progress_before);
                                                         print ' ' x length($progress_before);
                                                         print "\b" x length($progress_before);
+                                                        print OUTPUT4 "\n\n----------------------------------------------------------------------------------------------------";
+                                                        print "\n\n----------------------------------------------------------------------------------------------------";
                                                         print "\n\nAssembly ".$option." finished incomplete: The genome has not been circularized\n\n";
                                                         print OUTPUT4 "\n\nAssembly ".$option." finished incomplete: The genome has not been circularized\n\n";
                                                         print OUTPUT5 "\n\nAssembly ".$option." finished incomplete: The genome has not been circularized2\n\n";
