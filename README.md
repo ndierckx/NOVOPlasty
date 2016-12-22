@@ -20,8 +20,7 @@ I almost finished a comprehensive update and I will upload NOVOPLasty 2.0 this w
 
 # Cite
 
-<a href="http://nar.oxfordjournals.org/cgi/content/full/gkw955?
-ijkey=Zj72e1zmjReCqRz&keytype=ref ">Dierckxsens N., Mardulyn P. and Smits G. (2016) NOVOPlasty: De novo assembly of organelle genomes from whole genome data. <i>Nucleic Acids Research</i>, doi: 10.1093/nar/gkw955<a>
+<a href="http://nar.oxfordjournals.org/content/early/2016/10/24/nar.gkw955.full">Dierckxsens N., Mardulyn P. and Smits G. (2016) NOVOPlasty: De novo assembly of organelle genomes from whole genome data. <i>Nucleic Acids Research</i>, doi: 10.1093/nar/gkw955<a>
 
 
 # Getting help
