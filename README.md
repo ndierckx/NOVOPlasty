@@ -5,7 +5,7 @@ NOVOPlasty is a de novo assembler for short circular genomes.</br>
 For the moment NOVOPlasty only supports whole genome Illumina paired-end reads as input.
 
 <strong>Last updates: 04/01/16 version 2.0</strong></br>
-- Imoroved assembly of duplicated and repetitive regions.
+- Improved assembly of duplicated and repetitive regions.
 - 'chloro' setting is replaced by the 'chloro2' setting (now the only options are 'chloro' and 'mito')</br>
 <strong>11/11/16</strong>
 - Improved seed retrieval with low coverage
