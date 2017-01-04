@@ -105,6 +105,15 @@ Perl
 
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;If non of the above files are outputted or are empty, you can retrieve some contigs from this file.
 
+&nbsp;&nbsp;&nbsp;<strong>5\. Interpretation</strong>
+
+&nbsp;&nbsp;&nbsp;1\. Chloroplast assembly
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Ideally you will have one or two outputted assemblies. When you have two assemblies from the same length, the only</br> 
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;difference will be the orientation of the inverted repeat. This can be resolved manually by mapping</br> 
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;the assemblies to the closest reference. (On NCBI's BLAST you can further examine your mapping by clicking on</br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'Graphics', this will show you which orientation is correct.) </br> 
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Otherwise you can first annotate the two assemblies and compare the gene order.
 
 # Configuration file
 
