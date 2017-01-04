@@ -21,9 +21,7 @@ Project name         = Choose a name for your project, it will be used for the o
 Insert size          = Total insert size of your paired end reads, it doesn't have to be accurate but should be close enough.
 Insert size auto     = (yes/no) This will finetune your insert size automatically (Default: yes)
 Read Length          = The read length of your reads.
-Type                 = (chloro/chloro2/mito) "chloro" for chloroplast assembly and "mito for mitochondrial assembly. It is     
-                       recommended to first try "chloro", and if you don't get a circularized genome or it splits in to many
-                       versions, to try "chloro2". This will create different contigs without circularizing
+Type                 = (chloro/mito) "chloro" for chloroplast assembly and "mito for mitochondrial assembly.
 Genome Range         = (minimum genome size-maximum genome size) The expected genome size range of the genome.
                        Default value for mito: 12000-20000 / Default value for chloro: 120000-200000
                        If the expected size is know, you can lower the range, this can be useful when there is a repetitive
