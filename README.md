@@ -4,10 +4,9 @@
 NOVOPlasty is a de novo assembler for short circular genomes.</br>
 For the moment NOVOPlasty only supports whole genome Illumina paired-end reads as input.
 
-<strong>Last updates: 09/12/16 version 1.2.5</strong></br>
-PLEASE USE THE OLD RELEASE 1.2.3, THERE ARE PROBLEMS WITH THE LATEST RELEASE.
-I almost finished a comprehensive update and I will upload NOVOPLasty 2.0 this week.
-- In some cases the assembly was not ouptutted (for the 'chloro' setting)</br>
+<strong>Last updates: 04/01/16 version 2.0</strong></br>
+- Imoroved assembly of duplicated and repetitive regions.
+- 'chloro' setting is replaced by the 'chloro2' setting (now the only options are 'chloro' and 'mito')</br>
 <strong>11/11/16</strong>
 - Improved seed retrieval with low coverage
 - Data files without quality scores can be used as input file</br>
@@ -69,7 +68,7 @@ Perl
 &nbsp;&nbsp;&nbsp;<code>perl NOVOPlasty.pl -c config.txt</code>
 
 &nbsp;&nbsp;&nbsp;The input reads have to be uncompressed Illumina reads (fastq/fasta files).</br>
-&nbsp;&nbsp;&nbsp;Either two separate files(forward and reverse) or a merged fastq file.</br>
+&nbsp;&nbsp;&nbsp;Either two separate files(forward and reverse) or a merged fastq/fasta file.</br>
 &nbsp;&nbsp;&nbsp;Multiple libraries as input is not yet supported.
 
 &nbsp;&nbsp;&nbsp;DO NOT filter or quality trim the reads!!! Use the raw whole genome dataset!</br>
@@ -82,33 +81,27 @@ Perl
 &nbsp;&nbsp;&nbsp;150 bp reads: +/- 49</br>
 &nbsp;&nbsp;&nbsp;250 bp reads: +/- 73</br>
 
-&nbsp;&nbsp;&nbsp;You can always try different K-mer's. In the case of low coverage problems, </br> 
+&nbsp;&nbsp;&nbsp;You can always try different K-mer's. In the case of low coverage problems or seed errors, </br> 
 &nbsp;&nbsp;&nbsp;it's recommended to lower the K-mer (set to 39)!!!.</br>
 
 &nbsp;&nbsp;&nbsp;<strong>4\. Output files</strong>
 
 &nbsp;&nbsp;&nbsp;NOVOPlasty outputs four types of files:
 
-&nbsp;&nbsp;&nbsp;1\. Circularized_assembly_projectname.fasta
+&nbsp;&nbsp;&nbsp;1\. Contigs_projectname.txt
 
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;This file contains the assemblies that were successfully circularized. </br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;When using the 'chloro2' stand, all successful asemblies can be found back in the 'Merged_contigs_projectname.txt' file.
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; This file contains the contigs of the assemblies.</br> 
 
-&nbsp;&nbsp;&nbsp;2\. Uncircularized_assembly_projectname.fasta
+&nbsp;&nbsp;&nbsp;2\. Merged_contigs_projectname.txt
 
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;This file contains the assemblies that were not circularized in 'chloro' stand.
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;When there are multiple contigs, NOVOPlasty will try to combine all contigs </br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;in to a complete circular genome, all the different possibilities can be found in this file.</br> 
 
-&nbsp;&nbsp;&nbsp;3\. Contigs_projectname.txt
+&nbsp;&nbsp;&nbsp;3\. Option_nr_projectname.txt
 
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; This file contains the contigs of the assemblies that were not circularized in 'chloro2' or 'mito' stand.</br> 
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; These contigs could still be circularized in the 'Merged_contigs' file.
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;All possible contig combinations will have a seperate fasta file. </br>
 
-&nbsp;&nbsp;&nbsp;4\. Merged_contigs_projectname.txt
-
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;When using the 'chloro2' or 'mito' stand, NOVOPlasty will try to combine all contigs </br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;in to a complete circular genome, all the different possibilities can be found in this file.
-
-&nbsp;&nbsp;&nbsp;5\. contigs_tmp_projectname.txt
+&nbsp;&nbsp;&nbsp;4\. contigs_tmp_projectname.txt
 
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;If non of the above files are outputted or are empty, you can retrieve some contigs from this file.
 
@@ -145,9 +138,7 @@ Project name         = Choose a name for your project, it will be used for the o
 Insert size          = Total insert size of your paired end reads, it doesn't have to be accurate but should be close enough.
 Insert size auto     = (yes/no) This will finetune your insert size automatically (Default: yes)
 Read Length          = The read length of your reads.
-Type                 = (chloro/chloro2/mito) "chloro" for chloroplast assembly and "mito for mitochondrial assembly. It is     
-                       recommended to first try "chloro", and if you don't get a circularized genome or it splits in to many
-                       versions, to try "chloro2". This will create different contigs without circularizing
+Type                 = (chloro/mito) "chloro" for chloroplast assembly and "mito for mitochondrial assembly.
 Genome Range         = (minimum genome size-maximum genome size) The expected genome size range of the genome.
                        Default value for mito: 12000-20000 / Default value for chloro: 120000-200000
                        If the expected size is know, you can lower the range, this can be useful when there is a repetitive
