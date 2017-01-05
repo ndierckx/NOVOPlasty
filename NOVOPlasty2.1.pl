@@ -3268,8 +3268,8 @@ REPEAT:
                                     my $C_rich_test2 = $read_start_AT =~ tr/C\.//;
                                     if ($A_rich_test2 > $overlap || $T_rich_test2 > $overlap || $G_rich_test2 > $overlap || $C_rich_test2 > $overlap)
                                     {
-                                        $noback = "yes";
-                                        $noback{$id} = "yes";
+                                        $noback = "stop";
+                                        $noback{$id} = "stop";
                                     }
                                                                     
                                     my $s = '0';
