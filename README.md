@@ -109,7 +109,7 @@ Perl
 
 &nbsp;&nbsp;&nbsp;<strong>5\. Interpretation</strong>
 
-&nbsp;&nbsp;&nbsp;2\. General
+&nbsp;&nbsp;&nbsp;1\. General
 
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;A '&#42;' in the fasta ouptut files indicates that the nucleotide before is a possible deletion/insertion. This can occur</br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;when the exact lenght of single nucleotide repeat can't be determined exactly due to systemic Illumina sequencing</br>
