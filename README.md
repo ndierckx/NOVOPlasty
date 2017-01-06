@@ -111,8 +111,9 @@ Perl
 
 &nbsp;&nbsp;&nbsp;2\. General
 
-A '&#42;' in the fasta ouptut files indicates that the nucleotide before is a possible deletion/insertion.
-This can occur when the exact lenght of single nucleotide repeat can't be determined exactly due to systemic Illumina sequencing errors. Since this sign can interfere with post processing algorithms it is best resolve them manually or to delete them. 
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;A '&#42;' in the fasta ouptut files indicates that the nucleotide before is a possible deletion/insertion. This can occur</br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;when the exact lenght of single nucleotide repeat can't be determined exactly due to systemic Illumina sequencing</br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;errors. Since this sign can interfere with post processing algorithms it is best resolve them manually or to delete them. 
 
 &nbsp;&nbsp;&nbsp;2\. Chloroplast assembly
 
