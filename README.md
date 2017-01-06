@@ -4,7 +4,9 @@
 NOVOPlasty is a de novo assembler for short circular genomes.</br>
 For the moment NOVOPlasty only supports whole genome Illumina paired-end reads as input.
 
-<strong>Last updates: 04/01/16 version 2.1</strong></br>
+<strong>Last updates: 06/01/17 version 2.2</strong></br>
+- Fixed several bugs</br>
+<strong>04/01/17</strong>
 - Improved assembly of duplicated and repetitive regions.
 - 'chloro' setting is replaced by the 'chloro2' setting (now the only options are 'chloro' and 'mito')</br>
 <strong>11/11/16</strong>
@@ -107,7 +109,12 @@ Perl
 
 &nbsp;&nbsp;&nbsp;<strong>5\. Interpretation</strong>
 
-&nbsp;&nbsp;&nbsp;1\. Chloroplast assembly
+&nbsp;&nbsp;&nbsp;2\. General
+
+A '&#42;' in the fasta ouptut files indicates that the nucleotide before is a possible deletion/insertion.
+This can occur when the exact lenght of single nucleotide repeat can't be determined exactly due to systemic Illumina sequencing errors. Since this sign can interfere with post processing algorithms it is best resolve them manually or to delete them. 
+
+&nbsp;&nbsp;&nbsp;2\. Chloroplast assembly
 
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Ideally you will have one or two outputted assemblies. When you have two assemblies from the same length,</br> 
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;the only difference will be the orientation of the inverted repeat. This can be resolved manually by mapping</br> 
