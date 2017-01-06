@@ -218,6 +218,7 @@ my %before_shorter_skip_back;
 my $SNR_next_seed;
 my $jump_rep;
 my %jump_rep;
+my $AT_rich_before;
 
 GetOptions (
             "c=s" => \$config,
@@ -326,12 +327,12 @@ my $USAGE = "\nUsage: perl NOVOPlasty.pl -c config_example.txt";
 
 print "\n\n-----------------------------------------------";
 print "\nNOVOPlasty: The Organelle Assembler\n";
-print "Version 2.0\n";
+print "Version 2.2\n";
 print "Author: Nicolas Dierckxsens, (c) 2015-2016\n";
 print "-----------------------------------------------\n\n";
 print OUTPUT4 "\n\n-----------------------------------------------";
 print OUTPUT4 "\nNOVOPlasty: The Organelle Assembler\n";
-print OUTPUT4 "Version 2.0\n";
+print OUTPUT4 "Version 2.2\n";
 print OUTPUT4 "Author: Nicolas Dierckxsens, (c) 2015-2016\n";
 print OUTPUT4 "-----------------------------------------------\n\n";
 
@@ -1432,7 +1433,7 @@ print "Seed Input           = ".$seed_input0."\n\n";
 
 print OUTPUT4 "\n\n-----------------------------------------------";
 print OUTPUT4 "\nNOVOPlasty: The Organelle Assembler\n";
-print OUTPUT4 "Version 2.0\n";
+print OUTPUT4 "Version 2.2\n";
 print OUTPUT4 "Author: Nicolas Dierckxsens, (c) 2015-2016\n";
 print OUTPUT4 "-----------------------------------------------\n\n";
 
@@ -2225,6 +2226,7 @@ SEED: foreach $seed_id (keys %seed)
     $extensions_before = "";
     $SNR_next_seed = "";
     $ext_before = "";
+    $AT_rich_before = "";
     
     if (exists($indel_split{$seed_id}))
     {
@@ -3003,7 +3005,7 @@ REPEAT:
             }
         }
 
-        if ($noback ne "yes")
+        if ($noback ne "stop")
         {
             my $start_repetitive = substr $read, $overlap, $insert_size+100;
             my $repetitive_test = substr $read_short_start2, 0, 15;
@@ -3032,7 +3034,7 @@ REPEAT:
                 }
             }
         }
-        if ($noforward ne "yes")
+        if ($noforward ne "stop")
         {
             my $end_repetitive = substr $read, -$insert_size-100,-$overlap;
             my $repetitive_test2 = substr $read_short_end2, -15;
@@ -3261,12 +3263,21 @@ REPEAT:
                                         $AT_rich = "yes";
                                         goto FINISH;
                                     }
-                                    my $read_start_AT = substr $read_short_start2, 0, $overlap+3;
-                                    my $A_rich_test2 = $read_start_AT =~ tr/A\.//;
-                                    my $T_rich_test2 = $read_start_AT =~ tr/T\.//;
-                                    my $G_rich_test2 = $read_start_AT =~ tr/G\.//;
-                                    my $C_rich_test2 = $read_start_AT =~ tr/C\.//;
+                                    my $read_end_AT2 = substr $read_short_end2, -$overlap-3;
+                                    my $A_rich_test2 = $read_end_AT2 =~ tr/A\.//;
+                                    my $T_rich_test2 = $read_end_AT2 =~ tr/T\.//;
+                                    my $G_rich_test2 = $read_end_AT2 =~ tr/G\.//;
+                                    my $C_rich_test2 = $read_end_AT2 =~ tr/C\.//;
                                     if ($A_rich_test2 > $overlap || $T_rich_test2 > $overlap || $G_rich_test2 > $overlap || $C_rich_test2 > $overlap)
+                                    {
+                                        $AT_rich_before = "yes";
+                                    }
+                                    my $read_start_AT = substr $read_short_start2, 0, $overlap+3;
+                                    my $A_rich_test3 = $read_start_AT =~ tr/A\.//;
+                                    my $T_rich_test3 = $read_start_AT =~ tr/T\.//;
+                                    my $G_rich_test3 = $read_start_AT =~ tr/G\.//;
+                                    my $C_rich_test3 = $read_start_AT =~ tr/C\.//;
+                                    if ($A_rich_test3 > $overlap || $T_rich_test3 > $overlap || $G_rich_test3 > $overlap || $C_rich_test3 > $overlap)
                                     {
                                         $noback = "stop";
                                         $noback{$id} = "stop";
@@ -6103,7 +6114,7 @@ INDEL:
                 $split_forward  = "yes";
                 
 
-                if ($jump_rep eq "yes" || ($extensions_before ne "yes" && $contig_end ne "yes" && $indel_split_skip ne "yes" && ($delete_first eq "" || $delete_second eq "" || $delete_third eq "") && $before ne "yes"))
+BEFORE0:        if ($jump_rep eq "yes" || ($extensions_before ne "yes" && $contig_end ne "yes" && $indel_split_skip ne "yes" && ($delete_first eq "" || $delete_second eq "" || $delete_third eq "") && $before ne "yes"))
                 {                   
                     my $before_shorter = "";
                     my $overhangb = 2+($read_length/40);
@@ -6131,8 +6142,22 @@ BEFORE:
                     my %before3B;
                     my %before4B;
                     undef %repetitive_pair;
+                    my $skip_overhang = "";
+                    if ($AT_rich_before eq "yes")
+                    {
+                        my $before_split_tmp = substr $read_short_end2, -($read_length+$overhang);
+                        my $A_rich_test = $before_split_tmp =~ tr/AX\.//;
+                        my $T_rich_test = $before_split_tmp =~ tr/TX\.//;
+                        my $G_rich_test = $before_split_tmp =~ tr/GX\.//;
+                        my $C_rich_test = $before_split_tmp =~ tr/CX\.//;
+                        if ($A_rich_test > ($read_length-$overhang-3) || $T_rich_test > ($read_length-$overhang-3) || $G_rich_test > ($read_length-$overhang-3) || $C_rich_test > ($read_length-$overhang-3))
+                        {
+                            $skip_overhang = "yes";
+                            $overhang -= 5;
+                        }
+                    }
 
-                     my $before_split = substr $read_short_end2, -($read_length-$right-1), $overhang+$overlap;
+                    my $before_split = substr $read_short_end2, -($read_length-$right-1), $overhang+$overlap;
                     my $star0 = '0';
                     if ($containX_short_end2 > 0)
                     {
@@ -6426,26 +6451,7 @@ BEFORE:
                     my %before_all2 = (%before2B, %before2F);
                     my %before_all3 = (%before3B, %before3F);
                     my %before_all4 = (%before4B, %before4F);
-                    undef @extensions_before1;
-                    undef @extensions_before2;
-                    undef @extensions_before3;
-                    undef @extensions_before4;
-                    foreach my $before1_tmp (keys %before_all1)
-                    {
-                        push @extensions_before1, $before_all1{$before1_tmp};
-                    }
-                    foreach my $before2_tmp (keys %before_all2)
-                    {
-                        push @extensions_before2, $before_all2{$before2_tmp};
-                    }
-                    foreach my $before3_tmp (keys %before_all3)
-                    {
-                        push @extensions_before3, $before_all3{$before3_tmp};
-                    }
-                    foreach my $before4_tmp (keys %before_all4)
-                    {
-                        push @extensions_before4, $before_all4{$before4_tmp};
-                    }
+
 
                     my $end_short_tmp = substr $read_short_end2, -($read_length+20);
 
@@ -6459,10 +6465,10 @@ BEFORE_EXTRA:
                     my $second_yuyu = "";
                     my $third_yuyu = "";
                     my $fourth_yuyu = "";
-                    my $first_yuyu2 = @extensions_before1;
-                    my $second_yuyu2 = @extensions_before2;
-                    my $third_yuyu2 = @extensions_before3;
-                    my $fourth_yuyu2 = @extensions_before4;
+                    my $first_yuyu2 = '0';
+                    my $second_yuyu2 = '0';
+                    my $third_yuyu2 = '0';
+                    my $fourth_yuyu2 = '0';
                     my @filter_dot_before1;
                     my @filter_dot_before2;
                     my @filter_dot_before3;
@@ -6495,6 +6501,7 @@ BEFORE_EXTRA:
                             if ($check_yuyuy2 > 0)
                             {
                                 $second_yuyu = "yes";
+                                $second_yuyu2++;
                                 my $end_short_tmp_part = substr $end_short_tmp, -length($yuyu2)+1;
                                 my $end_short_tmp_part2;
                                 my $star = $end_short_tmp_part =~ tr/\*//;
@@ -6538,6 +6545,7 @@ BEFORE_EXTRA:
                             
                             if ($check_yuyuy > 0)
                             {
+                                $first_yuyu2++;
                                 $first_yuyu = "yes";
                                 my $end_short_tmp_part = substr $end_short_tmp, -length($yuyu1)+1;
                                 my $star = $end_short_tmp_part =~ tr/\*//;
@@ -6582,6 +6590,7 @@ BEFORE_EXTRA:
                             
                             if ($check_yuyuy > 0)
                             {
+                                $third_yuyu2++;
                                 $third_yuyu = "yes";
                                 my $end_short_tmp_part = substr $end_short_tmp, -length($yuyu3)+1;
                                 my $star = $end_short_tmp_part =~ tr/\*//;
@@ -6626,6 +6635,7 @@ BEFORE_EXTRA:
                             
                             if ($check_yuyuy > 0)
                             {
+                                $fourth_yuyu2++;
                                 $fourth_yuyu = "yes";
                                 my $end_short_tmp_part = substr $end_short_tmp, -length($yuyu4)+1;
                                 my $star = $end_short_tmp_part =~ tr/\*//;
@@ -6660,10 +6670,10 @@ BEFORE_EXTRA:
 
                     if ($y > $startprint2)
                     {
-                        print OUTPUT5 $first_yuyu." FIRST_YUYU\n";
-                        print OUTPUT5 $second_yuyu." SECOND_YUYU\n";
-                        print OUTPUT5 $third_yuyu." THIRD_YUYU\n";
-                        print OUTPUT5 $fourth_yuyu." FOURTH_YUYU\n";
+                        print OUTPUT5 $first_yuyu2." FIRST_YUYU\n";
+                        print OUTPUT5 $second_yuyu2." SECOND_YUYU\n";
+                        print OUTPUT5 $third_yuyu2." THIRD_YUYU\n";
+                        print OUTPUT5 $fourth_yuyu2." FOURTH_YUYU\n";
                     }
                     
                     my $correction = '0';
@@ -6909,14 +6919,14 @@ print OUTPUT5 $count_all." COUNT_ALL\n";
                             goto BACK;
                         }
                     }
-                    elsif($count_all < 3 && $overhang < $read_length-($overlap+15))
+                    elsif($count_all < 3 && $overhang < $read_length-($overlap+15) && $skip_overhang ne "yes")
                     {
                         if ($y > $startprint2)
                         {
                             print OUTPUT5 "\nMAKE BEFORE SHORTER\n\n";
                         }
                         $before_shorter = "yes";
-                        goto BEFORE;
+                        goto BEFORE;   
                     }
                     else
                     {
@@ -7176,7 +7186,7 @@ print OUTPUT5 $count_all." COUNT_ALL\n";
                             $best_extension = $best_extension4;
                             goto AFTER_EXT;
                         }
-                        elsif(($morethan3 eq 0 && $overhang < $read_length-($overlap*1.5)) || ($morethan3 > 0 && length($read) <= $insert_size && $overhang < 30))
+                        elsif((($morethan3 eq 0 && $overhang < $read_length-($overlap*1.5)) || ($morethan3 > 0 && length($read) <= $insert_size && $overhang < 30)) && $skip_overhang ne "yes")
                         {
                             if ($y > $startprint2)
                             {
@@ -7508,7 +7518,7 @@ FILTER_4:                       foreach my $line (keys %hash_read_short_end)
                                     goto BACK;
                                 }
                             }
-                            elsif (($count1b+$count2b+$count3b+$count4b) < 10 && $overhang < $read_length-($overlap*1.5) && $before_shorter_skip ne "yes")
+                            elsif (($count1b+$count2b+$count3b+$count4b) < 10 && $overhang < $read_length-($overlap*1.5) && $before_shorter_skip ne "yes" && $skip_overhang ne "yes")
                             {
                                 if ($y > $startprint2)
                                 {
@@ -7722,7 +7732,7 @@ REP_PAIR1:                          foreach my $rep_pair (keys %rep_pair)
                                         my $most_match_total = '0';
                                         while ($s < length($part2)-$overlap)
                                         {
-                                            my $part2b = substr $rep_pair, $s, $overlap;
+                                            my $part2b = substr $part2, $s, $overlap;
                                             my $part2b_reverse = reverse($part2b);
                                             $part2b_reverse =~ tr/ACTG/TGAC/;
                                             if (exists($hash2b{$part2b}))
@@ -7930,7 +7940,6 @@ REP_CHECK0:                         foreach my $exts (keys %extensions_original)
                                                 $noforward{$id} = "stop";
                                                 $noforward = "stop";
                                                 my $id_rep = $rep_check{$rep_pair};
-                                                $rep_pair = correct ($rep_pair);
                                                 $noback{$id_rep} = "stop";
                                                 $seed{$id_rep} = $rep_pair;
                                                 $nosecond{$id} = undef;
@@ -8129,7 +8138,7 @@ REP_CHECK0:                         foreach my $exts (keys %extensions_original)
                 
                 elsif($delete_first ne "yes" && $deletion ne "yes")
                 {            
-                    if (exists $old_id{$id} && ($noback eq "stop" || $position_back >= ($insert_size*3)) && $position > 1000 )
+                    if (exists $old_id{$id} && ($noback eq "stop" || $position_back >= ($insert_size*3)))
                     {                                     
                         $merge_read_length = length ($read);
                         $merge_read = "yes"; 
@@ -9624,7 +9633,6 @@ NUCLEO_BACK: while ($l < $read_length - ($overlap+$left-1) + $extra_l)
                     my $arrSize1 = @extensions;
                 if ($y > $startprint2)
                 {
-                    print OUTPUT5 $best_extension_tmp8." EXT_TMP_SNR\n";
                 }
                     if ($last_nuc ne "." && $arrSize1 > 4)
                     {
@@ -10196,7 +10204,7 @@ NUCLEO_BACK: while ($l < $read_length - ($overlap+$left-1) + $extra_l)
                     }
                     print OUTPUT5 $best_extension1." BEST_EXTENSION_BACK1\n\n";
                 }
-                if ((length($best_extension1) < 3 || (length($best_extension1) < 6 && $ext > 15)) && $before_back eq "yes" && $repetitive_detect_back ne "yes")
+                if ((length($best_extension1) < 3 || (length($best_extension1) < 6 && $ext > 15)) && $before_back eq "yessss" && $repetitive_detect_back ne "yes")
                 {
                     if ($y > $startprint2)
                     {
@@ -10650,7 +10658,7 @@ INDEL3_BACK:                    while ($f < @chars3)
                     }
                 }
 INDEL_BACKa:  
-                if ($last_chance_back ne "yes" && (($SNP_active_back eq "" && $before_back eq "yes") || $extensions_before eq "yes") && $indel_split_skip_back ne "yes" && $ext_total_back > 15 && (($delete_first ne "yes_back" && $count_split eq "2") || (length($best_extension1) < 5 && length($best_extension2) < 5 && length($best_extension3) < 5 && length($best_extension4) < 5)) && $indel_split_back < ($read_length-25 -$overlap))
+                if ($last_chance_back ne "yes" && (($SNP_active_back eq "" && $before_back eq "yes") || $extensions_before eq "yes") && $indel_split_skip_back ne "yes" && $ext_total_back > 15 && (($delete_first ne "yes_back" || $count_split ne "2") || (length($best_extension1) < 5 && length($best_extension2) < 5 && length($best_extension3) < 5 && length($best_extension4) < 5)) && $indel_split_back < ($read_length-25 -$overlap))
                 {
                     delete $seed{$id};
                     delete $seed{$id_split1};
@@ -10673,7 +10681,7 @@ INDEL_BACKa:
                         print OUTPUT5 "\nDELETE SPLIT_BACK2\n\n";
                     }
                 }
-                elsif (($before_back eq "yes" || $extensions_before eq "yes") && (($delete_first ne "yes_back" && $count_split eq "2") || (length($best_extension1) < 5 && length($best_extension2) < 5 && length($best_extension3) < 5 && length($best_extension4) < 5)))
+                elsif (($before_back eq "yes" || $extensions_before eq "yes") && (($delete_first ne "yes_back" || $count_split ne "2") || (length($best_extension1) < 5 && length($best_extension2) < 5 && length($best_extension3) < 5 && length($best_extension4) < 5)))
                 {
                     if ($y > $startprint2)
                     {
@@ -12216,7 +12224,7 @@ EXT_BEFORE_BACK:        if ($ext_before eq "yes")
                     }
                 }
                 print OUTPUT5 $delete_first." DLETE_FIRST\n";
-                if (($extensions_before eq "yes" && $deletion_back ne "yes") || ($indel_split_skip_back ne "yes"  && ($delete_first ne "yes_back" || (length($best_extension1) < 5 && length($best_extension2) < 5)) && $ext_total_back > 18 && $indel_split_back < ($read_length-25 -$overlap)))
+                if (($extensions_before eq "yes" || ($indel_split_skip_back ne "yes"  && ($delete_first ne "yes_back" || (length($best_extension1) < 5 && length($best_extension2) < 5)) && $ext_total_back > 18 && $indel_split_back < ($read_length-25 -$overlap))) && $deletion_back ne "yes")
                 {
                     $best_extension = "";
                     $indel_split_back{$id} = $indel_split_back+10;
@@ -12748,6 +12756,10 @@ FINISH:
                                             
                                             elsif ($SNR_next_seed eq "yes" || ($nosecond eq "" && $CP_check ne "yes" && length($read) > $read_length+150 && $circle eq "" && (($last_chance eq "yes" || $noforward eq "stop") && ($last_chance_back eq "yes" || $noback eq "stop")) || ($AT_rich eq "yes" && $count_seed ne "0") || ($bad_read eq "yes" && $count_seed ne "0")))
                                             {
+                                                if ($id_original eq "")
+                                                {
+                                                    $id_original = $id;
+                                                }
                                                 if ($bad_read eq "yes")
                                                 {
                                                     $read = $seed_old{$id_old};
@@ -12920,7 +12932,42 @@ NEXT_SEED:                                      while ($xy > $tt)
                                                                             if ($encrypt eq "yes")
                                                                             {
                                                                                 $seed = decrypt $seed;
-                                                                            }    
+                                                                            }
+
+                                                                            my $part2 = substr $seed, -$overlap-10;
+                                                                            my $s = '0';
+                                                                            my $most_match_total = '0';
+                                                                            while ($s < length($part2)-$overlap)
+                                                                            {
+                                                                                my $part2b = substr $part2, $s, $overlap;
+                                                                                my $part2b_reverse = reverse($part2b);
+                                                                                $part2b_reverse =~ tr/ACTG/TGAC/;
+                                                                                if (exists($hash2b{$part2b}))
+                                                                                {
+                                                                                    $most_match_total++;
+                                                                                }
+                                                                                if (exists($hash2c{$part2b}))
+                                                                                {
+                                                                                    $most_match_total++;
+                                                                                }
+                                                                                if (exists($hash2b{$part2b_reverse}))
+                                                                                {
+                                                                                    $most_match_total++;
+                                                                                }
+                                                                                if (exists($hash2c{$part2b_reverse}))
+                                                                                {
+                                                                                    $most_match_total++;
+                                                                                }
+                                                                                $s++;
+                                                                            }
+                                                                            if ($most_match_total > 5)
+                                                                            {
+                                                                            }
+                                                                            else
+                                                                            {
+                                                                               $xy--;
+                                                                               goto NEXT_SEED;
+                                                                            }
                                                                         }
                                                                         else
                                                                         {
@@ -12930,13 +12977,13 @@ NEXT_SEED:                                      while ($xy > $tt)
                                                                         {
                                                                             print OUTPUT5 $id." SECOND!!!!\n";
                                                                             print OUTPUT5 $seed." SEED!!!!\n";
+                                                                            print OUTPUT5 $id_original." ID_O!!!!\n";
                                                                         }
                                                                         delete $seed{$id_original};
                                                                         delete $seed{$id};
                                                                         delete $seed{$id_split1};
                                                                         delete $seed{$id_split2};
                                                                         delete $seed{$id_split3};
-                                                                        $seed = correct ($seed);
    
                                                                         $id_bad{$id_b} = undef;
                                                                                                                                               
@@ -13074,8 +13121,10 @@ SAME_ID:
                                                     
                                                     if ($l > 1)
                                                     {
-                                                        print "Estimated gap      : ".$contig_gap_min{$id."_".($l-1)}." bp to ".$contig_gap_max{$id."_".($l-1)}." bp";
-                                                        print OUTPUT4 "Estimated gap      : ".$contig_gap_min{$id."_".($l-1)}." bp to ".$contig_gap_max{$id."_".($l-1)}." bp";
+                                                        my $gap_min = sprintf("%.0f", $contig_gap_min{$id."_".($l-1)});
+                                                        my $gap_max = sprintf("%.0f", $contig_gap_max{$id."_".($l-1)});
+                                                        print "Estimated gap      : ".$gap_min." bp to ".$gap_max." bp";
+                                                        print OUTPUT4 "Estimated gap      : ".$gap_min." bp to ".$gap_max." bp";
                                                         if ($contig_gap_min{$id."_".($l-1)} < 0)
                                                         {
                                                             print " (Check manually if the two contigs overlap to merge them together!)\n";
@@ -13187,8 +13236,10 @@ SAME_ID:
                                                         
                                                         if ($jj > 1)
                                                         {
-                                                            print "Estimated gap      : ".$contig_gap_min{$id."_".($jj-1)}." bp to ".$contig_gap_max{$id."_".($jj-1)}." bp";
-                                                            print OUTPUT4 "Estimated gap      : ".$contig_gap_min{$id."_".($jj-1)}." bp to ".$contig_gap_max{$id."_".($jj-1)}." bp";
+                                                            my $gap_min = sprintf("%.0f", $contig_gap_min{$id."_".($jj-1)});
+                                                            my $gap_max = sprintf("%.0f", $contig_gap_max{$id."_".($jj-1)});
+                                                            print "Estimated gap      : ".$gap_min." bp to ".$gap_max." bp";
+                                                            print OUTPUT4 "Estimated gap      : ".$gap_min." bp to ".$gap_max." bp";
                                                             if ($contig_gap_min{$id."_".($jj-1)} < 0)
                                                             {
                                                                 print " (Check manually if the two contigs overlap to merge them together!)\n";
@@ -13719,8 +13770,10 @@ ORDER:                                                      foreach my $tmp (@or
                                                         
                                                         if ($jj > 1)
                                                         {
-                                                            print "Estimated gap      : ".$contig_gap_min{$id."_".($jj-1)}." bp to ".$contig_gap_max{$id."_".($jj-1)}." bp";
-                                                            print OUTPUT4 "Estimated gap      : ".$contig_gap_min{$id."_".($jj-1)}." bp to ".$contig_gap_max{$id."_".($jj-1)}." bp";
+                                                            my $gap_min = sprintf("%.0f", $contig_gap_min{$id."_".($jj-1)});
+                                                            my $gap_max = sprintf("%.0f", $contig_gap_max{$id."_".($jj-1)});
+                                                            print "Estimated gap      : ".$gap_min." bp to ".$gap_max." bp";
+                                                            print OUTPUT4 "Estimated gap      : ".$gap_min." bp to ".$gap_max." bp";
                                                             if ($contig_gap_min{$id."_".($jj-1)} < 0)
                                                             {
                                                                 print " (Check manually if the two contigs overlap to merge them together!)\n";
