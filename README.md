@@ -1,30 +1,29 @@
-<html>
 #NOVOPlasty - The organelle assembler                            
 
-NOVOPlasty is a de novo assembler for short circular genomes.</br>
+NOVOPlasty is a de novo assembler for short circular genomes.
 For the moment NOVOPlasty only supports whole genome Illumina paired-end reads as input.
 
-<strong>Last updates: 06/01/17 version 2.2</strong></br>
-- Fixed several bugs</br>
-<strong>04/01/17</strong>
+**Last updates: 08/01/17 version 2.2.1**
+- Fixed several bugs
+**04/01/17**
 - Improved assembly of duplicated and repetitive regions.
-- 'chloro' setting is replaced by the 'chloro2' setting (now the only options are 'chloro' and 'mito')</br>
-<strong>11/11/16</strong>
+- 'chloro' setting is replaced by the 'chloro2' setting (now the only options are 'chloro' and 'mito')
+**11/11/16**
 - Improved seed retrieval with low coverage
-- Data files without quality scores can be used as input file</br>
-<strong>09/11/16</strong>
+- Data files without quality scores can be used as input file
+**09/11/16**
 - IUPAC codes are correctly called, in stead of to many 'N's
 - Bugs fixed
 - Additional metrics are automatically calculated (Total reads, aligned reads, assembled reads, percentage organelle reads, average organelle coverage)
-- Bugs in contig output fixed</br>
+- Bugs in contig output fixed
 
 
-# Cite
+## Cite
 
 <a href="http://nar.oxfordjournals.org/content/early/2016/10/24/nar.gkw955.full">Dierckxsens N., Mardulyn P. and Smits G. (2016) NOVOPlasty: De novo assembly of organelle genomes from whole genome data. <i>Nucleic Acids Research</i>, doi: 10.1093/nar/gkw955<a>
 
 
-# Getting help
+## Getting help
 
 Any issues/requests/problems/comments can be posted on [Github issues](https://github.com/ndierckx/NOVOPlasty/issues) and I will try to reply the same day.
 
@@ -37,91 +36,82 @@ If your assembly was unsuccessful, you could already add the log file and the co
 <a href="http://ibsquare.be/" target="_blank"><img border="0" src="http://ibsquare.be/sites/default/files/logo_1.png" width="100" height="100" ></a>           
 
 
-# Prerequisites
+## Prerequisites
 
 Perl
 
 
-# Instructions
+## Instructions
 
-<strong>1\. Find a suitable seed</strong>
+#### 1\. Find a suitable seed
 
-&nbsp;&nbsp;&nbsp;There are different types of seed possible:</br>
-&nbsp;&nbsp;&nbsp;- A single read from the dataset that originates from the organelle plastid.</br>
-&nbsp;&nbsp;&nbsp;- A organelle sequence derived from the same or a related species.</br>
-&nbsp;&nbsp;&nbsp;- A complete organelle sequence of a more distant species (recommended when there is no close related</br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;sequence available)
+There are different types of seed possible:
+- A single read from the dataset that originates from the organelle plastid.
+- A organelle sequence derived from the same or a related species.
+- A complete organelle sequence of a more distant species (recommended when there is no close related sequence available)
 
-&nbsp;&nbsp;&nbsp;The format should be like a standard fasta file (first line: >Id_sequence)
+The format should be like a standard fasta file (first line: >Id_sequence)
 
-&nbsp;&nbsp;&nbsp;Be cautious for seed sequences that are similar in both mitochondrial and chloroplast genomes.</br>
-&nbsp;&nbsp;&nbsp;We observed good results with RUBP sequences as seeds for chloroplast assembly
+Be cautious for seed sequences that are similar in both mitochondrial and chloroplast genomes.
+We observed good results with RUBP sequences as seeds for chloroplast assembly.
 
-<strong>2\. Create configuration file</strong>
+#### 2\. Create configuration file
 
-&nbsp;&nbsp;&nbsp;You can download the example file (config.txt) and adjust the settings to your liking.</br>
-&nbsp;&nbsp;&nbsp;Every parameter of the configuration file is explained below. 
+You can download the example file (config.txt) and adjust the settings to your liking.
+Every parameter of the configuration file is explained below. 
 
 
-<strong>3\. Run NOVOPlasty</strong>
+#### 3\. Run NOVOPlasty
 
-&nbsp;&nbsp;&nbsp;No further installation is necessary:
+No further installation is necessary:
 
-&nbsp;&nbsp;&nbsp;<code>perl NOVOPlasty.pl -c config.txt</code>
+<code>perl NOVOPlasty.pl -c config.txt</code>
 
-&nbsp;&nbsp;&nbsp;The input reads have to be uncompressed Illumina reads (fastq/fasta files).</br>
-&nbsp;&nbsp;&nbsp;Either two separate files(forward and reverse) or a merged fastq/fasta file.</br>
-&nbsp;&nbsp;&nbsp;Multiple libraries as input is not yet supported.
+The input reads have to be uncompressed Illumina reads (fastq/fasta files).
+Either two separate files(forward and reverse) or a merged fastq/fasta file.
+Multiple libraries as input is not yet supported.
 
-&nbsp;&nbsp;&nbsp;DO NOT filter or quality trim the reads!!! Use the raw whole genome dataset!</br>
+DO NOT filter or quality trim the reads!!! Use the raw whole genome dataset!
 
-&nbsp;&nbsp;&nbsp;You can subsample to speed up the process and to reduce the memory requirements. But it is recommended </br> &nbsp;&nbsp;&nbsp;to use as much reads as possible, especially when the organelle genome contains AT-rich stretches.
+You can subsample to speed up the process and to reduce the memory requirements. But it is recommended to use as much reads as possible, especially when the organelle genome contains AT-rich stretches.
 
-&nbsp;&nbsp;&nbsp;Recommended maximum K-mer lengths:</br>
+Recommended maximum K-mer lengths:
 
-&nbsp;&nbsp;&nbsp;100 bp reads: +/- 39</br>
-&nbsp;&nbsp;&nbsp;150 bp reads: +/- 49</br>
-&nbsp;&nbsp;&nbsp;250 bp reads: +/- 73</br>
+100 bp reads: +/- 39
+150 bp reads: +/- 49
+250 bp reads: +/- 73
 
-&nbsp;&nbsp;&nbsp;You can always try different K-mer's. In the case of low coverage problems or seed errors, </br> 
-&nbsp;&nbsp;&nbsp;it's recommended to lower the K-mer (set to 39)!!!.</br>
+You can always try different K-mer's. In the case of low coverage problems or seed errors, it's recommended to lower the K-mer (set to 39)!!!.
 
-&nbsp;&nbsp;&nbsp;<strong>4\. Output files</strong>
+#### 4\. Output files
 
-&nbsp;&nbsp;&nbsp;NOVOPlasty outputs four types of files:
+NOVOPlasty outputs four types of files:
 
-&nbsp;&nbsp;&nbsp;1\. Contigs_projectname.txt
+1\. Contigs_projectname.txt
 
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; This file contains the contigs of the assemblies.</br> 
+This file contains the contigs of the assemblies.
 
-&nbsp;&nbsp;&nbsp;2\. Merged_contigs_projectname.txt
+2\. Merged_contigs_projectname.txt
 
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;When there are multiple contigs, NOVOPlasty will try to combine all contigs </br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;in to a complete circular genome, all the different possibilities can be found in this file.</br> 
+When there are multiple contigs, NOVOPlasty will try to combine all contigs in to a complete circular genome, all the different possibilities can be found in this file.
 
-&nbsp;&nbsp;&nbsp;3\. Option_nr_projectname.txt
+3\. Option_nr_projectname.txt
 
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;All possible contig combinations will have a seperate fasta file. </br>
+All possible contig combinations will have a seperate fasta file.
 
-&nbsp;&nbsp;&nbsp;4\. contigs_tmp_projectname.txt
+4\. contigs_tmp_projectname.txt
 
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;If non of the above files are outputted or are empty, you can retrieve some contigs from this file.
+If non of the above files are outputted or are empty, you can retrieve some contigs from this file.
 
-&nbsp;&nbsp;&nbsp;<strong>5\. Interpretation</strong>
+#### 5\. Interpretation
 
-&nbsp;&nbsp;&nbsp;1\. General
+1\. General
 
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;A '&#42;' in the fasta ouptut files indicates that the nucleotide before is a possible deletion/insertion. This can occur</br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;when the exact lenght of single nucleotide repeat can't be determined exactly due to systemic Illumina sequencing</br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;errors. Since this sign can interfere with post processing algorithms it is best resolve them manually or to delete them. 
+A '*' in the fasta ouptut files indicates that the nucleotide before is a possible deletion/insertion. This can occur when the exact lenght of single nucleotide repeat can't be determined exactly due to systemic Illumina sequencing errors. Since this sign can interfere with post processing algorithms it is best resolve them manually or to delete them. 
 
-&nbsp;&nbsp;&nbsp;2\. Chloroplast assembly
+2\. Chloroplast assembly
 
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Ideally you will have one or two outputted assemblies. When you have two assemblies from the same length,</br> 
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;the only difference will be the orientation of the inverted repeat. This can be resolved manually by mapping</br> 
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;the assemblies to the closest reference. (On NCBI's BLAST you can further examine your mapping by clicking on</br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'Graphics', this will show you which orientation is correct.) </br> 
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Otherwise you can first annotate the two assemblies and compare the gene order.
+Ideally you will have one or two outputted assemblies. When you have two assemblies from the same length, the only difference will be the orientation of the inverted repeat. This can be resolved manually by mapping the assemblies to the closest reference. (On NCBI's BLAST you can further examine your mapping by clicking on 'Graphics', this will show you which orientation is correct.) Otherwise you can first annotate the two assemblies and compare the gene order.
 
 # Configuration file
 
