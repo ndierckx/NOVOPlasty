@@ -4,14 +4,14 @@ NOVOPlasty is a de novo assembler for short circular genomes.
 For the moment NOVOPlasty only supports whole genome Illumina paired-end reads as input.
 
 **Last updates: 08/01/17 version 2.2.1**
-- Fixed several bugs
-**04/01/17**
+- Fixed several bugs  
+**04/01/17**  
 - Improved assembly of duplicated and repetitive regions.
-- 'chloro' setting is replaced by the 'chloro2' setting (now the only options are 'chloro' and 'mito')
-**11/11/16**
+- 'chloro' setting is replaced by the 'chloro2' setting (now the only options are 'chloro' and 'mito')  
+**11/11/16**  
 - Improved seed retrieval with low coverage
-- Data files without quality scores can be used as input file
-**09/11/16**
+- Data files without quality scores can be used as input file  
+**09/11/16**  
 - IUPAC codes are correctly called, in stead of to many 'N's
 - Bugs fixed
 - Additional metrics are automatically calculated (Total reads, aligned reads, assembled reads, percentage organelle reads, average organelle coverage)
@@ -43,7 +43,7 @@ Perl
 
 ## Instructions
 
-### 1\. Find a suitable seed
+### 1. Find a suitable seed
 
 There are different types of seed possible:
 - A single read from the dataset that originates from the organelle plastid.
@@ -55,13 +55,13 @@ The format should be like a standard fasta file (first line: >Id_sequence)
 Be cautious for seed sequences that are similar in both mitochondrial and chloroplast genomes.  
 We observed good results with RUBP sequences as seeds for chloroplast assembly.
 
-### 2\. Create configuration file
+### 2. Create configuration file
 
 You can download the example file (config.txt) and adjust the settings to your liking.  
 Every parameter of the configuration file is explained below. 
 
 
-### 3\. Run NOVOPlasty
+### 3. Run NOVOPlasty
 
 No further installation is necessary:
 
@@ -83,35 +83,56 @@ Recommended maximum K-mer lengths:
 
 You can always try different K-mer's. In the case of low coverage problems or seed errors, it's recommended to lower the K-mer (set to 39)!!!.
 
-### 4\. Output files
+### 4. Output files
 
 NOVOPlasty outputs four types of files:
 
-#### 1\. Contigs_projectname.txt
+#### 1. Contigs_projectname.txt
 
 This file contains the contigs of the assemblies.
 
-#### 2\. Merged_contigs_projectname.txt
+#### 2. Merged_contigs_projectname.txt
 
 When there are multiple contigs, NOVOPlasty will try to combine all contigs in to a complete circular genome, all the different possibilities can be found in this file.
 
-#### 3\. Option_nr_projectname.txt
+#### 3. Option_nr_projectname.txt
 
 All possible contig combinations will have a seperate fasta file.
 
-#### 4\. contigs_tmp_projectname.txt
+#### 4. contigs_tmp_projectname.txt
 
 If non of the above files are outputted or are empty, you can retrieve some contigs from this file.
 
-## Interpretation
+## Interpretation and post-processing
 
-### 1\. General
+### 1. General
 
-A '*' in the fasta ouptut files indicates that the nucleotide before is a possible deletion/insertion. This can occur when the exact lenght of single nucleotide repeat can't be determined exactly due to systemic Illumina sequencing errors. Since this sign can interfere with post processing algorithms it is best resolve them manually or to delete them. 
+#### *  
+A '*' in the fasta output files indicates that the nucleotide before is a possible deletion/insertion. This can occur when the exact length of single nucleotide repeat can't be determined exactly due to systemic Illumina sequencing errors. Since this sign can interfere with post processing algorithms it is best resolve them manually or to delete them. 
 
-### 2\. Chloroplast assembly
+#### Gaps  
+Most gaps are caused by Single Nucleotide Repeats (SNR). Illumina seqeuncers have a high rate of systemic errors after SNR's and are therefore hard to assemble. NOVOPlasty is cabale of assembling these regions as correct as possible by approaching these regions from both sides (sequencing errors commence once in the SNR). If this region is not too long, NOVOPlasty can automaticallly merge both sides, otherwise it will output a gap. Although this gap can often be closed automatically (if both sides overlap).  
+You can find an example (form the Avicennia officinalis chloroplast assembly) below how to do this manually:
+
+These regions are indicated by 15 N's:
+```
+TTCTTGTCATTTCTCCCCCCCCCCCCCBTTTTTTTTTTHAAAAAAAAAAAANNNNNNNNNNNNNNNTTTTTTTCCTTTCCCCCCCCCCCCCCCTTTTTTTTTTCAAAAAAAAAAGAGACGAGAAACTC
+```
+Remove the N's and align both sides (Remember that the end of the first sequence and the start of the second sequence are not reliable):
+```
+TTCTTGTCATTTCTCCCCCCCCCCCCCBTTTTTTTTTTHAAAAAAAAAAAA
+ TTTTTTTCCTTTCCCCCCCCCCCCCCCTTTTTTTTTTCAAAAAAAAAAGAGACGAGAAACTCTGAA
+```
+The most likable consensus sequence would be this, so you should correct the assembly like this:
+```
+TTCTTGTCATTTCTCCCCCCCCCCCCCCTTTTTTTTTTCAAAAAAAAAAGAGACGAGAAACTCTGAA
+```
+It is adviced to make these corrections before you verify the assembly by realigning the reads
+
+### 2. Chloroplast assembly
 
 Ideally you will have one or two outputted assemblies. When you have two assemblies from the same length, the only difference will be the orientation of the inverted repeat. This can be resolved manually by mapping the assemblies to the closest reference. (On NCBI's BLAST you can further examine your mapping by clicking on 'Graphics', this will show you which orientation is correct.) Otherwise you can first annotate the two assemblies and compare the gene order.
+
 
 ## Configuration file
 
