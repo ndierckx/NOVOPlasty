@@ -26,7 +26,7 @@ For the moment NOVOPlasty only supports whole genome Illumina paired-end reads a
 
 ## Getting help
 
-Any issues/requests/problems/comments can be posted on [Github issues](https://github.com/ndierckx/NOVOPlasty/issues) and I will try to reply the same day.
+Any issues/requests/problems/comments that are not yet addressed on this page can be posted on [Github issues](https://github.com/ndierckx/NOVOPlasty/issues) and I will try to reply the same day.
 
 Or you can contact me directly through the following email address:
 
