@@ -103,7 +103,7 @@ All possible contig combinations will have a seperate fasta file.
 
 If non of the above files are outputted or are empty, you can retrieve some contigs from this file.
 
-## 5\. Interpretation
+## Interpretation
 
 ### 1\. General
 
@@ -113,13 +113,13 @@ A '*' in the fasta ouptut files indicates that the nucleotide before is a possib
 
 Ideally you will have one or two outputted assemblies. When you have two assemblies from the same length, the only difference will be the orientation of the inverted repeat. This can be resolved manually by mapping the assemblies to the closest reference. (On NCBI's BLAST you can further examine your mapping by clicking on 'Graphics', this will show you which orientation is correct.) Otherwise you can first annotate the two assemblies and compare the gene order.
 
-# Configuration file
+## Configuration file
 
 This is an example of a configuration file for the assembly of a chloroplast.
 To make the assembler work, your configuration file has to have the exact same structure.
 (Make sure there is always a space after the equals sign and every parameter is captured in one single line)
 
-<strong>1\. Example of configuration file:</strong>
+**1. Example of configuration file:**
 <pre>
 Project name         = AOB_chloro
 Insert size          = 300
@@ -139,7 +139,7 @@ Reverse reads        =
 Seed Input           = Seed_AOB.fasta
 </pre>
 
-<strong>2\. Explanation parameters:</strong>
+**2. Explanation parameters:**
 <pre>
 Project name         = Choose a name for your project, it will be used for the output files.
 Insert size          = Total insert size of your paired end reads, it doesn't have to be accurate but should be close enough.
