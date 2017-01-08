@@ -124,10 +124,6 @@ my %match_rep;
 my %count_rep;
 my %before;
 my %before_back;
-my @extensions_before2;
-my @extensions_before1;
-my @extensions_before4;
-my @extensions_before3;
 my %repetitive_check;
 my %first_before;
 my %SNP_active;
@@ -147,8 +143,7 @@ my %count_reads;
 my %count_reads_all;
 my $assembly_length = '1';
 my $assembly_success;
-                my %extensions_before1;
-                my %extensions_before2;
+
 my $reads12;
 my $reads1;
 my $reads2;
@@ -218,6 +213,8 @@ my %before_shorter_skip_back;
 my $SNR_next_seed;
 my $jump_rep;
 my %jump_rep;
+my $jump_rep_back;
+my %jump_rep_back;
 my $AT_rich_before;
 
 GetOptions (
@@ -327,12 +324,12 @@ my $USAGE = "\nUsage: perl NOVOPlasty.pl -c config_example.txt";
 
 print "\n\n-----------------------------------------------";
 print "\nNOVOPlasty: The Organelle Assembler\n";
-print "Version 2.2\n";
+print "Version 2.2.1\n";
 print "Author: Nicolas Dierckxsens, (c) 2015-2016\n";
 print "-----------------------------------------------\n\n";
 print OUTPUT4 "\n\n-----------------------------------------------";
 print OUTPUT4 "\nNOVOPlasty: The Organelle Assembler\n";
-print OUTPUT4 "Version 2.2\n";
+print OUTPUT4 "Version 2.2.1\n";
 print OUTPUT4 "Author: Nicolas Dierckxsens, (c) 2015-2016\n";
 print OUTPUT4 "-----------------------------------------------\n\n";
 
@@ -1433,7 +1430,7 @@ print "Seed Input           = ".$seed_input0."\n\n";
 
 print OUTPUT4 "\n\n-----------------------------------------------";
 print OUTPUT4 "\nNOVOPlasty: The Organelle Assembler\n";
-print OUTPUT4 "Version 2.2\n";
+print OUTPUT4 "Version 2.2.1\n";
 print OUTPUT4 "Author: Nicolas Dierckxsens, (c) 2015-2016\n";
 print OUTPUT4 "-----------------------------------------------\n\n";
 
@@ -2155,10 +2152,6 @@ SEED: foreach $seed_id (keys %seed)
     undef @read_short_end;
     undef @read_start_chars;
     undef @read_short_start;
-    undef @extensions_before1;
-    undef @extensions_before2;
-    undef @extensions_before3;
-    undef @extensions_before4;
     undef %filter_before1;
     undef %filter_before2;
     undef %filter_before3;
@@ -2685,6 +2678,18 @@ ALREADY_X0b:  while ($v0b < $u0b)
         else
         {
             $jump_rep = "";
+        }
+        if (exists($jump_rep_back{$id}))
+        {
+            $jump_rep_back = "yes";
+            if ($y > $startprint2)
+            {
+                print OUTPUT5 "JUMP REP BACK\n";
+            }
+        }
+        else
+        {
+            $jump_rep_back = "";
         }
         if (exists($repetitive_check{$id}))
         {
@@ -4489,7 +4494,7 @@ SKIP3:
                 $ext++;
             }
             $ext_total = $ext;
-            
+                        
             if ($y > $startprint2)
             {
                 print OUTPUT5 "\n".$read_count ." READ_COUNT\n";
@@ -6114,7 +6119,7 @@ INDEL:
                 $split_forward  = "yes";
                 
 
-BEFORE0:        if ($jump_rep eq "yes" || ($extensions_before ne "yes" && $contig_end ne "yes" && $indel_split_skip ne "yes" && ($delete_first eq "" || $delete_second eq "" || $delete_third eq "") && $before ne "yes"))
+                if ($jump_rep eq "yes" || ($extensions_before ne "yes" && $contig_end ne "yes" && $indel_split_skip ne "yes" && ($delete_first eq "" || $delete_second eq "" || $delete_third eq "") && $before ne "yes"))
                 {                   
                     my $before_shorter = "";
                     my $overhangb = 2+($read_length/40);
@@ -6133,6 +6138,7 @@ BEFORE:
                     my @extensions_yuyu;
                     undef @extensions_yuyu;
                     my %extensions_yuyu;
+                    undef %extensions_yuyu;
                     my %before1F;
                     my %before2F;
                     my %before3F;
@@ -6478,7 +6484,15 @@ BEFORE_EXTRA:
                     undef @filter_dot_before3;
                     undef @filter_dot_before4;
                     my @extensions_before;
+                    my @extensions_before1;
+                    my @extensions_before2;
+                    my @extensions_before3;
+                    my @extensions_before4;
                     undef @extensions_before;
+                    undef @extensions_before1;
+                    undef @extensions_before2;
+                    undef @extensions_before3;
+                    undef @extensions_before4;
                     
                     my $end_short_tmp_part = substr $end_short_tmp, -($read_length-$overhang-5-1);
                     my $star_first = substr $end_short_tmp_part, 0, 1;
@@ -6526,6 +6540,7 @@ BEFORE_EXTRA:
                                             print OUTPUT5 $extensions_yuyu{$search}." EXTe2\n";
                                         }
                                         push @extensions_before, $extensions_yuyu{$search};
+                                        push @extensions_before2, $extensions_yuyu{$search};
                                     }
                                     $filter_before2{$search} = undef;
                                 }
@@ -6571,6 +6586,7 @@ BEFORE_EXTRA:
                                             print OUTPUT5 $extensions_yuyu{$search}." EXTe1\n";
                                         }
                                         push @extensions_before, $extensions_yuyu{$search};
+                                        push @extensions_before1, $extensions_yuyu{$search};
                                     }
                                     $filter_before1{$search} = undef;
                                 }
@@ -6616,6 +6632,7 @@ BEFORE_EXTRA:
                                             print OUTPUT5 $extensions_yuyu{$search}." EXTe3\n";
                                         }
                                         push @extensions_before, $extensions_yuyu{$search};
+                                        push @extensions_before3, $extensions_yuyu{$search};
                                     }
                                     $filter_before3{$search} = undef;
                                 }
@@ -6661,6 +6678,7 @@ BEFORE_EXTRA:
                                             print OUTPUT5 $extensions_yuyu{$search}." EXTe4\n";
                                         }
                                         push @extensions_before, $extensions_yuyu{$search};
+                                        push @extensions_before4, $extensions_yuyu{$search};
                                     }
                                     $filter_before4{$search} = undef;
                                 }
@@ -7204,6 +7222,10 @@ print OUTPUT5 $count_all." COUNT_ALL\n";
                                                                                                    
                             my $size = keys %read_short_end_tmp;
                             undef @extensions_before;
+                            undef @extensions_before1;
+                            undef @extensions_before2;
+                            undef @extensions_before3;
+                            undef @extensions_before4;
 
                             my $read_short_end_tempie = substr $read, -($insert_size-7-($read_length/2))-(($insert_size*1.65)-$insert_size)-(($read_length-$right-$left)/2), ((($insert_size*1.65)-$insert_size)*2)+($read_length-$right-$left);
                             $read_short_end_tempie =~ tr/N|K|R|Y|S|W|M|B|D|H|V/\./;
@@ -7255,7 +7277,8 @@ FILTER_1:                       foreach my $line (keys %hash_read_short_end)
                                                 {
                                                     print OUTPUT5 $extensions_yuyu{$exb0}." EXT1\n";
                                                 }
-                                                push @extensions_before, $extensions_yuyu{$exb0}
+                                                push @extensions_before, $extensions_yuyu{$exb0};
+                                                push @extensions_before1, $extensions_yuyu{$exb0};
                                             }
                                         }
                                         $count1b++;
@@ -7288,7 +7311,8 @@ FILTER_2:                       foreach my $line (keys %hash_read_short_end)
                                                 {
                                                     print OUTPUT5 $extensions_yuyu{$exb0}." EXT2\n";
                                                 }
-                                                push @extensions_before, $extensions_yuyu{$exb0}
+                                                push @extensions_before, $extensions_yuyu{$exb0};
+                                                push @extensions_before2, $extensions_yuyu{$exb0};
                                             }
                                         }
                                         $count2b++;
@@ -7321,7 +7345,8 @@ FILTER_3:                       foreach my $line (keys %hash_read_short_end)
                                                 {
                                                     print OUTPUT5 $extensions_yuyu{$exb0}." EXT3\n";
                                                 }
-                                                push @extensions_before, $extensions_yuyu{$exb0}
+                                                push @extensions_before, $extensions_yuyu{$exb0};
+                                                push @extensions_before3, $extensions_yuyu{$exb0}
                                             }
                                         }
                                         $count3b++;
@@ -7354,7 +7379,8 @@ FILTER_4:                       foreach my $line (keys %hash_read_short_end)
                                                 {
                                                     print OUTPUT5 $extensions_yuyu{$exb0}." EXT4\n";
                                                 }
-                                                push @extensions_before, $extensions_yuyu{$exb0}
+                                                push @extensions_before, $extensions_yuyu{$exb0};
+                                                push @extensions_before4, $extensions_yuyu{$exb0};                           
                                             }
                                         }
                                         $count4b++;
@@ -7410,6 +7436,7 @@ FILTER_4:                       foreach my $line (keys %hash_read_short_end)
                                 if (@extensions_before > 3)
                                 {
                                     $ext_before = "yes";
+                                    @extensions_before = @extensions_before1;
                                     goto EXT_BEFORE;
                                 }
                                 delete $seed{$id_split1};
@@ -7430,6 +7457,7 @@ FILTER_4:                       foreach my $line (keys %hash_read_short_end)
                                 if (@extensions_before > 3)
                                 {
                                     $ext_before = "yes";
+                                    @extensions_before = @extensions_before2;
                                     goto EXT_BEFORE;
                                 }
                                 delete $seed{$id};
@@ -7461,6 +7489,7 @@ FILTER_4:                       foreach my $line (keys %hash_read_short_end)
                                 if (@extensions_before > 3)
                                 {
                                     $ext_before = "yes";
+                                    @extensions_before = @extensions_before3;
                                     goto EXT_BEFORE;
                                 }
                                 delete $seed{$id};
@@ -7492,6 +7521,7 @@ FILTER_4:                       foreach my $line (keys %hash_read_short_end)
                                 if (@extensions_before > 3)
                                 {
                                     $ext_before = "yes";
+                                    @extensions_before = @extensions_before4;
                                     goto EXT_BEFORE;
                                 }
                                 delete $seed{$id};
@@ -8994,10 +9024,6 @@ BACK:   if (keys %merged_match_back eq 0 && $use_regex_back ne "yes" && $noback 
             undef %filter_before2;
             undef %filter_before3;
             undef %filter_before4;
-            undef @extensions_before1;
-            undef @extensions_before2;
-            undef @extensions_before3;
-            undef @extensions_before4;
             undef %filter_before1_pair;
             undef %filter_before2_pair;
             undef %filter_before3_pair;
@@ -10717,11 +10743,12 @@ INDEL_BACK:
                 $split_forward        = "yes";
                 
 
-                if ($extensions_before ne "yes" && $indel_split_skip_back ne "yes" && ($delete_first eq "" || $delete_second eq "" || $delete_third eq "") && $before_back ne "yes")
-                {
+                if ($jump_rep_back eq "yes" || ($extensions_before ne "yes" && $indel_split_skip_back ne "yes" && ($delete_first eq "" || $delete_second eq "" || $delete_third eq "") && $before_back ne "yes"))
+                {                   
                     my $before_shorter = "";
-                    my $overhangb = 14+($read_length/40);
+                    my $overhangb = 2+($read_length/40);
                     my $overhang = sprintf("%.0f", $overhangb);
+                    delete $jump_rep_back{$id};
 BEFORE_BACK:
                     my $s = '0';
                     
@@ -11018,26 +11045,6 @@ BEFORE_BACK:
                     my %before_all2 = (%before2B, %before2F);
                     my %before_all3 = (%before3B, %before3F);
                     my %before_all4 = (%before4B, %before4F);
-                    undef @extensions_before1;
-                    undef @extensions_before2;
-                    undef @extensions_before3;
-                    undef @extensions_before4;
-                    foreach my $before1_tmp (keys %before_all1)
-                    {
-                        push @extensions_before1, $before_all1{$before1_tmp};
-                    }
-                    foreach my $before2_tmp (keys %before_all2)
-                    {
-                        push @extensions_before2, $before_all2{$before2_tmp};
-                    }
-                    foreach my $before3_tmp (keys %before_all3)
-                    {
-                        push @extensions_before3, $before_all3{$before3_tmp};
-                    }
-                    foreach my $before4_tmp (keys %before_all4)
-                    {
-                        push @extensions_before4, $before_all4{$before4_tmp};
-                    }
 
 
                     my $start_short_tmp = substr $read_short_start2, 0, $read_length+20;
@@ -11055,10 +11062,10 @@ BEFORE_EXTRA_BACK:
                     my $second_yuyu = "";
                     my $third_yuyu = "";
                     my $fourth_yuyu = "";
-                    my $first_yuyu2 = @extensions_before1;
-                    my $second_yuyu2 = @extensions_before2;
-                    my $third_yuyu2 = @extensions_before3;
-                    my $fourth_yuyu2 = @extensions_before4;
+                    my $first_yuyu2 = '0';
+                    my $second_yuyu2 = '0';
+                    my $third_yuyu2 = '0';
+                    my $fourth_yuyu2 = '0';
                     my @filter_dot_before1;
                     my @filter_dot_before2;
                     my @filter_dot_before3;
@@ -11068,7 +11075,15 @@ BEFORE_EXTRA_BACK:
                     undef @filter_dot_before3;
                     undef @filter_dot_before4;
                     my @extensions_before;
+                    my @extensions_before1;
+                    my @extensions_before2;
+                    my @extensions_before3;
+                    my @extensions_before4;
                     undef @extensions_before;
+                    undef @extensions_before1;
+                    undef @extensions_before2;
+                    undef @extensions_before3;
+                    undef @extensions_before4;
                     
                     my $start_short_tmp_part = substr $start_short_tmp, 0, $read_length-$overhang-5-1; 
                     
@@ -11086,6 +11101,7 @@ BEFORE_EXTRA_BACK:
                             if ($check_yuyuy2 > 0)
                             {
                                 $second_yuyu = "yes";
+                                $second_yuyu2++;
                                 my $start_short_tmp_part = substr $start_short_tmp, 0, length($yuyu2);
                                 my $start_short_tmp_part2;
                                 my $star = $start_short_tmp_part =~ tr/\*//;
@@ -11110,6 +11126,7 @@ BEFORE_EXTRA_BACK:
                                             print OUTPUT5 $extensions_yuyu{$search}." EXTe2\n";
                                         }
                                         push @extensions_before, $extensions_yuyu{$search};
+                                        push @extensions_before2, $extensions_yuyu{$search};
                                     }
                                     $filter_before2{$search} = undef;
                                 }
@@ -11130,6 +11147,7 @@ BEFORE_EXTRA_BACK:
                             if ($check_yuyuy > 0)
                             {
                                 $first_yuyu = "yes";
+                                $first_yuyu2++;
                                 my $start_short_tmp_part = substr $start_short_tmp, 0, length($yuyu1)-1;
                                 my $star = $start_short_tmp_part =~ tr/\*//;
                                 my $check_yuyuy1b2 = '0';
@@ -11154,6 +11172,7 @@ BEFORE_EXTRA_BACK:
                                             print OUTPUT5 $extensions_yuyu{$search}." EXTe1\n";
                                         }
                                         push @extensions_before, $extensions_yuyu{$search};
+                                        push @extensions_before1, $extensions_yuyu{$search};
                                     }
                                     $filter_before1{$search} = undef;
                                 }
@@ -11174,6 +11193,7 @@ BEFORE_EXTRA_BACK:
                             if ($check_yuyuy > 0)
                             {
                                 $third_yuyu = "yes";
+                                $third_yuyu++;
                                 my $start_short_tmp_part = substr $start_short_tmp, 0, length($yuyu3)-1;
                                 my $star = $start_short_tmp_part =~ tr/\*//;
                                 my $check_yuyuy3b2 = '0';
@@ -11198,6 +11218,7 @@ BEFORE_EXTRA_BACK:
                                             print OUTPUT5 $extensions_yuyu{$search}." EXTe3\n";
                                         }
                                         push @extensions_before, $extensions_yuyu{$search};
+                                        push @extensions_before3, $extensions_yuyu{$search};
                                     }
                                     $filter_before3{$search} = undef;
                                 }
@@ -11217,6 +11238,7 @@ BEFORE_EXTRA_BACK:
                             if ($check_yuyuy > 0)
                             {
                                 $fourth_yuyu = "yes";
+                                $fourth_yuyu++;
                                 my $start_short_tmp_part = substr $start_short_tmp, 0, length($yuyu4)-1;
                                 my $star = $start_short_tmp_part =~ tr/\*//;
                                 my $check_yuyuy4b2 = '0';
@@ -11241,6 +11263,7 @@ BEFORE_EXTRA_BACK:
                                             print OUTPUT5 $extensions_yuyu{$search}." EXTe4\n";
                                         }
                                         push @extensions_before, $extensions_yuyu{$search};
+                                        push @extensions_before4, $extensions_yuyu{$search};
                                     }
                                     $filter_before4{$search} = undef;
                                 }
@@ -11787,6 +11810,10 @@ print OUTPUT5 $count_all." COUNT_ALL\n";
                         elsif ($morethan3 > 0 && length($read) > $insert_size)
                         {
                             undef @extensions_before;
+                            undef @extensions_before1;
+                            undef @extensions_before2;
+                            undef @extensions_before3;
+                            undef @extensions_before4;
                             my $count1b = '0';
                             my $count2b = '0';
                             my $count3b = '0';
@@ -11850,7 +11877,8 @@ FILTER_1_BACK:                  foreach my $line (keys %hash_read_short_start)
                                             {
                                                 print OUTPUT5 $extensions_yuyu{$exb0}." EXT1\n";
                                             }
-                                            push @extensions_before, $extensions_yuyu{$exb0}
+                                            push @extensions_before, $extensions_yuyu{$exb0};
+                                            push @extensions_before1, $extensions_yuyu{$exb0};
                                         }
                                         $count1b++;
                                         last FILTER_1_BACK;
@@ -11881,7 +11909,8 @@ FILTER_2_BACK:                  foreach my $line (keys %hash_read_short_start)
                                                 {
                                                     print OUTPUT5 $extensions_yuyu{$exb0}." EXT2\n";
                                                 }
-                                                push @extensions_before, $extensions_yuyu{$exb0}
+                                                push @extensions_before, $extensions_yuyu{$exb0};
+                                                push @extensions_before2, $extensions_yuyu{$exb0};
                                             }
                                         }
                                         $count2b++;
@@ -11913,7 +11942,8 @@ FILTER_3_BACK:                  foreach my $line (keys %hash_read_short_start)
                                                 {
                                                     print OUTPUT5 $extensions_yuyu{$exb0}." EXT3\n";
                                                 }
-                                                push @extensions_before, $extensions_yuyu{$exb0}
+                                                push @extensions_before, $extensions_yuyu{$exb0};
+                                                push @extensions_before3, $extensions_yuyu{$exb0};
                                             }
                                         }
                                         $count3b++;
@@ -11945,7 +11975,8 @@ FILTER_4_BACK:                  foreach my $line (keys %hash_read_short_start)
                                                 {
                                                     print OUTPUT5 $extensions_yuyu{$exb0}." EXT4\n";
                                                 }
-                                                push @extensions_before, $extensions_yuyu{$exb0}
+                                                push @extensions_before, $extensions_yuyu{$exb0};
+                                                push @extensions_before4, $extensions_yuyu{$exb0};
                                             }
                                         }
                                         $count4b++;
@@ -12001,6 +12032,7 @@ FILTER_4_BACK:                  foreach my $line (keys %hash_read_short_start)
                                 if (@extensions_before > 3)
                                 {
                                     $ext_before = "yes";
+                                    @extensions_before = @extensions_before1;
                                     goto EXT_BEFORE_BACK;
                                 }
                                 delete $seed{$id_split1};
@@ -12021,6 +12053,7 @@ FILTER_4_BACK:                  foreach my $line (keys %hash_read_short_start)
                                 if (@extensions_before > 3)
                                 {
                                     $ext_before = "yes";
+                                    @extensions_before = @extensions_before2;
                                     goto EXT_BEFORE_BACK;
                                 }
                                 delete $seed{$id};
@@ -12048,6 +12081,12 @@ FILTER_4_BACK:                  foreach my $line (keys %hash_read_short_start)
                             }
                             elsif (($count3b > 2 && ($count1b+$count2b+$count4b) eq '0') || $differenceb3 eq "yes")
                             {
+                                if (@extensions_before > 3)
+                                {
+                                    $ext_before = "yes";
+                                    @extensions_before = @extensions_before3;
+                                    goto EXT_BEFORE_BACK;
+                                }
                                 delete $seed{$id};
                                 delete $seed{$id_split1};
                                 delete $seed{$id_split3};
@@ -12076,6 +12115,7 @@ FILTER_4_BACK:                  foreach my $line (keys %hash_read_short_start)
                                 if (@extensions_before > 3)
                                 {
                                     $ext_before = "yes";
+                                    @extensions_before = @extensions_before4;
                                     goto EXT_BEFORE_BACK;
                                 }
                                 delete $seed{$id};
@@ -13645,14 +13685,14 @@ TERMINATE:                                      while (keys %node)
                     $fin =~ tr/L/N/;
                     my $order = "";
                     my $h = '0';
-ORDER:                                                      foreach my $tmp (@order)
+ORDER:              foreach my $tmp (@order)
                     {
                         if ($h < $t)
                         {
                             $h++;
                             next ORDER;
                         } 
-                        my $R = $tmp =~ tr/R//d;
+                        my $R = $tmp =~ s/RRRRRRRRRRRRRR//g;
                         if ($R ne '1'&& $h > 0)
                         {
                             $order .= "+".$tmp;
@@ -13698,7 +13738,7 @@ ORDER:                                                      foreach my $tmp (@or
                 my $output_file9  = "Option_".$g."_".$project.".fasta";
                 open(OUTPUT9, ">" .$output_file9) or die "Can't open file $output_file9, $!\n";
                 $assembly =~ tr/L/N/;
-                my @contigs2 = split /R+/, $assembly;
+                my @contigs2 = split /RRRRRRRRRRRRRR/, $assembly;
                 my $ww = '0';
                 foreach (@contigs2)
                 {
