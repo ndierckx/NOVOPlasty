@@ -5,7 +5,7 @@ For the moment NOVOPlasty only supports whole genome Illumina paired-end reads a
 
 **Last updates: 08/01/17 version 2.2.1**
 - Fixed several bugs
-- Updated the instructions
+- Updated the instructions  
 **04/01/17**  
 - Improved assembly of duplicated and repetitive regions.
 - 'chloro' setting is replaced by the 'chloro2' setting (now the only options are 'chloro' and 'mito')  
