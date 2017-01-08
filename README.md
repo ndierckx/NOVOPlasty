@@ -1,6 +1,6 @@
 #NOVOPlasty - The organelle assembler                            
 
-NOVOPlasty is a de novo assembler for short circular genomes.
+NOVOPlasty is a de novo assembler for short circular genomes.  
 For the moment NOVOPlasty only supports whole genome Illumina paired-end reads as input.
 
 **Last updates: 08/01/17 version 2.2.1**
@@ -43,7 +43,7 @@ Perl
 
 ## Instructions
 
-#### 1\. Find a suitable seed
+### 1\. Find a suitable seed
 
 There are different types of seed possible:
 - A single read from the dataset that originates from the organelle plastid.
@@ -52,23 +52,23 @@ There are different types of seed possible:
 
 The format should be like a standard fasta file (first line: >Id_sequence)
 
-Be cautious for seed sequences that are similar in both mitochondrial and chloroplast genomes.
+Be cautious for seed sequences that are similar in both mitochondrial and chloroplast genomes.  
 We observed good results with RUBP sequences as seeds for chloroplast assembly.
 
-#### 2\. Create configuration file
+### 2\. Create configuration file
 
-You can download the example file (config.txt) and adjust the settings to your liking.
+You can download the example file (config.txt) and adjust the settings to your liking.  
 Every parameter of the configuration file is explained below. 
 
 
-#### 3\. Run NOVOPlasty
+### 3\. Run NOVOPlasty
 
 No further installation is necessary:
 
 <code>perl NOVOPlasty.pl -c config.txt</code>
 
-The input reads have to be uncompressed Illumina reads (fastq/fasta files).
-Either two separate files(forward and reverse) or a merged fastq/fasta file.
+The input reads have to be uncompressed Illumina reads (fastq/fasta files).  
+Either two separate files(forward and reverse) or a merged fastq/fasta file.  
 Multiple libraries as input is not yet supported.
 
 DO NOT filter or quality trim the reads!!! Use the raw whole genome dataset!
@@ -77,39 +77,39 @@ You can subsample to speed up the process and to reduce the memory requirements.
 
 Recommended maximum K-mer lengths:
 
-100 bp reads: +/- 39
-150 bp reads: +/- 49
-250 bp reads: +/- 73
+100 bp reads: +/- 39  
+150 bp reads: +/- 49  
+250 bp reads: +/- 73  
 
 You can always try different K-mer's. In the case of low coverage problems or seed errors, it's recommended to lower the K-mer (set to 39)!!!.
 
-#### 4\. Output files
+### 4\. Output files
 
 NOVOPlasty outputs four types of files:
 
-1\. Contigs_projectname.txt
+#### 1\. Contigs_projectname.txt
 
 This file contains the contigs of the assemblies.
 
-2\. Merged_contigs_projectname.txt
+#### 2\. Merged_contigs_projectname.txt
 
 When there are multiple contigs, NOVOPlasty will try to combine all contigs in to a complete circular genome, all the different possibilities can be found in this file.
 
-3\. Option_nr_projectname.txt
+#### 3\. Option_nr_projectname.txt
 
 All possible contig combinations will have a seperate fasta file.
 
-4\. contigs_tmp_projectname.txt
+#### 4\. contigs_tmp_projectname.txt
 
 If non of the above files are outputted or are empty, you can retrieve some contigs from this file.
 
-#### 5\. Interpretation
+## 5\. Interpretation
 
-1\. General
+### 1\. General
 
 A '*' in the fasta ouptut files indicates that the nucleotide before is a possible deletion/insertion. This can occur when the exact lenght of single nucleotide repeat can't be determined exactly due to systemic Illumina sequencing errors. Since this sign can interfere with post processing algorithms it is best resolve them manually or to delete them. 
 
-2\. Chloroplast assembly
+### 2\. Chloroplast assembly
 
 Ideally you will have one or two outputted assemblies. When you have two assemblies from the same length, the only difference will be the orientation of the inverted repeat. This can be resolved manually by mapping the assemblies to the closest reference. (On NCBI's BLAST you can further examine your mapping by clicking on 'Graphics', this will show you which orientation is correct.) Otherwise you can first annotate the two assemblies and compare the gene order.
 
