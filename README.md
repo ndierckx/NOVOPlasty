@@ -72,7 +72,7 @@ The input reads have to be uncompressed Illumina reads (fastq/fasta files).
 Either two separate files(forward and reverse) or a merged fastq/fasta file.  
 Multiple libraries as input is not yet supported.
 
-DO NOT filter or quality trim the reads!!! Use the raw whole genome dataset!
+DO NOT filter or quality trim the reads!!! Use the raw whole genome dataset (Only adapters should be removed)!
 
 You can subsample to speed up the process and to reduce the memory requirements. But it is recommended to use as much reads as possible, especially when the organelle genome contains AT-rich stretches.
 
