@@ -1,5 +1,4 @@
-
-#!/usr/bin/perl -w
+#!/usr/bin/env perl
 ######################################################
 #         SOFTWARE COPYRIGHT NOTICE AGREEMENT        #
 #  Copyright (C) {2015-2017}  {Nicolas Dierckxsens}  #
@@ -317,19 +316,19 @@ close CONFIG;
 if ($print_log eq '1' || $print_log eq '2')
 {
     $startprint2 = '0';
-    $startprint = '1000000';
+    $startprint = '100000';
 }
 
 my $USAGE = "\nUsage: perl NOVOPlasty.pl -c config_example.txt";
 
 print "\n\n-----------------------------------------------";
 print "\nNOVOPlasty: The Organelle Assembler\n";
-print "Version 2.2.1\n";
+print "Version 2.2.2\n";
 print "Author: Nicolas Dierckxsens, (c) 2015-2016\n";
 print "-----------------------------------------------\n\n";
 print OUTPUT4 "\n\n-----------------------------------------------";
 print OUTPUT4 "\nNOVOPlasty: The Organelle Assembler\n";
-print OUTPUT4 "Version 2.2.1\n";
+print OUTPUT4 "Version 2.2.2\n";
 print OUTPUT4 "Author: Nicolas Dierckxsens, (c) 2015-2016\n";
 print OUTPUT4 "-----------------------------------------------\n\n";
 
@@ -1025,7 +1024,7 @@ sub correct
                     {
                         my $read_part = substr $read_correct, $cc, $overlap;
                         $read_part =~ tr/N|K|R|Y|S|W|M|B|D|H|V/\./;
-                        %read_part = build_partial2b $read_part;
+                        %read_part = build_partial3b $read_part;
                         foreach my $read_part2 (keys %read_part)
                         {
                             if (exists($hash2b{$read_part2}))
@@ -1113,7 +1112,7 @@ sub correct
                                                 
                         $read_part_d =~ tr/ATCG/TAGC/;
                         my $read_part_reverse = reverse($read_part_d);
-                        %read_part_reverse = build_partial2b $read_part_reverse;
+                        %read_part_reverse = build_partial3b $read_part_reverse;
                         
                         foreach my $read_part2 (keys %read_part_reverse)
                         {
@@ -1260,7 +1259,7 @@ sub correct
                         my $T = '0';
                         my $G = '0';
                         
-                        foreach my $extensions (keys %read_matches)
+POINT:                  foreach my $extensions (keys %read_matches)
                         {                                
                             my @chars = split//, $extensions;
                             
@@ -1279,6 +1278,10 @@ sub correct
                             elsif ($chars[$l] eq "G")
                             {
                                 $G++;
+                            }
+                            if (($A + $C + $T + $G) > 500)
+                            {
+                                last POINT;
                             }
                         }
                         if ($A >= ($C + $T + $G)*1.8)
@@ -1380,6 +1383,7 @@ print "\nReading Input...\n";
 my $firstLine = <INPUT>;
 chomp $firstLine;
 my $secondLine = <INPUT>;
+chomp $secondLine;
 my $thirdLine = <INPUT>;
 
 my $no_quality_score = substr $thirdLine, 0, 1;
@@ -1390,9 +1394,17 @@ if ($code_before_end eq "/")
 {
     $type_of_file = '-1';
 }
+elsif($firstLine =~ m/.*\s(1|2)(:N.*\d+\s*\t*)$/)
+{
+    $type_of_file = "yes";
+}
 elsif($firstLine =~ m/.*\s(1|2)(.*)$/)
 {
     $type_of_file = -length($2)-1;
+}
+elsif($firstLine =~ m/.*_(1|2)(:N.*\d+\s*\t*)$/)
+{
+    $type_of_file = "yes";
 }
 elsif($firstLine =~ m/.*_(1|2)(:N.*)$/)
 {
@@ -1407,6 +1419,13 @@ else
     print "\n\nTHE INPUT READS HAVE AN INCORRECT FILE FORMAT!\nPLEASE CHECK THE DOCUMENTATION!\n\n";
     print OUTPUT4 "\n\nTHE INPUT READS HAVE AN INCORRECT FILE FORMAT!\nPLEASE CHECK THE DOCUMENTATION!\n\n";
     exit;
+}
+my $last_character = substr $secondLine, -1;
+my $space_at_end;
+if ($last_character =~ m/\s|\t/g)
+{
+    print OUTPUT5 $last_character." LAST2\n";
+    $space_at_end = "yes";
 }
 close INPUT;
 
@@ -1430,7 +1449,7 @@ print "Seed Input           = ".$seed_input0."\n\n";
 
 print OUTPUT4 "\n\n-----------------------------------------------";
 print OUTPUT4 "\nNOVOPlasty: The Organelle Assembler\n";
-print OUTPUT4 "Version 2.2.1\n";
+print OUTPUT4 "Version 2.2.2\n";
 print OUTPUT4 "Author: Nicolas Dierckxsens, (c) 2015-2016\n";
 print OUTPUT4 "-----------------------------------------------\n\n";
 
@@ -1466,6 +1485,7 @@ else
 }
     
 my $file_count= '0';
+my $type_of_file2 = "";
 
 foreach my $reads_tmp (@reads_tmp)
 {
@@ -1501,11 +1521,15 @@ foreach my $reads_tmp (@reads_tmp)
         {
             $value = $line;
             my $containN = $line =~ tr/N/N/;
-            if ($containN < 5 && length($line) > $read_length/1.5)
+            if ($containN < 5 && (length($line) > $read_length/1.5 || length($line) > $overlap+$right+$left+10))
             {
+                if ($space_at_end eq "yes")
+                {
+                    chop($value);
+                }
                 my $code2 = $code;
                 my $code_end = substr $code2, $type_of_file,1;
-                
+                           
                 if ($type_of_file eq '0')
                 {
                     if ($file_count eq '0')
@@ -1517,6 +1541,14 @@ foreach my $reads_tmp (@reads_tmp)
                         $code_end = "2";
                     }    
                 }
+                if ($type_of_file eq "yes")
+                {
+                    if($code2 =~ m/.*_(1|2)(:N.*\d+\s*\t*)$/)
+                    {
+                        $code_end = $1;
+                        $type_of_file2 = -length($2)-1;
+                    }   
+                }
                 if ($code_end eq "1" )
                 {
                     my $code0 = substr $code2, 0, $type_of_file;
@@ -1524,6 +1556,10 @@ foreach my $reads_tmp (@reads_tmp)
                     if ($type_of_file eq '0')
                     {
                        $code0 = $code2;
+                    }
+                    if ($type_of_file eq "yes")
+                    {
+                       $code0 = substr $code2, 0, $type_of_file2;
                     }
                     
                     $hash{$code0."1"} = $value;         
@@ -1535,6 +1571,10 @@ foreach my $reads_tmp (@reads_tmp)
                     if ($type_of_file eq '0')
                     {
                        $code1 = $code2;
+                    }
+                    if ($type_of_file eq "yes")
+                    {
+                       $code1 = substr $code2, 0, $type_of_file2;
                     }
     
                     if (exists($hash{$code1."1"}))
@@ -1728,9 +1768,9 @@ FIRST_SEED2:foreach my $first_seed (keys %first_seed)
                     }
                     my $pp = '0';
                     my $pp2= '0';
-                    while ($pp < length($seed_input_new2)-$overlap)
+                    while ($pp < 3)
                     {
-                        my $seed_check = substr $seed_input_new2, $pp, $overlap;
+                        my $seed_check = substr $seed_input_new2, -$overlap-$pp, $overlap;
                         if (exists($hash2b{$seed_check}))
                         {
                             $pp2++;
@@ -1739,7 +1779,7 @@ FIRST_SEED2:foreach my $first_seed (keys %first_seed)
                         {
                             $pp2++;
                         }
-                        if ($pp2 > 4)
+                        if ($pp2 > 3)
                         {
                             $seed{$seed_input_id} = $seed_input_new2;
                             $read1{$seed_input_new2} =undef;
@@ -1804,9 +1844,9 @@ FIRST_SEED2:foreach my $first_seed (keys %first_seed)
                     }
                     my $pp = '0';
                     my $pp2= '0';
-                    while ($pp < length($seed_input_new2)-$overlap)
+                    while ($pp < 3)
                     {
-                        my $seed_check = substr $seed_input_new2, $pp, $overlap;
+                        my $seed_check = substr $seed_input_new2, -$overlap-$pp, $overlap;
                         if (exists($hash2b{$seed_check}))
                         {
                             $pp2++;
@@ -1815,7 +1855,7 @@ FIRST_SEED2:foreach my $first_seed (keys %first_seed)
                         {
                             $pp2++;
                         }
-                        if ($pp2 > 4)
+                        if ($pp2 > 3)
                         {
                             $seed{$seed_input_id} = $seed_input_new2;
                             $read1{$seed_input_new2} =undef;
@@ -2329,7 +2369,7 @@ ALREADY_X0:  while ($v0 < $u0)
         }
         if ($SNR_read eq "")
         {
-            my $SNR_check = $SNR_end0t =~ s/AAAAAAAA|CCCCCCCC|GGGGGGGG|TTTTTTTT|TATATATATA//;
+            my $SNR_check = $SNR_end0t =~ s/AAAAAAAA|CCCCCCCC|GGGGGGGG|TTTTTTTT|TATATATATATATATA//;
             if ($SNR_check > 0)
             {
                 $SNR_read = "yes"; 
@@ -2396,7 +2436,7 @@ ALREADY_X0b:  while ($v0b < $u0b)
         }
         if ($SNR_read_back eq "")
         {
-            my $SNR_check = $SNR_end0bt =~ s/AAAAAAAA|CCCCCCCC|GGGGGGGG|TTTTTTTT|TATATATATA//;
+            my $SNR_check = $SNR_end0bt =~ s/AAAAAAAA|CCCCCCCC|GGGGGGGG|TTTTTTTT|TATATATATATATATA//;
             if ($SNR_check > 0)
             {
                 $SNR_read_back = "yes";  
@@ -2440,7 +2480,8 @@ ALREADY_X0b:  while ($v0b < $u0b)
 
             if ($y eq '1' || ($correct_after_split eq "yesssss" && length($read) <= $read_length+1))
             {   
-                $read = correct ($read);
+                $read =~ s/\s+$//;
+                $read =~ s/\t+$//;
             }
             delete $old_id2{$id};
         }
@@ -3313,8 +3354,7 @@ REPEAT:
                                             {
                                                 $enough_back = "yes";
                                             }           
-                                        }
-                                        
+                                        }                                    
                                             my $read_end_d = substr $read_short_end2, -($s+$overlap), $overlap;
                                             my $read_start_t = substr $read_short_start2, $e, $overlap;
                                             
@@ -3497,13 +3537,13 @@ REPEAT:
                                                 else
                                                 {
                                                     foreach my $read_end_e2 (keys %read_end_e)
-                                                    {
+                                                    {                                                   
                                                         if (exists($hash2c{$read_end_e2}))
                                                         {                       
                                                             my $search = $hash2c{$read_end_e2};
                                                             $search = substr $search, 1;
                                                             my @search = split /,/,$search;
-                                                                        
+                                                
                                                             foreach my $search (@search)
                                                             {
                                                                 my $search_tmp = substr $search, 0, -1;
@@ -3524,7 +3564,7 @@ REPEAT:
                                                                     {
                                                                         $found = decrypt $found;
                                                                     }
-                                                                    $merged_match{$search} = $found;
+                                                                    $merged_match{$search} = $found;     
                                                                 }
                                                             }
                                                         }         
@@ -4882,7 +4922,7 @@ NUCLEO:     while ($l < $read_length - ($overlap+$left-1) + $extra_l)
                 {
                     $best_extension = $best_extension."G";
                 }
-                elsif (($SNP_active eq "yes" || ($SNR_read ne "" && $l > 0) || $extensions_before eq "yes") && $SNP eq "" && ($A + $T + $G + $C) > 4 && $l < 15 && ($ext)/($A + $T + $G + $C) < 4 && $repetitive_check eq "" && $split eq "") 
+                elsif (($SNP_active eq "yes" || ($SNR_read ne "" && $l > 0) || ($extensions_before eq "yes" && $ext_before ne "yes")) && $SNP eq "" && ($A + $T + $G + $C) > 4 && $l < 15 && ($ext)/($A + $T + $G + $C) < 4 && $repetitive_check eq "" && $split eq "") 
                 {
                     delete $SNP_active{$id};
                     $SNP = "yes";
@@ -6792,27 +6832,27 @@ print OUTPUT5 $count_all." COUNT_ALL\n";
                                         $G++;
                                     } 
                                 }
-                                if ($A > 2 && ($C+$T+$G) eq 0)
+                                if (($A > 2 && ($C+$T+$G) eq 0) || ($A > ($C+$T+$G)*10 && $repetitive_detect eq ""))
                                 {
-                                    substr $read, -($length_total+1), 1, "A";
+                                    substr $read_new1, $length_total, 1, "A";
                                     print OUTPUT5 "DOT AAAAAAAAAAAA\n";
                                     $correction++;
                                 }
-                                if ($C > 2 && ($A+$T+$G) eq 0)
+                                if (($C > 2 && ($A+$T+$G) eq 0) || ($C > ($A+$T+$G)*10 && $repetitive_detect eq ""))
                                 {
-                                    substr $read, -($length_total+1), 1, "C";
+                                    substr $read_new1, $length_total, 1, "C";
                                     print OUTPUT5 "DOT CCCCCCCCCCCC\n";
                                     $correction++;
                                 }
-                                if ($T > 2 && ($C+$A+$G) eq 0)
+                                if (($T > 2 && ($C+$A+$G) eq 0) || ($T > ($C+$A+$G)*10 && $repetitive_detect eq ""))
                                 {
-                                    substr $read, -($length_total+1), 1, "T";
+                                    substr $read_new1, $length_total, 1, "T";
                                     print OUTPUT5 "DOT TTTTTTTTTTTT\n";
                                     $correction++;
                                 }
-                                if ($G > 2 && ($C+$T+$A) eq 0)
+                                if (($G > 2 && ($C+$T+$A) eq 0) || ($G > ($C+$T+$A)*10 && $repetitive_detect eq ""))
                                 {
-                                    substr $read, -($length_total+1), 1, "G";
+                                    substr $read_new1, $length_total, 1, "G";
                                     print OUTPUT5 "DOT GGGGGGGGGGGGG\n";
                                     $correction++;
                                 }
@@ -6824,11 +6864,12 @@ print OUTPUT5 $count_all." COUNT_ALL\n";
                         $read_new1 = $read_new;
                     }
        
-                    if ($first_yuyu eq "yes" && $second_yuyu ne "yes" && $third_yuyu ne "yes" && $fourth_yuyu ne "yes" && $first_yuyu2 > 2 && $correction eq $check_dot)
+                    if ($first_yuyu eq "yes" && $second_yuyu ne "yes" && $third_yuyu ne "yes" && $fourth_yuyu ne "yes" && $first_yuyu2 > 2 && ($correction eq $check_dot || $overhang >= $read_length-($overlap+15)))
                     {
                         if (@extensions_before > 3)
                         {
                             $ext_before = "yes";
+                            @extensions_before = @extensions_before1;
                             goto EXT_BEFORE;
                         }
                         delete $seed{$id_split1};
@@ -6844,11 +6885,12 @@ print OUTPUT5 $count_all." COUNT_ALL\n";
                         delete $before_shorter_skip{$id};
                         goto AFTER_EXT;
                     }
-                    elsif ($second_yuyu eq "yes" && $first_yuyu ne "yes" && $third_yuyu ne "yes" && $fourth_yuyu ne "yes" && $second_yuyu2 > 2 && $correction eq $check_dot)
+                    elsif ($second_yuyu eq "yes" && $first_yuyu ne "yes" && $third_yuyu ne "yes" && $fourth_yuyu ne "yes" && $second_yuyu2 > 2 && ($correction eq $check_dot || $overhang >= $read_length-($overlap+15)))
                     {
                         if (@extensions_before > 3)
                         {
                             $ext_before = "yes";
+                            @extensions_before = @extensions_before2;
                             goto EXT_BEFORE;
                         }
                         delete $seed{$id};
@@ -6875,11 +6917,12 @@ print OUTPUT5 $count_all." COUNT_ALL\n";
                             goto BACK;
                         }
                     }
-                    elsif ($third_yuyu eq "yes" && $first_yuyu ne "yes" && $second_yuyu ne "yes" && $fourth_yuyu ne "yes" && $third_yuyu2 > 2 && $correction eq $check_dot)
+                    elsif ($third_yuyu eq "yes" && $first_yuyu ne "yes" && $second_yuyu ne "yes" && $fourth_yuyu ne "yes" && $third_yuyu2 > 2 && ($correction eq $check_dot || $overhang >= $read_length-($overlap+15)))
                     {
                         if (@extensions_before > 3)
                         {
                             $ext_before = "yes";
+                            @extensions_before = @extensions_before3;
                             goto EXT_BEFORE;
                         }
                         delete $seed{$id};
@@ -6906,11 +6949,12 @@ print OUTPUT5 $count_all." COUNT_ALL\n";
                             goto BACK;
                         }
                     }
-                    elsif ($fourth_yuyu eq "yes" && $first_yuyu ne "yes" && $third_yuyu ne "yes" && $second_yuyu ne "yes" && $fourth_yuyu2 > 2 && $correction eq $check_dot)
+                    elsif ($fourth_yuyu eq "yes" && $first_yuyu ne "yes" && $third_yuyu ne "yes" && $second_yuyu ne "yes" && $fourth_yuyu2 > 2 && ($correction eq $check_dot || $overhang >= $read_length-($overlap+15)))
                     {
                         if (@extensions_before > 3)
                         {
                             $ext_before = "yes";
+                            @extensions_before = @extensions_before4;
                             goto EXT_BEFORE;
                         }
                         delete $seed{$id};
@@ -7213,7 +7257,7 @@ print OUTPUT5 $count_all." COUNT_ALL\n";
                             $before_shorter = "yes";
                             goto BEFORE;
                         }
-                        elsif ($morethan3 > 0 && length($read) > $insert_size)
+                        elsif ($morethan3 > 0 && $last_chance ne "yes")
                         {
                             my $count1b = '0';
                             my $count2b = '0';
@@ -9778,7 +9822,7 @@ NUCLEO_BACK: while ($l < $read_length - ($overlap+$left-1) + $extra_l)
                 {
                     $best_extension = $best_extension."G";  
                 }
-                elsif (($SNP_active_back eq "yes" || ($SNR_read_back ne "" && $l > 0) || $extensions_before eq "yes") && $SNP eq "" && ($A + $T + $G + $C) > 4 && (($l < 15 && $split eq "") || ($l < 11 && $split ne "")) && ($ext)/($A + $T + $G + $C) < 4) 
+                elsif (($SNP_active_back eq "yes" || ($SNR_read_back ne "" && $l > 0) || ($extensions_before eq "yes" && $ext_before ne "yes")) && $SNP eq "" && ($A + $T + $G + $C) > 4 && (($l < 15 && $split eq "") || ($l < 11 && $split ne "")) && ($ext)/($A + $T + $G + $C) < 4) 
                 {
                     delete $SNP_active_back{$id};
                     $SNP = "yes_back";
@@ -11377,25 +11421,25 @@ print OUTPUT5 $count_all." COUNT_ALL\n";
                                         $G++;
                                     } 
                                 }
-                                if ($A > 2 && ($C+$T+$G) eq 0)
+                                if (($A > 2 && ($C+$T+$G) eq 0) || ($A > ($C+$T+$G)*10 && $repetitive_detect eq ""))
                                 {
                                     substr $read_new1, $length_total, 1, "A";
                                     print OUTPUT5 "DOT AAAAAAAAAAAA\n";
                                     $correction++;
                                 }
-                                if ($C > 2 && ($A+$T+$G) eq 0)
+                                if (($C > 2 && ($A+$T+$G) eq 0) || ($C > ($A+$T+$G)*10 && $repetitive_detect eq ""))
                                 {
                                     substr $read_new1, $length_total, 1, "C";
                                     print OUTPUT5 "DOT CCCCCCCCCCCC\n";
                                     $correction++;
                                 }
-                                if ($T > 2 && ($C+$A+$G) eq 0)
+                                if (($T > 2 && ($C+$A+$G) eq 0) || ($T > ($C+$A+$G)*10 && $repetitive_detect eq ""))
                                 {
                                     substr $read_new1, $length_total, 1, "T";
                                     print OUTPUT5 "DOT TTTTTTTTTTTT\n";
                                     $correction++;
                                 }
-                                if ($G > 2 && ($C+$T+$A) eq 0)
+                                if (($G > 2 && ($C+$T+$A) eq 0) || ($G > ($C+$T+$A)*10 && $repetitive_detect eq ""))
                                 {
                                     substr $read_new1, $length_total, 1, "G";
                                     print OUTPUT5 "DOT GGGGGGGGGGGGG\n";
@@ -11412,6 +11456,7 @@ print OUTPUT5 $count_all." COUNT_ALL\n";
                         if (@extensions_before > 3)
                         {
                             $ext_before = "yes";
+                            @extensions_before = @extensions_before1;
                             goto EXT_BEFORE_BACK;
                         }
                         delete $seed{$id_split1};
@@ -11432,6 +11477,7 @@ print OUTPUT5 $count_all." COUNT_ALL\n";
                         if (@extensions_before > 3)
                         {
                             $ext_before = "yes";
+                            @extensions_before = @extensions_before2;
                             goto EXT_BEFORE_BACK;
                         }
                         delete $seed{$id};
@@ -11463,6 +11509,7 @@ print OUTPUT5 $count_all." COUNT_ALL\n";
                         if (@extensions_before > 3)
                         {
                             $ext_before = "yes";
+                            @extensions_before = @extensions_before3;
                             goto EXT_BEFORE_BACK;
                         }
                         delete $seed{$id};
@@ -11493,6 +11540,7 @@ print OUTPUT5 $count_all." COUNT_ALL\n";
                         if (@extensions_before > 3)
                         {
                             $ext_before = "yes";
+                            @extensions_before = @extensions_before4;
                             goto EXT_BEFORE_BACK;
                         }
                         delete $seed{$id};
