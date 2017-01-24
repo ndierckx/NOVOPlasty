@@ -316,19 +316,19 @@ close CONFIG;
 if ($print_log eq '1' || $print_log eq '2')
 {
     $startprint2 = '0';
-    $startprint = '100000';
+    $startprint = '10000000';
 }
 
 my $USAGE = "\nUsage: perl NOVOPlasty.pl -c config_example.txt";
 
 print "\n\n-----------------------------------------------";
 print "\nNOVOPlasty: The Organelle Assembler\n";
-print "Version 2.2.2\n";
+print "Version 2.2.3\n";
 print "Author: Nicolas Dierckxsens, (c) 2015-2016\n";
 print "-----------------------------------------------\n\n";
 print OUTPUT4 "\n\n-----------------------------------------------";
 print OUTPUT4 "\nNOVOPlasty: The Organelle Assembler\n";
-print OUTPUT4 "Version 2.2.2\n";
+print OUTPUT4 "Version 2.2.3\n";
 print OUTPUT4 "Author: Nicolas Dierckxsens, (c) 2015-2016\n";
 print OUTPUT4 "-----------------------------------------------\n\n";
 
@@ -1449,7 +1449,7 @@ print "Seed Input           = ".$seed_input0."\n\n";
 
 print OUTPUT4 "\n\n-----------------------------------------------";
 print OUTPUT4 "\nNOVOPlasty: The Organelle Assembler\n";
-print OUTPUT4 "Version 2.2.2\n";
+print OUTPUT4 "Version 2.2.3\n";
 print OUTPUT4 "Author: Nicolas Dierckxsens, (c) 2015-2016\n";
 print OUTPUT4 "-----------------------------------------------\n\n";
 
@@ -3055,6 +3055,26 @@ REPEAT:
         {
             my $start_repetitive = substr $read, $overlap, $insert_size+100;
             my $repetitive_test = substr $read_short_start2, 0, 15;
+            my $SNR_skip = "yes";                                        
+            my $u = '0';
+            while ($SNR_skip eq "yes")
+            { 
+                $repetitive_test = substr $read_short_start2, $u, 15;
+                my $SNR_checkA = $repetitive_test =~ tr/A/A/;
+                my $SNR_checkC = $repetitive_test =~ tr/C/C/;
+                my $SNR_checkT = $repetitive_test =~ tr/T/T/;
+                my $SNR_checkG = $repetitive_test =~ tr/G/G/;
+                my $SNR_checkdot = $repetitive_test =~ tr/\./\./;
+                if ($SNR_checkA+$SNR_checkdot > 12 || $SNR_checkC+$SNR_checkdot > 12 || $SNR_checkG+$SNR_checkdot > 12 || $SNR_checkT+$SNR_checkdot > 12)
+                {
+                    $SNR_skip = "yes";
+                    $u += 10;
+                }
+                else
+                {
+                    $SNR_skip = "";
+                }
+            }
             $repetitive_test =~ tr/\*//d;
             my $check_repetitive = $start_repetitive =~ s/$repetitive_test/$repetitive_test/g;
             if ($check_repetitive > 0)
@@ -3084,6 +3104,26 @@ REPEAT:
         {
             my $end_repetitive = substr $read, -$insert_size-100,-$overlap;
             my $repetitive_test2 = substr $read_short_end2, -15;
+            my $SNR_skip = "yes";                                        
+            my $u = '15';
+            while ($SNR_skip eq "yes")
+            { 
+                $repetitive_test2 = substr $read_short_end2, -$u, 15;
+                my $SNR_checkA = $repetitive_test2 =~ tr/A/A/;
+                my $SNR_checkC = $repetitive_test2 =~ tr/C/C/;
+                my $SNR_checkT = $repetitive_test2 =~ tr/T/T/;
+                my $SNR_checkG = $repetitive_test2 =~ tr/G/G/;
+                my $SNR_checkdot = $repetitive_test2 =~ tr/\./\./;
+                if ($SNR_checkA+$SNR_checkdot > 12 || $SNR_checkC+$SNR_checkdot > 12 || $SNR_checkG+$SNR_checkdot > 12 || $SNR_checkT+$SNR_checkdot > 12)
+                {
+                    $SNR_skip = "yes";
+                    $u += 10;
+                }
+                else
+                {
+                    $SNR_skip = "";
+                }
+            }
             $repetitive_test2 =~ tr/\*//d;
             my $check_repetitive2 = $end_repetitive =~ s/$repetitive_test2/$repetitive_test2/g;
             if ($check_repetitive2 > 0)
@@ -4680,7 +4720,7 @@ SPLIT:
             undef @extensions_new;
             my $SNR_test = "";
                       
-            if ($SNR_read ne "" && $split eq "dgdgbdq" && $SNR_read2 ne "")
+            if ($SNR_read ne "" && $split eq "qfqc" && $SNR_read2 ne "")
             {
                 $SNR_test = "yes2";
                 if ($SNR_read eq "yes")
@@ -4849,13 +4889,14 @@ NUCLEO:     while ($l < $read_length - ($overlap+$left-1) + $extra_l)
                 }
                 my $c = '2.8';
                 my $q = '4';
-                if ($ext > 6 && $type ne "chloro" && $SNR_read eq "")
-                {
-                    $c = '5';
-                }
+                
                 if ($ext > 22 && $SNR_read eq "")
                 {
-                    $c = '4.7';
+                    $c = '3.7';
+                }
+                if ($ext > 6 && $SNR_read eq "" && $type ne "chloro")
+                {
+                    $c = '5';
                 }
                 if ($ext > 22 && $SNR_read eq "" && $type ne "chloro")
                 {
@@ -4864,10 +4905,6 @@ NUCLEO:     while ($l < $read_length - ($overlap+$left-1) + $extra_l)
                 if ($ext > 38 && $SNR_read eq "" && $type ne "chloro")
                 {
                     $c = '8.4';
-                }
-                if ($ext > 6 && $type eq "chloro" && $SNR_read eq "")
-                {
-                    $c = '5';
                 }
                 if ($repetitive_detect eq "yes" && $ext < 23 && $SNR_read eq "")
                 {
@@ -5861,7 +5898,7 @@ NUCLEO:     while ($l < $read_length - ($overlap+$left-1) + $extra_l)
                         @chars = split //, $best_extension_short;
                         @chars2 = split //, $best_extension_long;
                     }
-                    while ($p < length($best_extension_short))
+                    while ($p < length($best_extension_short) && $p < 4)
                     {
                         my $i = '1';
                         $amatch = '0';
@@ -5948,7 +5985,7 @@ INDEL1:                         while ($f < @chars3)
                         }  
                     }
                     $p = '0';
-                    while ($p < length($best_extension_short))
+                    while ($p < length($best_extension_short) && $p < 4)
                     {
                         my $i = '1';
                         $amatch = '0';
@@ -8847,7 +8884,9 @@ AFTER_EXT:
                                                         $ut2--;
                                                     }
                                                 }
-                                                my $SNR_check = $best_extension =~ qr/AAAAAAA|CCCCCCC|GGGGGGG|TTTTTTT/;
+                                            }
+                                                my $best_extension_tmpp = substr $best_extension, -15;
+                                                my $SNR_check = $best_extension_tmpp =~ qr/AAAAAAA|CCCCCCC|GGGGGGG|TTTTTTT/;
                                                 if ($SNR_check > 0)
                                                 {
                                                     if ($best_extension =~ m/(.*?(AAAAAA|CCCCCC|GGGGGG|TTTTTT))(.*)/)
@@ -8863,7 +8902,7 @@ AFTER_EXT:
                                                         }
                                                     }
                                                 }
-                                            }
+                                            
  
                                             if ($best_extension ne "" && $best_extension ne " ")
                                             {                                                                               
@@ -9587,7 +9626,7 @@ SPLIT_BACK:
             my @extensions_new;
             $SNR_test = "";
                       
-            if ($SNR_read_back ne "" && $split eq "sfsgs<" && $SNR_read_back2 ne "")
+            if ($SNR_read_back ne "" && $split eq "csqx" && $SNR_read_back2 ne "")
             {
                 $SNR_test = "yes2_back";
                 if ($SNR_read_back eq "yes")
@@ -9603,12 +9642,19 @@ SPLIT_BACK:
                         my $e = '0';
                         while ($SNR_nucleo_back eq $chars[$e])
                         {
+                            my $tempie = reverse $extensions;
+                            chop $tempie;
+                            $extensions = reverse $tempie;
                             $e++;
                         }
                         if ($e < length($extensions))
                         {                      
                             $SNR_count_back{$extensions} = $e;
                             $SNR_length{$e} .= exists $SNR_length{$e} ? ",$extensions" : $extensions;
+                            if ($y > $startprint2)
+                            {
+                                print OUTPUT5 $SNR_length{$e}." SNR_TEST_BACK1\n";
+                            }
                         }
                     }
                     my $SNR_length_count2 = '0';
@@ -9629,6 +9675,10 @@ SPLIT_BACK:
                         {
                             $extensions_new{$SNRie} = $extensions{$SNRie};
                             push @extensions_new, $SNRie;
+                            if ($y > $startprint2)
+                            {
+                                print OUTPUT5 $SNRie." SNR_TEST_BACK2\n";
+                            }
                         }
                     }
                     %extensions = %extensions_new;
@@ -9703,6 +9753,7 @@ NUCLEO_BACK: while ($l < $read_length - ($overlap+$left-1) + $extra_l)
                     my $arrSize1 = @extensions;
                 if ($y > $startprint2)
                 {
+                    print OUTPUT5 $best_extension_tmp8." EXT_TMP_SNR\n";
                 }
                     if ($last_nuc ne "." && $arrSize1 > 4)
                     {
@@ -9765,7 +9816,7 @@ NUCLEO_BACK: while ($l < $read_length - ($overlap+$left-1) + $extra_l)
                 {
                     $c = '4.7';
                 }
-                if ($ext > 22 && $SNR_read eq ""&& $type ne "chloro")
+                if ($ext > 22 && $SNR_read eq "" && $type ne "chloro")
                 {
                     $c = '6.5';
                 }
@@ -10450,7 +10501,7 @@ NUCLEO_BACK: while ($l < $read_length - ($overlap+$left-1) + $extra_l)
                         $best_extension_short = $best_extension1;
                         $best_extension_long = $best_extension2;
                     }
-                    while ($p < length($best_extension_short))
+                    while ($p < length($best_extension_short) && $p < 4)
                     {
                         my $i = '1';
                         $amatch = '0';
@@ -10542,7 +10593,7 @@ INDEL1_BACK:                    while ($f < @chars3)
                         }  
                     }
                     $p = '0';
-                    while ($p < length($best_extension_short))
+                    while ($p < length($best_extension_short) && $p < 4)
                     {
                         my $i = '1';
                         $amatch = '0';
@@ -12842,7 +12893,7 @@ FINISH:
                                             }
 
                                             
-                                            elsif ($SNR_next_seed eq "yes" || ($nosecond eq "" && $CP_check ne "yes" && length($read) > $read_length+150 && $circle eq "" && (($last_chance eq "yes" || $noforward eq "stop") && ($last_chance_back eq "yes" || $noback eq "stop")) || ($AT_rich eq "yes" && $count_seed ne "0") || ($bad_read eq "yes" && $count_seed ne "0")))
+                                            elsif ($no_next_seed ne "yes" && ($SNR_next_seed eq "yes" || ($nosecond eq "" && $CP_check ne "yes" && length($read) > $read_length+150 && $circle eq "" && (($last_chance eq "yes" || $noforward eq "stop") && ($last_chance_back eq "yes" || $noback eq "stop")) || ($AT_rich eq "yes" && $count_seed ne "0") || ($bad_read eq "yes" && $count_seed ne "0"))))
                                             {
                                                 if ($id_original eq "")
                                                 {
@@ -12927,12 +12978,32 @@ FINISH:
                                                     $id_old = $id;
                                                 }                                     
                                                 
+                                                my $SNR_skip = "yes";
                                                 my $xy = -($overlap+3);
                                                 my $tt = '-250';
-                                                my $second_seed = "";
+                                                my $second_seed = "";                                           
+                                                my $u = '10';
+                                                while ($SNR_skip eq "yes")
+                                                { 
+                                                    my $new_seed_part_tmp = substr $read, -$u, 10;
+                                                    my $SNR_checkA = $new_seed_part_tmp =~ tr/A/A/;
+                                                    my $SNR_checkC = $new_seed_part_tmp =~ tr/C/C/;
+                                                    my $SNR_checkT = $new_seed_part_tmp =~ tr/T/T/;
+                                                    my $SNR_checkG = $new_seed_part_tmp =~ tr/G/G/;
+                                                    if ($SNR_checkA > 6 || $SNR_checkC > 6 || $SNR_checkG > 6 || $SNR_checkT > 6)
+                                                    {
+                                                        $SNR_skip = "yes";
+                                                        $u += 10;
+                                                    }
+                                                    else
+                                                    {
+                                                        $SNR_skip = "";
+                                                    }
+                                                }
+                                                
 NEXT_SEED:                                      while ($xy > $tt)
                                                 {
-                                                    my $new_seed_part = substr $read, $xy, $overlap;
+                                                    my $new_seed_part = substr $read, $xy-$u+10, $overlap;
                                                     
                                                     if (exists($hash2c{$new_seed_part}))
                                                     {
