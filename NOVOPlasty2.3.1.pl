@@ -1391,17 +1391,13 @@ if ($code_before_end eq "/")
 {
     $type_of_file = '-1';
 }
-elsif($firstLine =~ m/.*\s(1|2)(:N.*\d+\s*\t*)$/)
+elsif($firstLine =~ m/.*(_|\s)(1|2)(:N.*\d+\s*\t*)$/)
 {
     $type_of_file = "yes";
 }
 elsif($firstLine =~ m/.*\s(1|2)(.*)$/)
 {
     $type_of_file = -length($2)-1;
-}
-elsif($firstLine =~ m/.*_(1|2)(:N.*\d+\s*\t*)$/)
-{
-    $type_of_file = "yes";
 }
 elsif($firstLine =~ m/.*_(1|2)(:N.*)$/)
 {
@@ -1540,7 +1536,7 @@ foreach my $reads_tmp (@reads_tmp)
                 }
                 if ($type_of_file eq "yes")
                 {
-                    if($code2 =~ m/.*_(1|2)(:N.*\d+\s*\t*)$/)
+                    if($code2 =~ m/.*(_|\s)(1|2)(:N.*\d+\s*\t*)$/)
                     {
                         $code_end = $1;
                         $type_of_file2 = -length($2)-1;
@@ -1667,14 +1663,25 @@ if ($reference eq "yes")
 
 print "\nRetrieve Seed...\n";
 
-
 my $si = '0';
+my $space_at_end2;
 while (my $line = <INPUT3>)
 {
+    if ($si eq 1)
+    {
+        my $last_character = substr $line, -1;       
+        if ($last_character =~ m/\s|\t/g)
+        {
+            $space_at_end2 = "yes";
+        }
+    }
     if ($si > 0)
     {
         chomp($line);
-        $line =~ tr/actg/ACTG/;
+        if ($space_at_end2 eq "yes")
+        {
+            chop($line);
+        }
         my $seed_input_tmp = $seed_input;
         $seed_input = $seed_input_tmp.$line;
     }
