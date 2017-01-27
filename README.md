@@ -81,7 +81,7 @@ DO NOT filter or quality trim the reads!!! Use the raw whole genome dataset (Onl
 
 You can subsample to speed up the process and to reduce the memory requirements. But it is recommended to use as much reads as possible, especially when the organelle genome contains AT-rich stretches.
 
-You can always try different K-mer's. In the case of low coverage problems or seed errors, it's recommended to lower the K-mer (set to 39)!!!.
+You can always try different K-mer's. In the case of low coverage problems or seed errors, it's recommended to lower the K-mer (set between 25-39)!!!.
 
 ### 4. Output files
 
