@@ -320,12 +320,12 @@ my $USAGE = "\nUsage: perl NOVOPlasty.pl -c config_example.txt";
 
 print "\n\n-----------------------------------------------";
 print "\nNOVOPlasty: The Organelle Assembler\n";
-print "Version 2.3\n";
+print "Version 2.3.2\n";
 print "Author: Nicolas Dierckxsens, (c) 2015-2016\n";
 print "-----------------------------------------------\n\n";
 print OUTPUT4 "\n\n-----------------------------------------------";
 print OUTPUT4 "\nNOVOPlasty: The Organelle Assembler\n";
-print OUTPUT4 "Version 2.3\n";
+print OUTPUT4 "Version 2.3.2\n";
 print OUTPUT4 "Author: Nicolas Dierckxsens, (c) 2015-2016\n";
 print OUTPUT4 "-----------------------------------------------\n\n";
 
@@ -1442,7 +1442,7 @@ print "Seed Input           = ".$seed_input0."\n\n";
 
 print OUTPUT4 "\n\n-----------------------------------------------";
 print OUTPUT4 "\nNOVOPlasty: The Organelle Assembler\n";
-print OUTPUT4 "Version 2.3\n";
+print OUTPUT4 "Version 2.3.2\n";
 print OUTPUT4 "Author: Nicolas Dierckxsens, (c) 2015-2016\n";
 print OUTPUT4 "-----------------------------------------------\n\n";
 
@@ -1514,6 +1514,7 @@ foreach my $reads_tmp (@reads_tmp)
         {
             $value = $line;
             my $containN = $line =~ tr/N/N/;
+            
             if ($containN < 5 && (length($line) > $read_length/1.5 || length($line) > $overlap+$right+$left+10))
             {
                 if ($space_at_end eq "yes")
@@ -1522,7 +1523,7 @@ foreach my $reads_tmp (@reads_tmp)
                 }
                 my $code2 = $code;
                 my $code_end = substr $code2, $type_of_file,1;
-                           
+                            
                 if ($type_of_file eq '0')
                 {
                     if ($file_count eq '0')
@@ -1538,10 +1539,10 @@ foreach my $reads_tmp (@reads_tmp)
                 {
                     if($code2 =~ m/.*(_|\s)(1|2)(:N.*\d+\s*\t*)$/)
                     {
-                        $code_end = $1;
-                        $type_of_file2 = -length($2)-1;
+                        $code_end = $2;
+                        $type_of_file2 = -length($3)-1;
                     }   
-                }
+                }             
                 if ($code_end eq "1" )
                 {
                     my $code0 = substr $code2, 0, $type_of_file;
@@ -1554,7 +1555,7 @@ foreach my $reads_tmp (@reads_tmp)
                     {
                        $code0 = substr $code2, 0, $type_of_file2;
                     }
-                    
+                  
                     $hash{$code0."1"} = $value;         
                 }
                 if ($code_end eq "2" )
@@ -1569,7 +1570,7 @@ foreach my $reads_tmp (@reads_tmp)
                     {
                        $code1 = substr $code2, 0, $type_of_file2;
                     }
-    
+     
                     if (exists($hash{$code1."1"}))
                     {                    
                         my $value2 = $hash{$code1."1"};
@@ -1663,6 +1664,7 @@ if ($reference eq "yes")
 
 print "\nRetrieve Seed...\n";
 
+
 my $si = '0';
 my $space_at_end2;
 while (my $line = <INPUT3>)
@@ -1707,10 +1709,9 @@ if ($seed_input_tmp ne "")
 REF0:
     my $n = '0';
     my $overlap_tmp = $overlap;
-    if ($build eq "yes2" && $overlap > 39)
+    if ($build eq "yes2" && $overlap > 42)
     {
         $overlap_tmp = '39';
-        print OUTPUT5 "\n\nGREP-SEED\n\n";
     }
     while ($n < length($seed_input_tmp) - $overlap_tmp)
     {
@@ -1725,7 +1726,7 @@ REF0:
         {
             $first_seed{$first_seed} = undef;
         }
-        if ($build eq "yes2" && $overlap > '39')
+        if ($build eq "yes2" && $overlap > '42' && $n < 1000)
         {          
             my @match1 = grep {$_ =~ /.*($first_seed).+$/} keys %hash2b;
             my @match2 = grep {$_ =~ /.*($first_seed).+$/} keys %hash2c;
@@ -1891,13 +1892,17 @@ FIRST_SEED2:foreach my $first_seed (keys %first_seed)
             }
         }
         $n++;
+        if ($build eq "yes2")
+        {
+            $n += 4;
+        }
     }
-    if ($build ne "yes")
+    if ($build eq "")
     {
         $build = "yes";
         goto REF0;
     }
-    elsif ($build ne "yes2")
+    elsif ($build eq "yes")
     {
         $build = "yes2";
         goto REF0;
