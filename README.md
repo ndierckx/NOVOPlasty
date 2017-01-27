@@ -3,8 +3,10 @@
 NOVOPlasty is a de novo assembler for short circular genomes.  
 For the moment NOVOPlasty only supports whole genome Illumina paired-end reads as input.
 
-**Last updates: 25/01/17 version 2.3.1**
-- SEED RETRIEVAL bug is fixed, if the assembly got stuck at seed retrieval use version from 2.3.1!!!
+**Last updates: 27/01/17 version 2.3.2**
+- SEED RETRIEVAL bug update, 2.3.1 was not completly fixed, 2.3.2 should never get stuck at at the seed retrieval
+**25/01/17** 
+- SEED RETRIEVAL bug is fixed, if the assembly got stuck at seed retrieval use version from 2.3.1 (update use 2.3.2)
 - More accurate assembly of erroneous single nucleotide repeat regions
 **24/01/17**  
 - Fixed several bugs
