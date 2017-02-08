@@ -27,7 +27,7 @@ Genome Range         = (minimum genome size-maximum genome size) The expected ge
                        If the expected size is know, you can lower the range, this can be useful when there is a repetitive
                        region, what could lead to a premature circularization of the genome.
 K-mer                = (integer) This is the length of the overlap between matching reads (Default: 39). 
-                       If reads are shorter then 90 bp or you have low coverage data, this value should be decreased to 23. 
+                       If reads are shorter then 90 bp or you have low coverage data, this value should be decreased down to 23. 
                        For reads longer then 101 bp, this value can be increased, but this is not necessary.
 Insert Range         = This variation on the insert size, could lower it when the coverage is very high or raise it when the
                        coverage is too low (Default: 1.6). 
