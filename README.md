@@ -6,16 +6,14 @@ For the moment NOVOPlasty only supports whole genome Illumina paired-end reads a
 **Last updates: 08/02/17 version 2.4**
 - SEED RETRIEVAL bug was sometimes caused by unsupported read formats.
   The error message is updated and then you can contact me to update the read format.
-- Bug in repetitive region is resolved (assembly didn't stop and made huge extende log files).
-
+- Bug in repetitive region is resolved (assembly didn't stop and made huge extende log files).                   
 **25/01/17** 
 - SEED RETRIEVAL bug update, 2.3.1 was not completely fixed, 2.3.2 should never get stuck at at the seed retrieval
-**25/01/17** 
 - SEED RETRIEVAL bug is fixed, if the assembly got stuck at seed retrieval use version from 2.3.1 (update use 2.3.2)
-- More accurate assembly of erroneous single nucleotide repeat regions
+- More accurate assembly of erroneous single nucleotide repeat regions.                                                 
 **24/01/17**  
 - Fixed several bugs
-- Reduced cross assembly of choroplast and plant mitochondrial sequences
+- Reduced cross assembly of choroplast and plant mitochondrial sequences.                                               
 **04/01/17**  
 - Improved assembly of duplicated and repetitive regions.
 - 'chloro' setting is replaced by the 'chloro2' setting (now the only options are 'chloro' and 'mito')  
