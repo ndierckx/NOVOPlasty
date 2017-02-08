@@ -3,8 +3,12 @@
 NOVOPlasty is a de novo assembler for short circular genomes.  
 For the moment NOVOPlasty only supports whole genome Illumina paired-end reads as input.
 
-**Last updates: 27/01/17 version 2.3.2**
-- SEED RETRIEVAL bug update, 2.3.1 was not completly fixed, 2.3.2 should never get stuck at at the seed retrieval
+**Last updates: 08/02/17 version 2.4**
+- SEED RETRIEVAL bug was sometimes caused by unsupported read formats.
+  The error message is updated and then you can contact me to update the read format.
+- Bug in repetitive region is resolved (assembly didn't stop and made huge extende log files).
+**25/01/17** 
+- SEED RETRIEVAL bug update, 2.3.1 was not completely fixed, 2.3.2 should never get stuck at at the seed retrieval
 **25/01/17** 
 - SEED RETRIEVAL bug is fixed, if the assembly got stuck at seed retrieval use version from 2.3.1 (update use 2.3.2)
 - More accurate assembly of erroneous single nucleotide repeat regions
@@ -149,7 +153,7 @@ Read Length          = 101
 Type                 = chloro
 Genome Range         = 120000-200000
 K-mer                = 39
-Insert Range         = 1.5
+Insert Range         = 1.6
 Insert Range strict  = 1.2
 Single/Paired        = PE
 Coverage Cut off     = 1000
@@ -175,7 +179,7 @@ K-mer                = (integer) This is the length of the overlap between match
                        If reads are shorter then 90 bp, this value should be decreased. 
                        For reads longer then 101 bp, this value can be increased, but this is not necessary.
 Insert Range         = This variation on the insert size, could lower it when the coverage is very high or raise it when the
-                       coverage is too low (Default: 1.5). 
+                       coverage is too low (Default: 1.6). 
 Insert Range strict  = Strict variation to resolve repetitive regions (Default: 1.2). 
 Single/Paired        = For the moment only paired end reads are supported.
 Coverage Cut off     = You can speed up the assembly by lowering the coverage cut off, standard it will use up to 1000 coverage
