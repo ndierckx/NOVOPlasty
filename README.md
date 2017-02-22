@@ -43,7 +43,7 @@ nicolasdierckxsens@hotmail.com
 If your assembly was unsuccessful, you could already add the log file and the configuration file to the mail, this could help me to identify the problem!
 
 <a href="http://ibsquare.be/" target="_blank"><img border="0" src="http://ibsquare.be/sites/default/files/logo_1.png" width="100" height="100" ></a>
-<a href="http://www.huderf.be/" target="_blank"><img border="0" src="http://www.huderf.be/design/logohude-full-xl.png" width=auto height="95" ></a>
+<a href="http://www.huderf.be/" target="_blank"><img border="0" src="http://www.huderf.be/design/logohude-full.png" width=auto height="95" ></a>
 <a href="http://ebe.ulb.ac.be/ebe/ebe-Welcome.html" target="_blank"><img border="0" src="https://www.ulb.ac.be/dre/com/docs/logo3lg.jpg" width=auto height="95" ></a>
 
 
