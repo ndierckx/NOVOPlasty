@@ -163,6 +163,7 @@ Combined reads       = /path/to/reads/AOB_reads.fastq
 Forward reads        = 
 Reverse reads        = 
 Seed Input           = Seed_AOB.fasta
+Chloroplast sequence = 
 </pre>
 
 **2. Explanation parameters:**
@@ -171,7 +172,8 @@ Project name         = Choose a name for your project, it will be used for the o
 Insert size          = Total insert size of your paired end reads, it doesn't have to be accurate but should be close enough.
 Insert size auto     = (yes/no) This will finetune your insert size automatically (Default: yes)
 Read Length          = The read length of your reads.
-Type                 = (chloro/mito) "chloro" for chloroplast assembly and "mito for mitochondrial assembly.
+Type                 = (chloro/mito/mito_plant) "chloro" for chloroplast assembly, "mito" for mitochondrial assembly and
+                       "mito_plant" for mitochondrial assembly in plants.
 Genome Range         = (minimum genome size-maximum genome size) The expected genome size range of the genome.
                        Default value for mito: 12000-20000 / Default value for chloro: 120000-200000
                        If the expected size is know, you can lower the range, this can be useful when there is a repetitive
@@ -186,8 +188,9 @@ Single/Paired        = For the moment only paired end reads are supported.
 Coverage Cut off     = You can speed up the assembly by lowering the coverage cut off, standard it will use up to 1000 coverage
 Extended log         = Prints out a very extensive log, could be useful to send me when there is a problem  (0/1).
 Combined reads       = The path to the file that contains the combined reads (forward and reverse in 1 file)
-Forward reads        = The path to the file that contains the forward reads (not necessary when there is a merged file)
-Reverse reads        = The path to the file that contains the reverse reads (not necessary when there is a merged file)
-Seed Input           = The path to the file that contains the seed sequence
+Forward reads        = The path to the file that contains the forward reads (not necessary when there is a merged file).
+Reverse reads        = The path to the file that contains the reverse reads (not necessary when there is a merged file).
+Seed Input           = The path to the file that contains the seed sequence.
+Chloroplast sequence = The path to the file that contains the chloroplast sequence (Only for mito_plant mode).
 </pre>
 </html>
