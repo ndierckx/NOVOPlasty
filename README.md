@@ -9,7 +9,7 @@ For the moment NOVOPlasty only supports whole genome Illumina paired-end reads a
 - Improved tandem repeat assembly
 - Improved merging of contigs
 - An extra type is added, now you can use "mito_plant" to assemble plant mitochondria (this mode will be improved in the future)
-- This requires an extra input in the config file, namely the fasta file of the assembled chloroplast 
+- This requires an extra input in the config file, namely the fasta file of the assembled chloroplast.                         
 **08/02/17**  
 - SEED RETRIEVAL bug was sometimes caused by unsupported read formats.
   The error message is updated and then you can contact me to update the read format.
