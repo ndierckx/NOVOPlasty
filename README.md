@@ -3,7 +3,14 @@
 NOVOPlasty is a de novo assembler for short circular genomes.  
 For the moment NOVOPlasty only supports whole genome Illumina paired-end reads as input.
 
-**Last updates: 08/02/17 version 2.4**
+**Last updates: 01/03/17 version 2.5**
+- Seed retrieval has been updated (works on lower coverage now).
+- A bug is resolved that made seed files of one line terminating the assembly.
+- Improved tandem repeat assembly
+- Improved merging of contigs
+- An extra type is added, now you can use "mito_plant" to assemble plant mitochondria (this mode will be improved in the future)
+- This requires an extra input in the config file, namely the fasta file of the assembled chloroplast 
+**08/02/17**  
 - SEED RETRIEVAL bug was sometimes caused by unsupported read formats.
   The error message is updated and then you can contact me to update the read format.
 - Bug in repetitive region is resolved (assembly didn't stop and made huge extende log files).                   
