@@ -22,7 +22,6 @@ my $high_coverage = "yes";
 my $coverage_cut_off = '1000';
 my $option = '1';
 
-my $reference = "no";
 my $simple_read = "yes";
 my $insert_size_correct;
 my $overlap;
@@ -82,6 +81,8 @@ my $lastbit_contig_prev;
 my $split_forward;
 my %old_id;
 my %old_id2;
+my %old_rep;
+my %old_rep_old;
 my %SNR_length;
 my @insert_size;
 my %regex;
@@ -141,15 +142,17 @@ my %count_reads;
 my %count_reads_all;
 my $assembly_length = '1';
 my $assembly_success;
+my %seeds_check;
 
 my $reads12;
 my $reads1;
 my $reads2;
-my $input_file2;
 my $config;
 my $read;
 my $deletion;
 my $deletion_back;
+my $reference_guided;
+my $reference_guided_back;
 my $contig_read2;
 my $contig_read1;
 my $first_contig_start;
@@ -210,7 +213,10 @@ my %jump_rep;
 my $jump_rep_back;
 my %jump_rep_back;
 my $AT_rich_before;
+my $AT_rich_before_back;
 my $insert_range_shorter;
+my $cp_input;
+my $merge_now;
 
 GetOptions (
             "c=s" => \$config,
@@ -305,6 +311,11 @@ while (my $line = <CONFIG>)
         $seed_input0 = substr $line, 23;
         chomp $seed_input0;
     }
+    if ($ln eq '16')
+    {
+        $cp_input = substr $line, 23;
+        chomp $seed_input0;
+    }
     $ln++;
 }
 
@@ -319,12 +330,12 @@ my $USAGE = "\nUsage: perl NOVOPlasty.pl -c config_example.txt";
 
 print "\n\n-----------------------------------------------";
 print "\nNOVOPlasty: The Organelle Assembler\n";
-print "Version 2.4\n";
+print "Version 2.5\n";
 print "Author: Nicolas Dierckxsens, (c) 2015-2016\n";
 print "-----------------------------------------------\n\n";
 print OUTPUT4 "\n\n-----------------------------------------------";
 print OUTPUT4 "\nNOVOPlasty: The Organelle Assembler\n";
-print OUTPUT4 "Version 2.4\n";
+print OUTPUT4 "Version 2.5\n";
 print OUTPUT4 "Author: Nicolas Dierckxsens, (c) 2015-2016\n";
 print OUTPUT4 "-----------------------------------------------\n\n";
 
@@ -1249,6 +1260,7 @@ sub correct
         my $l = '0';
         my $corrected_read = "";
         my @charso = split//, $read_correct;
+
         while ($l < length($read_correct))
         {
             my $A = '0';
@@ -1329,6 +1341,7 @@ POINT:      foreach my $extensions (@read_matches)
         }
 
         $seed{$id} = $read_correct;
+        $seeds_check{$id} = undef;
         
         delete $seed_old{$id_pair};
         return $read_correct;
@@ -1355,50 +1368,68 @@ my $output_file5  = "log_extended_".$project.".txt";
 my $output_file6  = "contigs_tmp_".$project.".txt";
 my $output_file7  = "Merged_contigs_".$project.".txt";
 
-open(INPUT, $reads_tmp[0]) or die "No input file found, make sure it are fastq files $!\n";
-open(INPUT3, $seed_input0)  or die "Can't open the seed file, $!\n";
-open(OUTPUT4, ">" .$output_file4) or die "Can't open file $output_file4, $!\n";
-open(OUTPUT6, ">" .$output_file6) or die "Can't open file $output_file6, $!\n";
+open(INPUT, $reads_tmp[0]) or die "\nNo input file found, make sure it are fastq files $!\n";
+open(INPUT3, $seed_input0)  or die "\nCan't open the seed file, $!\n";
+open(OUTPUT4, ">" .$output_file4) or die "\nCan't open file $output_file4, $!\n";
+open(OUTPUT6, ">" .$output_file6) or die "\nCan't open file $output_file6, $!\n";
 
 if ($print_log eq '1' || $print_log eq '2')
 {
-    open(OUTPUT5, ">" .$output_file5) or die "Can't open file $output_file5, $!\n";
+    open(OUTPUT5, ">" .$output_file5) or die "\nCan't open file $output_file5, $!\n";
 }
 
-open(OUTPUT7, ">" .$output_file7) or die "Can't open file $output_file7, $!\n";
+open(OUTPUT7, ">" .$output_file7) or die "\nCan't open file $output_file7, $!\n";
 
-
-print "\nReading Input...\n";
+select(STDERR);
+$| = 1;
+select(STDOUT); # default
+$| = 1;
+print "\nReading Input...";
 
 my $firstLine = <INPUT>;
 chomp $firstLine;
 my $secondLine = <INPUT>;
 chomp $secondLine;
 my $thirdLine = <INPUT>;
-
+close INPUT;
+my $firstLine_reverse = "";
+if ($reads12 eq "")
+{
+    open(INPUT2, $reads_tmp[1]) or die "\n\nNo input file found, make sure it are fastq files $!\n";
+    $firstLine_reverse = <INPUT2>;
+    chomp $firstLine_reverse;
+}
+close INPUT2;
 my $no_quality_score = substr $thirdLine, 0, 1;
-
 my $type_of_file;
 my $code_before_end = substr $firstLine, -2,1;
-if ($code_before_end eq "/")
+if ($code_before_end eq "/" && $firstLine_reverse ne $firstLine)
 {
     $type_of_file = '-1';
 }
-elsif($firstLine =~ m/.*(_|\s)(1|2)(:N.*\d+\s*\t*)$/)
+elsif($firstLine =~ m/.*(_|\s)(1)(:N.*\d+\s*\t*)$/ && $firstLine_reverse ne $firstLine)
 {
     $type_of_file = "yes";
 }
-elsif($firstLine =~ m/.*\s(1|2)(.*)$/)
+elsif($firstLine =~ m/.*\s(1)(.*)$/ && $firstLine_reverse ne $firstLine)
 {
     $type_of_file = -length($2)-1;
 }
-elsif($firstLine =~ m/.*_(1|2)(:N.*)$/)
+elsif($firstLine =~ m/.*_(1)(:N.*)$/ && $firstLine_reverse ne $firstLine)
 {
     $type_of_file = -length($2)-1;
 }
-elsif($firstLine =~ m/.*\.(1|2)(\s(\d+)\s.*)$/)
+elsif($firstLine =~ m/.*\.(1)(\s(\d+)\s.*)$/ && $firstLine_reverse ne $firstLine)
 {
     $type_of_file = -length($2)-1;
+}
+elsif($firstLine =~ m/.*\.(1)(\s(.+)\s.+)$/ && $firstLine_reverse ne $firstLine)
+{
+    $type_of_file = -length($2)-1;
+}
+elsif($firstLine_reverse eq $firstLine)
+{
+    $type_of_file = "identical";
 }
 else
 {
@@ -1414,8 +1445,7 @@ if ($last_character =~ m/\s|\t/g)
     print OUTPUT5 $last_character." LAST2\n";
     $space_at_end = "yes";
 }
-close INPUT;
-
+print "...OK\n";
 print "\nInput parameters from the configuration file:   *** Verify if everything is correct ***\n\n";
 print "Project name         = ".$project."\n";
 print "Insert size          = ".$insert_size."\n";
@@ -1432,11 +1462,12 @@ print "Extended log         = ".$print_log."\n";
 print "Combined reads       = ".$reads12."\n";
 print "Forward reads        = ".$reads1."\n";
 print "Reverse reads        = ".$reads2."\n";
-print "Seed Input           = ".$seed_input0."\n\n";
+print "Seed Input           = ".$seed_input0."\n";
+print "Chloroplast sequence = ".$cp_input."\n\n";
 
 print OUTPUT4 "\n\n-----------------------------------------------";
 print OUTPUT4 "\nNOVOPlasty: The Organelle Assembler\n";
-print OUTPUT4 "Version 2.4\n";
+print OUTPUT4 "Version 2.5\n";
 print OUTPUT4 "Author: Nicolas Dierckxsens, (c) 2015-2016\n";
 print OUTPUT4 "-----------------------------------------------\n\n";
 
@@ -1456,9 +1487,58 @@ print OUTPUT4 "Extended log         = ".$print_log."\n";
 print OUTPUT4 "Combined reads       = ".$reads12."\n";
 print OUTPUT4 "Forward reads        = ".$reads1."\n";
 print OUTPUT4 "Reverse reads        = ".$reads2."\n";
-print OUTPUT4 "Seed Input           = ".$seed_input0."\n\n";
+print OUTPUT4 "Seed Input           = ".$seed_input0."\n";
+print OUTPUT4 "Chloroplast sequence = ".$cp_input."\n\n";
 
-print "\nBuilding Hash Table...\n";
+
+my %contigs;
+my %hashref;
+my %hashref2;
+my $ff = '0';
+my $value_ref = "";
+
+if ($cp_input ne "")
+{
+    select(STDERR);
+    $| = 1;
+    select(STDOUT); # default
+    $| = 1;
+    print "\nScan chloroplast sequence...";
+    open(INPUT2, $cp_input) or die "\n\nCan't open chloroplast file $cp_input, $!\n";
+    
+    while (my $line = <INPUT2>)
+    {
+        if ($ff < 1)
+        {
+            $ff++;
+            next;
+        }
+        chomp $line;    
+        $line =~ tr/actgn/ACTGN/;
+        
+        my $line3 = $value_ref.$line;
+        
+        while (length($line3) > (($overlap*3)-1))
+        {
+            my $value_ref2 = substr $line3, 0, $overlap;
+            my $line2 = $line3;
+            $line3 = substr $line2, 1;
+            
+            $hashref{$value_ref2} .= exists $hashref{$value_ref2} ? ",$ff" : $ff;
+            $hashref2{$ff} .= exists $hashref2{$ff} ? "$value_ref2" : $value_ref2;
+            $ff++;
+        }
+        $value_ref = $line3;
+    }
+    close INPUT2;
+    print "...OK\n";
+}
+
+select(STDERR);
+$| = 1;
+select(STDOUT); # default
+$| = 1;
+print "\nBuilding Hash Table...";
 
 my $file1;
 
@@ -1476,7 +1556,7 @@ my $type_of_file2 = "";
 
 foreach my $reads_tmp (@reads_tmp)
 {
-    open(INPUT, $reads_tmp) or die "Can't open file $reads_tmp, $!\n";
+    open(INPUT, $reads_tmp) or die "\n\nCan't open file $reads_tmp, $!\n";
 
     my $N = '0';
     my $f = "";
@@ -1517,7 +1597,7 @@ foreach my $reads_tmp (@reads_tmp)
                 my $code2 = $code;
                 my $code_end = substr $code2, $type_of_file,1;
                             
-                if ($type_of_file eq '0')
+                if ($type_of_file eq "identical")
                 {
                     if ($file_count eq '0')
                     {
@@ -1540,9 +1620,9 @@ foreach my $reads_tmp (@reads_tmp)
                 {
                     my $code0 = substr $code2, 0, $type_of_file;
                     
-                    if ($type_of_file eq '0')
+                    if ($type_of_file eq "identical")
                     {
-                       $code0 = $code2."\\";;
+                       $code0 = $code2;
                     }
                     if ($type_of_file eq "yes")
                     {
@@ -1555,9 +1635,9 @@ foreach my $reads_tmp (@reads_tmp)
                 {
                     my $code1 = substr $code2, 0, $type_of_file;
                     
-                    if ($type_of_file eq '0')
+                    if ($type_of_file eq "identical")
                     {
-                       $code1 = $code2."\\";;
+                       $code1 = $code2;
                     }
                     if ($type_of_file eq "yes")
                     {
@@ -1612,57 +1692,20 @@ foreach my $reads_tmp (@reads_tmp)
     $file_count++;
     close INPUT;
 }
+print "...OK\n";
 
-
-
-if ($reference eq "yes")
-{
-    open(INPUT2, $input_file2) or die "Can't open file $input_file2, $!\n";
-}
-my %contigs;
-my %hashref;
-my %hashref2;
-my $ff = '0';
-my $value_ref = "";
-
-if ($reference eq "yes")
-{
-    while (my $line = <INPUT2>)
-    {
-        if ($ff < 1)
-        {
-            $ff++;
-            next;
-        }
-        chomp $line;    
-        $line =~ tr/actg/ACTG/;
-        
-        my $line3 = $value_ref.$line;
-        
-        while (length($line3) > (($overlap*3)-1))
-        {
-            my $value_ref2 = substr $line3, 0, $overlap;
-            my $line2 = $line3;
-            $line3 = substr $line2, 10;
-            
-            $hashref{$value_ref2} .= exists $hashref{$value_ref2} ? ",$ff" : $ff;
-            $hashref2{$ff} .= exists $hashref2{$ff} ? "$value_ref2" : $value_ref2;
-            $ff++;
-        }
-        $value_ref = $line3;
-    }
-    close INPUT2;
-}
-
-
-print "\nRetrieve Seed...\n";
+select(STDERR);
+$| = 1;
+select(STDOUT); # default
+$| = 1;
+print "\nRetrieve Seed...";
 
 
 my $si = '0';
 my $space_at_end2;
 while (my $line = <INPUT3>)
 {
-    if ($si eq 1)
+    if ($si eq 0)
     {
         my $last_character = substr $line, -1;       
         if ($last_character =~ m/\s|\t/g)
@@ -1688,7 +1731,6 @@ my %read1;
 FIRST_SEED:
 
 my $seed_input_new2;
-
 my $seed_input_tmp = $seed_input;
 
 if ($bad_read eq "yes" && keys %contigs )
@@ -1739,6 +1781,7 @@ FIRST_SEED2:foreach my $first_seed (keys %first_seed)
                 my $seed_input_id = $seed_input_id[0];
                 my $seed_input_id_tmp = substr $seed_input_id, 0, -1;
                 my $seed_input_id_end = substr $seed_input_id, -1;
+                
                 if (exists($hash{$seed_input_id_tmp}))
                 {
                     my @seed_input_id_tmp = split /,/,$hash{$seed_input_id_tmp};
@@ -1766,9 +1809,14 @@ FIRST_SEED2:foreach my $first_seed (keys %first_seed)
                     }
                     my $pp = '0';
                     my $pp2= '0';
-                    while ($pp2 <= 3)
+                    my $part2 = substr $seed_input_new2, -$overlap-8;
+
+                    while ($pp < length($part2)-$overlap)
                     {
-                        my $seed_check = substr $seed_input_new2, -$overlap-$pp, $overlap;
+                        my $seed_check = substr $part2, $pp, $overlap;
+                        my $seed_check_reverse = reverse($seed_check);
+                        $seed_check_reverse =~ tr/ACTG/TGAC/;
+
                         if (exists($hash2b{$seed_check}))
                         {
                             $pp2++;
@@ -1777,13 +1825,23 @@ FIRST_SEED2:foreach my $first_seed (keys %first_seed)
                         {
                             $pp2++;
                         }
-                        if ($pp2 > 3)
+                        if (exists($hash2b{$seed_check_reverse}))
+                        {
+                            $pp2++;
+                        }
+                        if (exists($hash2c{$seed_check_reverse}))
+                        {
+                            $pp2++;
+                        }
+                        if ($pp2 > 4)
                         {
                             $seed{$seed_input_id} = $seed_input_new2;
+                            $seeds_check{$seed_input_id} = undef;
                             $read1{$seed_input_new2} =undef;
                             $contig_count{$seed_input_id} = '0';
                             $position{$seed_input_id} = length($seed{$seed_input_id});
                             $bad_read{$seed_input_id} = "yes";
+                            print "...OK\n";
                             print "\nInitial read retrieved successfully: ".$seed_input_new2."\n";
                             print OUTPUT4 "\nInitial read retrieved successfully: ".$seed_input_new2."\n";
                             print OUTPUT5 "\nInitial read retrieved successfully: ".$seed_input_new2."\n";
@@ -1842,9 +1900,14 @@ FIRST_SEED2:foreach my $first_seed (keys %first_seed)
                     }
                     my $pp = '0';
                     my $pp2= '0';
-                    while ($pp2 <= 3)
+                    my $part2 = substr $seed_input_new2, -$overlap-8;
+
+                    while ($pp < length($part2)-$overlap)
                     {
-                        my $seed_check = substr $seed_input_new2, -$overlap-$pp, $overlap;
+                        my $seed_check = substr $part2, $pp, $overlap;
+                        my $seed_check_reverse = reverse($seed_check);
+                        $seed_check_reverse =~ tr/ACTG/TGAC/;
+
                         if (exists($hash2b{$seed_check}))
                         {
                             $pp2++;
@@ -1853,13 +1916,23 @@ FIRST_SEED2:foreach my $first_seed (keys %first_seed)
                         {
                             $pp2++;
                         }
-                        if ($pp2 > 3)
+                        if (exists($hash2b{$seed_check_reverse}))
+                        {
+                            $pp2++;
+                        }
+                        if (exists($hash2c{$seed_check_reverse}))
+                        {
+                            $pp2++;
+                        }
+                        if ($pp2 > 4)
                         {
                             $seed{$seed_input_id} = $seed_input_new2;
+                            $seeds_check{$seed_input_id} = undef;
                             $read1{$seed_input_new2} =undef;
                             $contig_count{$seed_input_id} = '0';
                             $position{$seed_input_id} = length($seed{$seed_input_id});
                             $bad_read{$seed_input_id} = "yes";
+                            print "...OK\n";
                             print "\nInitial read retrieved successfully: ".$seed_input_new2."\n";
                             print OUTPUT4 "\nInitial read retrieved successfully: ".$seed_input_new2."\n";
                             print OUTPUT5 "\nInitial read retrieved successfully: ".$seed_input_new2."\n";
@@ -1963,6 +2036,8 @@ REF:foreach my $line (keys %hash)
                     if ($count2 > 10)
                     {                        
                         $seed{$line."1"} = $line_read;
+                        $seeds_check{$line."1"} = undef;
+                        print "...OK\n";
                         print "\nInitial read retrieved successfully: ".$line_read."\n";
                         print OUTPUT4 "\nInitial read retrieved successfully: ".$line_read."\n";
                         last REF;
@@ -2013,9 +2088,9 @@ my $pair = "";
 my $regex = "";
 my @match_pair;
 my %merged_match;
-my %merged_match_read;
 my %merged_match_back;
-my %merged_match_back_read;
+my %merged_match_pos;
+my %merged_match_back_pos;
 my @matches;
 my @matches1;
 my @matches2;
@@ -2081,6 +2156,8 @@ my $sc = '0';
 my $super_best_extension;
 my $still_first_seed = "yes";
 my $ext_before;
+my %rep_return;
+my %rep_return_back;
 
 foreach (keys %seed)
 {
@@ -2170,9 +2247,9 @@ SEED: foreach $seed_id (keys %seed)
     undef @matches1;
     undef @matches2;    
     undef %merged_match;
-    undef %merged_match_read;
+    undef %merged_match_pos;
     undef %merged_match_back;
-    undef %merged_match_back_read;
+    undef %merged_match_back_pos;
     undef @read_end;
     undef @read_end_b;
     undef %read_end;
@@ -2223,6 +2300,8 @@ SEED: foreach $seed_id (keys %seed)
     $split_forward = "";
     $deletion = "";
     $deletion_back = "";
+    $reference_guided = "";
+    $reference_guided_back = "";
     $repetitive_detect = "";
     $repetitive_detect_back = "";
     $repetitive_detect2 = "";
@@ -2260,9 +2339,11 @@ SEED: foreach $seed_id (keys %seed)
     $SNR_next_seed = "";
     $ext_before = "";
     $AT_rich_before = "";
+    $AT_rich_before_back = "";
     $SNR_nucleo = "";
     $SNR_nucleo_back = "";
     $insert_range_shorter = "";
+    $merge_now = "";
     
     if (exists($indel_split{$seed_id}))
     {
@@ -2612,14 +2693,6 @@ ALREADY_X0b:  while ($v0b < $u0b)
         {
             $use_regex_back = "";
         }
-        if (exists($noback{$id}) || $position < 225 || $position < $insert_size2 - $read_length + 300)
-        {
-            $noback = "stop";
-        }
-        else
-        {
-            $noback = "";
-        }   
         if (exists($noforward{$id}))
         {
             $noforward = "stop";
@@ -2628,6 +2701,19 @@ ALREADY_X0b:  while ($v0b < $u0b)
         {
             $noforward = "";
         }
+        my $check_old_id = "";
+        if (exists($old_id{$id}))
+        {
+            $check_old_id = "yes";
+        }
+        if (exists($noback{$id}) || (length($read) < $insert_size && $noforward eq "" && $check_old_id eq ""))
+        {
+            $noback = "stop";
+        }
+        else
+        {
+            $noback = "";
+        }         
         if (exists($last_chance{$id}) || length($read) < $insert_size)
         {
             $last_chance = "yes";
@@ -2799,73 +2885,484 @@ ALREADY_X0b:  while ($v0b < $u0b)
             $yuyu_option_T_back = "T";         
         }
 
+        if ($noback ne "stop")
+        {
+            my $start_repetitive = substr $read, $overlap, $insert_size+100;
+            my $repetitive_test = substr $read_short_start2, 0, 15;
+            my $SNR_skip = "yes";                                        
+            my $u = '0';
+            while ($SNR_skip eq "yes")
+            { 
+                $repetitive_test = substr $read_short_start2, $u, 15;
+                my $SNR_checkA = $repetitive_test =~ tr/A/A/;
+                my $SNR_checkC = $repetitive_test =~ tr/C/C/;
+                my $SNR_checkT = $repetitive_test =~ tr/T/T/;
+                my $SNR_checkG = $repetitive_test =~ tr/G/G/;
+                my $SNR_checkdot = $repetitive_test =~ tr/\./\./;
+                if ($SNR_checkA+$SNR_checkdot > 12 || $SNR_checkC+$SNR_checkdot > 12 || $SNR_checkG+$SNR_checkdot > 12 || $SNR_checkT+$SNR_checkdot > 12)
+                {
+                    $SNR_skip = "yes";
+                    $u += 10;
+                }
+                else
+                {
+                    $SNR_skip = "";
+                }
+            }
+            $repetitive_test =~ tr/\*//d;
+            my $check_repetitive = $start_repetitive =~ s/$repetitive_test/$repetitive_test/g;
+            
+            if (exists ($rep_return_back{$id}))
+            {
+                $repetitive_detect_back = "yes2";
+                if ($rep_return_back{$id} < $position_back-(2*$read_length))
+                {
+                    delete $rep_return_back{$id};
+                }
+                if ($y > $startprint2)
+                {
+                    print OUTPUT5 "DETECT_REPETITIVE_BACK_RETURN\n";
+                    print OUTPUT5 $start_repetitive." START_READ\n";
+                }
+            }
+            if ($check_repetitive > 0)
+            {
+                if (exists ($rep_return_back{$id}))
+                {
+                    
+                }
+                elsif (length($read) > $insert_size+100)
+                {
+                    substr $read, 0, $read_length, "";
+                    $seed{$id} = $read;
+                    $seeds_check{$id} = undef;
+                    $position_back{$id} = $position_back-$read_length;
+                    $rep_return_back{$id} = $position_back;
+                    if ($y > $startprint2)
+                    {
+                        print OUTPUT5 "RETURN_REPETITIVE_BACK\n";
+                    }
+                    goto SEED;
+                }
+                $repetitive_detect_back = "yes";
+                if ($y > $startprint2)
+                {
+                    print OUTPUT5 "DETECT_REPETITIVE_back\n";
+                    print OUTPUT5 $start_repetitive." START_READ\n";
+                }
+                if ($check_repetitive > 1)
+                {
+                    my $start_repetitive1 = substr $read, $insert_size+50, 300;
+                    my $check_repetitive1= $start_repetitive1 =~ s/$repetitive_test/$repetitive_test/g;
+                    if ($check_repetitive > 1)
+                    {
+                        $repetitive_detect_back2 = "yes";
+                        if ($y > $startprint2)
+                        {
+                            print OUTPUT5 "DETECT_REPETITIVE_back2\n";
+                        }
+                    }
+                }
+            }
+        }
+        if ($noforward ne "stop")
+        {
+            my $end_repetitive = substr $read, -$insert_size-100,-$overlap;
+            my $repetitive_test2 = substr $read_short_end2, -15;
+            my $SNR_skip = "yes";                                        
+            my $u = '15';
+            while ($SNR_skip eq "yes")
+            { 
+                $repetitive_test2 = substr $read_short_end2, -$u, 15;
+                my $SNR_checkA = $repetitive_test2 =~ tr/A/A/;
+                my $SNR_checkC = $repetitive_test2 =~ tr/C/C/;
+                my $SNR_checkT = $repetitive_test2 =~ tr/T/T/;
+                my $SNR_checkG = $repetitive_test2 =~ tr/G/G/;
+                my $SNR_checkdot = $repetitive_test2 =~ tr/\./\./;
+                if ($SNR_checkA+$SNR_checkdot > 12 || $SNR_checkC+$SNR_checkdot > 12 || $SNR_checkG+$SNR_checkdot > 12 || $SNR_checkT+$SNR_checkdot > 12)
+                {
+                    $SNR_skip = "yes";
+                    $u += 10;
+                }
+                else
+                {
+                    $SNR_skip = "";
+                }
+            }
+            $repetitive_test2 =~ tr/\*//d;
+            my $check_repetitive2 = $end_repetitive =~ s/$repetitive_test2/$repetitive_test2/g;
+
+            if (exists ($rep_return{$id}))
+            {
+                $repetitive_detect = "yes2";
+                if ($y > $startprint2)
+                {
+                    print OUTPUT5 "DETECT_REPETITIVE_RETURN\n";
+                    print OUTPUT5 $end_repetitive." END_READ\n";
+                }
+                if ($rep_return{$id} < $position-(2*$read_length))
+                {
+                    delete $rep_return{$id};
+                }
+            }
+            if ($check_repetitive2 > 0)
+            {
+                if (exists ($rep_return{$id}))
+                {
+                    
+                }
+                elsif (length($read) > $insert_size+100)
+                {
+                    substr $read, -$read_length, $read_length, "";
+                    $seed{$id} = $read;
+                    $seeds_check{$id} = undef;
+                    $position{$id} = $position-$read_length;
+                    $rep_return{$id} = $position;
+                    if ($y > $startprint2)
+                    {
+                        print OUTPUT5 "RETURN_REPETITIVE\n";
+                    }
+                    goto SEED;
+                }
+                $repetitive_detect = "yes";
+                if ($y > $startprint2)
+                {
+                    print OUTPUT5 "DETECT_REPETITIVE\n";
+                    print OUTPUT5 $end_repetitive." END_READ\n";
+                }
+                if ($check_repetitive2 > 1)
+                {
+                    my $end_repetitive1 = substr $read, -$insert_size-350, 300;
+                    my $check_repetitive21 = $end_repetitive1 =~ s/$repetitive_test2/$repetitive_test2/g;
+                    if ($check_repetitive21 > 1)
+                    {
+                        $repetitive_detect2 = "yes";
+                        if ($y > $startprint2)
+                        {
+                            print OUTPUT5 "DETECT_REPETITIVE2\n";
+                        }
+                    }
+                }
+            }
+        }
+MERGE:
+        my $merge_extra = '0';
         if ($y > $startprint2)
         {
             print OUTPUT5 $old_id{$id}." OLD_ID\n";
+            if (exists($old_rep{$id}))
+            {
+                print OUTPUT5 "OLD_REP\n";
+            }
         }
-        if (exists $old_id{$id} && $position_back > 25 && $position_back < ($insert_size*3))
-        {                                    
-            my $read_oldie = $seed_old{$old_id{$id}};
-            my $read_newest = $read;
-                                                        
-            my $start_seq = substr $read, 0, $insert_size+200;
-            my $start_seq1 = substr $read, 0, 39;
-            my $start_seq2 = substr $read, 30, 39;
-            my $end_seq = substr $read_oldie, -$insert_size+200;
-            my $end_seq1 = substr $read_oldie, -39, 39;
-            my $end_seq2 = substr $read_oldie, -72, 39;
-            $merge_read_length = length ($read);
-            $start_seq =~ tr/N|K|R|Y|S|W|M|B|D|H|V/\./;
-            $start_seq1 =~ tr/N|K|R|Y|S|W|M|B|D|H|V/\./;
-            $start_seq2 =~ tr/N|K|R|Y|S|W|M|B|D|H|V/\./;
-            $end_seq =~ tr/N|K|R|Y|S|W|M|B|D|H|V/\./;
-            $end_seq1 =~ tr/N|K|R|Y|S|W|M|B|D|H|V/\./;
-            $end_seq2 =~ tr/N|K|R|Y|S|W|M|B|D|H|V/\./;
-            
-  
-            if ($end_seq =~ m/.*.$start_seq1(.*)$/)
+        if (exists $old_id{$id} && exists $old_rep{$id})
+        {
+            if ($position_back > $read_length && $position_back < ($insert_size*3) && $repetitive_detect_back eq "" && $noback ne "stop")
             {
-                my $r = length($1);
-                my $read_temp = $read;
-                my $read1 = substr $read_oldie, 0, -39-$r;         
+                my $read_oldie = $seed_old{$old_id{$id}};
+                my $read_newest = $read;
+                                                            
+                my $start_seq = substr $read, 0, $insert_size*3;
+                my $start_seq1 = substr $read, 0, 50;
+                my $start_seq2 = substr $read, 30, 50;
+                my $end_seq = substr $read_oldie, -$insert_size*3;
+                $merge_read_length = length ($read);
+                $start_seq =~ tr/N|K|R|Y|S|W|M|B|D|H|V/\./;
+                $start_seq1 =~ tr/N|K|R|Y|S|W|M|B|D|H|V/\./;
+                $start_seq2 =~ tr/N|K|R|Y|S|W|M|B|D|H|V/\./;
+                $end_seq =~ tr/N|K|R|Y|S|W|M|B|D|H|V/\./;
+      
+                if ($end_seq =~ m/.*.$start_seq1(.*)$/)
+                {
+                    my $r = length($1);
+                    my $read_temp = $read;
+                    my $read1 = substr $read_oldie, 0, -39-$r;         
+    
+                    $read = $read1.$read_temp;                                                      
+                    $merge_read = "yes";
+                }
+                elsif ($end_seq =~ m/.*.$start_seq2(.*)$/)
+                {
+                    my $r = length($1);
+                    my $read_temp = $read;
+                    my $read1 = substr $read_oldie, 0, -39-$r;         
+                    my $read2 = substr $read_temp, 30;
+                    
+                    $read = $read1.$read2;                                      
+                    $merge_read = "yes";
+                }
+                if ($merge_read eq "yes")
+                {            
+                    $seed{$id} = $read;
+                    $seeds_check{$id} = undef;
+                    delete $tree{$old_id{$id}};
+                    
+                    foreach my $tree_tmp (keys %tree)
+                    {
+                        my $old = $old_id{$id};
+                        my $tree2 = $tree{$tree_tmp};
+                        my $tree3 = $tree{$tree_tmp};
 
-                $read = $read1.$read_temp;                                                      
-                $merge_read = "yes";
+                        if ($old_id{$id} =~ m/.*_(\d+)$/)
+                        {
+                            $old = $1;
+                        }
+                        my $id_tmp = $id;
+                        if ($id =~ m/.*_(\d+)$/)
+                        {
+                            $id_tmp = $1;
+                        }
+                        my @ids_split = split /\*/, $tree2;
+                        foreach my $id_split (@ids_split)
+                        {
+                            if ($id_split  =~ m/^$old(REP)*$/)
+                            {
+                                if ($tree2 =~ m/^(.*\*)*$old(REP)*(\*.*)*$/)
+                                {
+                                    if (defined($1))
+                                    {
+                                        $tree3 = $1.$id_tmp;
+                                    }
+                                    else
+                                    {
+                                        $tree3 = $id_tmp;
+                                    }
+                                    if (defined($2))
+                                    {
+                                        $tree3 = $tree3."REP";
+                                    }
+                                    if (defined($3))
+                                    {
+                                        $tree3 = $tree3.$3;
+                                    }
+                                }
+                            }
+                        }
+                        delete $tree{$tree_tmp};
+                        $tree{$tree_tmp} = $tree3;
+                        foreach my $contigs_end (keys %contigs_end)
+                        {
+                            if ($contigs_end{$contigs_end} eq $old)
+                            {
+                                delete $contigs_end{$contigs_end};
+                                $contigs_end{$contigs_end} = $id_tmp;
+                            }
+                        }
+                    }
+                    delete $old_id{$id};
+                    delete $old_rep{$id};
+                    delete $old_rep_old{$old_id{$id}};
+                    if ($y > $startprint2)
+                    {
+                        print OUTPUT5 "Merged both contigs rep!\n";
+                        print OUTPUT5 ">".$read_newest."\n";
+                    }            
+                    $noback = "stop";
+                    $noback{$id} = "stop";
+                    $merge_extra = $position;
+                }
             }
-            elsif ($end_seq =~ m/.*.$start_seq2(.*)$/)
+            elsif ((($noback eq "stop" || $position_back >= ($insert_size*3)) && $position > $insert_size+200) || $merge_now ne "")
             {
-                my $r = length($1);
-                my $read_temp = $read;
-                my $read1 = substr $read_oldie, 0, -39-$r;         
-                my $read2 = substr $read_temp, 30;
-                
-                $read = $read1.$read2;                                      
-                $merge_read = "yes";
+                $tree{$old_id{$id}} = $id."REP";
+                $noback{$id} = "stop";
+                $noback = "stop";
+                $merge_extra = $position;
+                print OUTPUT5 ">Remove rep merge!\n";
+                 
+                if ($contig_num eq '1')
+                {
+                    $contigs{$contig_num."+".$old_id{$id}} = $seed_old{$old_id{$id}};
+                    my $start_point = '500';
+                    my $check_repetitive = '3';
+                                                                                
+                    while ($check_repetitive > 2)
+                    {
+                        my $repetitive = substr $seed_old{$old_id{$id}}, $start_point, 15;
+                        $repetitive =~ tr/N|K|R|Y|S|W|M|B|D|H|V|\.//;
+                        my $read_short_area = substr $seed_old{$old_id{$id}}, $start_point -170, 340;
+                        $check_repetitive = $read_short_area =~ s/$repetitive/$repetitive/g;
+                        if ($check_repetitive > 2)
+                        {
+                            $start_point += 20;
+                            if ($y > $startprint2)
+                            {
+                                print OUTPUT5 "DETECT_REPETITIVE_IN_START_SEQUENCE\n";
+                            }
+                        } 
+                    }
+                    $first_contig_start = substr $seed_old{$old_id{$id}}, $start_point, $overlap;
+                    my $check_start = $first_contig_start =~ tr/N|K|R|Y|S|W|M|B|D|H|V|\.//;
+                    while ($check_start > 0)
+                    {
+                        $start_point += 10;
+                        $first_contig_start = substr $seed_old{$old_id{$id}}, $start_point, $overlap;
+                        $check_start = $first_contig_start =~ tr/N|K|R|Y|S|W|M|B|D|H|V|\.//;
+                    }
+                    if ($y > $startprint2)
+                    {
+                        print OUTPUT5 $first_contig_start." CONTIG_START2\n";
+                    }
+                    foreach my $seedie (keys %seed)
+                    {
+                        my $seedie_part = substr $seed{$seedie}, 0, 1000;
+                        my $check_seedie = $seedie_part =~ s/$first_contig_start/$first_contig_start/;
+                        if ($check_seedie > 0)
+                        {
+                            delete $seed{$seedie};
+                        }
+                    }
+                }
+                else
+                {
+                    $contigs{$contig_num."+".$old_id{$id}} = $seed_old{$old_id{$id}};
+                }
+                $contig_num++;
+                delete $old_id{$id};
+                delete $old_rep{$id};
+                delete $old_rep_old{$old_id{$id}};
+                if ($noback eq "stop" && $noforward eq "stop" && $merge_now eq "yes2")
+                {
+                    $contigs{$contig_num."+".$id} = $read;
+                }
             }
-            elsif ($start_seq =~ m/(.*.)$end_seq1.*$/)
-            {
-                my $r = length($1);
-                my $read_temp = $read;
-                my $read1 = substr $read_oldie, 0, -39-$r;         
+        }
+        else
+        {
+            if (exists $old_id{$id} && $position_back > 25 && $position_back < ($insert_size*3) && $noback ne "stop")
+            {                                    
+                my $read_oldie = $seed_old{$old_id{$id}};
+                my $read_newest = $read;
+                                                            
+                my $start_seq = substr $read, 0, $insert_size+200;
+                my $start_seq1 = substr $read, 0, 39;
+                my $start_seq2 = substr $read, 30, 39;
+                my $end_seq = substr $read_oldie, -$insert_size+200;
+                my $end_seq1 = substr $read_oldie, -39, 39;
+                my $end_seq2 = substr $read_oldie, -72, 39;
+                $merge_read_length = length ($read);
+                $start_seq =~ tr/N|K|R|Y|S|W|M|B|D|H|V/\./;
+                $start_seq1 =~ tr/N|K|R|Y|S|W|M|B|D|H|V/\./;
+                $start_seq2 =~ tr/N|K|R|Y|S|W|M|B|D|H|V/\./;
+                $end_seq =~ tr/N|K|R|Y|S|W|M|B|D|H|V/\./;
+                $end_seq1 =~ tr/N|K|R|Y|S|W|M|B|D|H|V/\./;
+                $end_seq2 =~ tr/N|K|R|Y|S|W|M|B|D|H|V/\./;
                 
-                $read = $read1.$read_temp;                                      
-                $merge_read = "yes";
-            }
-            elsif ($start_seq =~ m/(.*.)$end_seq2.*$/)
-            {
-                my $r = length($1);
-                my $read_temp = $read;
-                my $read1 = substr $read_oldie, 0, -39-$r;         
-                my $read2 = substr $read_temp, 30;
+      
+                if ($end_seq =~ m/.*.$start_seq1(.*)$/)
+                {
+                    my $r = length($1);
+                    my $read_temp = $read;
+                    my $read1 = substr $read_oldie, 0, -39-$r;         
+    
+                    $read = $read1.$read_temp;                                                      
+                    $merge_read = "yes";
+                }
+                elsif ($end_seq =~ m/.*.$start_seq2(.*)$/)
+                {
+                    my $r = length($1);
+                    my $read_temp = $read;
+                    my $read1 = substr $read_oldie, 0, -39-$r;         
+                    my $read2 = substr $read_temp, 30;
+                    
+                    $read = $read1.$read2;                                      
+                    $merge_read = "yes";
+                }
+                elsif ($start_seq =~ m/(.*.)$end_seq1.*$/)
+                {
+                    my $r = length($1);
+                    my $read_temp = $read;
+                    my $read1 = substr $read_oldie, 0, -39-$r;         
+                    
+                    $read = $read1.$read_temp;                                      
+                    $merge_read = "yes";
+                }
+                elsif ($start_seq =~ m/(.*.)$end_seq2.*$/)
+                {
+                    my $r = length($1);
+                    my $read_temp = $read;
+                    my $read1 = substr $read_oldie, 0, -39-$r;         
+                    my $read2 = substr $read_temp, 30;
+                    
+                    $read = $read1.$read2;                                      
+                    $merge_read = "yes";
+                }
                 
-                $read = $read1.$read2;                                      
-                $merge_read = "yes";
+                if ($merge_read eq "yes")
+                {            
+                    $seed{$id} = $read;
+                    $seeds_check{$id} = undef;
+                    delete $tree{$old_id{$id}};
+                    foreach my $tree_tmp (keys %tree)
+                    {
+                        my $old = $old_id{$id};
+                        my $tree2 = $tree{$tree_tmp};
+                        my $tree3 = $tree{$tree_tmp};
+                        if ($old_id{$id} =~ m/.*_(\d+)$/)
+                        {
+                            $old = $1;
+                        }
+                        my $id_tmp = $id;
+                        if ($id =~ m/.*_(\d+)$/)
+                        {
+                            $id_tmp = $1;
+                        }
+                        my @ids_split = split /\*/, $tree2;
+                        foreach my $id_split (@ids_split)
+                        {
+                            if ($id_split  =~ m/^$old(REP)*$/)
+                            {
+                                if ($tree2 =~ m/^(.*\*)*$old(REP)*(\*.*)*$/)
+                                {
+                                    if (defined($1))
+                                    {
+                                        $tree3 = $1.$id_tmp;
+                                    }
+                                    else
+                                    {
+                                        $tree3 = $id_tmp;
+                                    }
+                                    if (defined($2))
+                                    {
+                                        $tree3 = $tree3."REP";
+                                    }
+                                    if (defined($3))
+                                    {
+                                        $tree3 = $tree3.$3;
+                                    }
+                                }
+                            }
+                        }
+                        delete $tree{$tree_tmp};
+                        $tree{$tree_tmp} = $tree3;
+                        foreach my $contigs_end (keys %contigs_end)
+                        {
+                            if ($contigs_end{$contigs_end} eq $old)
+                            {
+                                delete $contigs_end{$contigs_end};
+                                $contigs_end{$contigs_end} = $id_tmp;
+                            }
+                        }
+                    }
+                    delete $old_id{$id};
+                    if ($y > $startprint2)
+                    {
+                        print OUTPUT5 "Merged both contigs!\n";
+                        print OUTPUT5 ">".$read_newest."\n";
+                    }            
+                    $noback = "stop";
+                    $noback{$id} = "stop";
+                    $merge_extra = $position;
+                }
             }
-            
-            if ($merge_read eq "yes")
-            {            
+            if (((exists $old_id{$id} && ($noback eq "stop" || $position_back >= ($insert_size*3)) && $position > 1000) || $merge_now ne "") && $merge_read eq "")
+            {                                    
+                $merge_read_length = length($read);
+                $merge_read = "yes"; 
+                $read = $seed_old{$old_id{$id}} ."LLLLLLLLLLLLLLL".$read;
                 $seed{$id} = $read;
-                delete $tree{$old_id{$id}};
+                $seeds_check{$id} = undef;
+                $hasL = "yes";
                 foreach my $tree_tmp (keys %tree)
                 {
                     my $old = $old_id{$id};
@@ -2918,83 +3415,44 @@ ALREADY_X0b:  while ($v0b < $u0b)
                     }
                 }
                 delete $old_id{$id};
+                $noback{$id} = "stop";
+                $merge_extra = $position;
                 if ($y > $startprint2)
                 {
-                    print OUTPUT5 "Merged both contigs!\n";
-                    print OUTPUT5 ">".$read_newest."\n";
-                }            
-                $noback = "stop";
-                $noback{$id} = "stop";     
-            }
-        }
-        if (exists $old_id{$id} && ($noback eq "stop" || $position_back >= ($insert_size*3)) && $position > 1000 )
-        {                                    
-            $merge_read_length = length ($read);
-            $merge_read = "yes"; 
-            $read = $seed_old{$old_id{$id}} ."LLLLLLLLLLLLLLL".$read;
-            $seed{$id} = $read;
-            $hasL = "yes";
-            foreach my $tree_tmp (keys %tree)
-                {
-                    my $old = $old_id{$id};
-                    my $tree2 = $tree{$tree_tmp};
-                    my $tree3 = $tree{$tree_tmp};
-                    if ($old_id{$id} =~ m/.*_(\d+)$/)
-                    {
-                        $old = $1;
-                    }
-                    my $id_tmp = $id;
-                    if ($id =~ m/.*_(\d+)$/)
-                    {
-                        $id_tmp = $1;
-                    }
-                    my @ids_split = split /\*/, $tree2;
-                    foreach my $id_split (@ids_split)
-                    {
-                        if ($id_split  =~ m/^$old(REP)*$/)
-                        {
-                            if ($tree2 =~ m/^(.*\*)*$old(REP)*(\*.*)*$/)
-                            {
-                                if (defined($1))
-                                {
-                                    $tree3 = $1.$id_tmp;
-                                }
-                                else
-                                {
-                                    $tree3 = $id_tmp;
-                                }
-                                if (defined($2))
-                                {
-                                    $tree3 = $tree3."REP";
-                                }
-                                if (defined($3))
-                                {
-                                    $tree3 = $tree3.$3;
-                                }
-                            }
-                        }
-                    }
-                    delete $tree{$tree_tmp};
-                    $tree{$tree_tmp} = $tree3;
-                    foreach my $contigs_end (keys %contigs_end)
-                    {
-                        if ($contigs_end{$contigs_end} eq $old)
-                        {
-                            delete $contigs_end{$contigs_end};
-                            $contigs_end{$contigs_end} = $id_tmp;
-                        }
-                    }
+                    print OUTPUT5 ">Merged contigs with LLLLLLLLLLL!\n";
                 }
-            delete $old_id{$id};
-            $noback{$id} = "stop";
-            if ($y > $startprint2)
-            {
-                print OUTPUT5 "Merged contigs with LLLLLLLLLLL!\n";
+                $contig_gap_min{$id."_".$contig_count} = ($contig_gap_min{$id."_".$contig_count}-$position_back);
+                $contig_gap_max{$id."_".$contig_count} = ($contig_gap_max{$id."_".$contig_count}-$position_back);
             }
-            $contig_gap_min{$id."_".$contig_count} = ($contig_gap_min{$id."_".$contig_count}-$position_back);
-            $contig_gap_max{$id."_".$contig_count} = ($contig_gap_max{$id."_".$contig_count}-$position_back);
         }
-
+        if ($merge_now ne "")
+        {
+            if ($noback eq "stop")
+            {  
+                print OUTPUT5 ">".$id."\n";
+                print OUTPUT5 $read."\n";
+                delete $seed{$id};
+                if (!keys %seed)
+                {
+                    $circle = "contigs";
+                    goto FINISH;
+                }
+                else
+                {
+                    goto ITERATION;
+                }
+            }
+            else
+            {
+                print OUTPUT5 ">\n";
+                $noforward = "stop";
+                $noforward{$id} = "stop";
+                $seed_split{$id} = undef;
+                $best_extension = "";
+                goto BACK;
+            }
+        }
+        
 
     if (exists $old_id{$id})
     {
@@ -3003,11 +3461,11 @@ ALREADY_X0b:  while ($v0b < $u0b)
     elsif (keys %contigs && $first_contig_start ne "")
     {
         my $check_start0 = '0';
-        if ($merge_read eq "yes")
+        if ($merge_extra ne "")
         {
-            my $long_end = substr $read, -1250;
+            my $long_end = substr $read, -1250-$merge_extra;
             $check_start0 = $long_end =~ s/$first_contig_start/$first_contig_start/;
-        }
+        }     
         my $check_start1 = $read_short_end2 =~ s/$first_contig_start/$first_contig_start/;
         my $check_start2 = $read_short_end2 =~ s/$first_contig_start_reverse/$first_contig_start_reverse/;
         if ($check_start1 > 0 || $check_start0 > 0)
@@ -3056,113 +3514,23 @@ REPEAT:
             {
                 print OUTPUT5 "USE_REGEX\n";
             }
+            if ($use_regex eq "yes2")
+            {
+                print OUTPUT5 "USE_REGEX2\n";
+            }
         }
         if ($y > $startprint2)
         {
+            if ($use_regex_back eq "yes2")
+            {
+                print OUTPUT5 "USE_REGEX_BACK2\n";
+            }
             if ($use_regex_back eq "yes")
             {
-                print OUTPUT5 "USE_REGEX_BACK\n";
+                print OUTPUT5 "USE_REGEX_BACK2\n";
             }
         }
 
-        if ($noback ne "stop")
-        {
-            my $start_repetitive = substr $read, $overlap, $insert_size+100;
-            my $repetitive_test = substr $read_short_start2, 0, 15;
-            my $SNR_skip = "yes";                                        
-            my $u = '0';
-            while ($SNR_skip eq "yes")
-            { 
-                $repetitive_test = substr $read_short_start2, $u, 15;
-                my $SNR_checkA = $repetitive_test =~ tr/A/A/;
-                my $SNR_checkC = $repetitive_test =~ tr/C/C/;
-                my $SNR_checkT = $repetitive_test =~ tr/T/T/;
-                my $SNR_checkG = $repetitive_test =~ tr/G/G/;
-                my $SNR_checkdot = $repetitive_test =~ tr/\./\./;
-                if ($SNR_checkA+$SNR_checkdot > 12 || $SNR_checkC+$SNR_checkdot > 12 || $SNR_checkG+$SNR_checkdot > 12 || $SNR_checkT+$SNR_checkdot > 12)
-                {
-                    $SNR_skip = "yes";
-                    $u += 10;
-                }
-                else
-                {
-                    $SNR_skip = "";
-                }
-            }
-            $repetitive_test =~ tr/\*//d;
-            my $check_repetitive = $start_repetitive =~ s/$repetitive_test/$repetitive_test/g;
-            if ($check_repetitive > 0)
-            {
-                $repetitive_detect_back = "yes";
-                if ($y > $startprint2)
-                {
-                    print OUTPUT5 "DETECT_REPETITIVE_back\n";
-                    print OUTPUT5 $start_repetitive." START_READ\n";
-                }
-                if ($check_repetitive > 1)
-                {
-                    my $start_repetitive1 = substr $read, 0, 800;
-                    my $check_repetitive1= $start_repetitive1 =~ s/$repetitive_test/$repetitive_test/g;
-                    if ($check_repetitive > 6)
-                    {
-                        $repetitive_detect_back2 = "yes";
-                        if ($y > $startprint2)
-                        {
-                            print OUTPUT5 "DETECT_REPETITIVE_back2\n";
-                        }
-                    }
-                }
-            }
-        }
-        if ($noforward ne "stop")
-        {
-            my $end_repetitive = substr $read, -$insert_size-100,-$overlap;
-            my $repetitive_test2 = substr $read_short_end2, -15;
-            my $SNR_skip = "yes";                                        
-            my $u = '15';
-            while ($SNR_skip eq "yes")
-            { 
-                $repetitive_test2 = substr $read_short_end2, -$u, 15;
-                my $SNR_checkA = $repetitive_test2 =~ tr/A/A/;
-                my $SNR_checkC = $repetitive_test2 =~ tr/C/C/;
-                my $SNR_checkT = $repetitive_test2 =~ tr/T/T/;
-                my $SNR_checkG = $repetitive_test2 =~ tr/G/G/;
-                my $SNR_checkdot = $repetitive_test2 =~ tr/\./\./;
-                if ($SNR_checkA+$SNR_checkdot > 12 || $SNR_checkC+$SNR_checkdot > 12 || $SNR_checkG+$SNR_checkdot > 12 || $SNR_checkT+$SNR_checkdot > 12)
-                {
-                    $SNR_skip = "yes";
-                    $u += 10;
-                }
-                else
-                {
-                    $SNR_skip = "";
-                }
-            }
-            $repetitive_test2 =~ tr/\*//d;
-            my $check_repetitive2 = $end_repetitive =~ s/$repetitive_test2/$repetitive_test2/g;
-            if ($check_repetitive2 > 0)
-            {
-                $repetitive_detect = "yes";
-                if ($y > $startprint2)
-                {
-                    print OUTPUT5 "DETECT_REPETITIVE\n";
-                    print OUTPUT5 $end_repetitive." END_READ\n";
-                }
-                if ($check_repetitive2 > 1)
-                {
-                    my $end_repetitive1 = substr $read, -800;
-                    my $check_repetitive21 = $end_repetitive1 =~ s/$repetitive_test2/$repetitive_test2/g;
-                    if ($check_repetitive21 > 6)
-                    {
-                        $repetitive_detect2 = "yes";
-                        if ($y > $startprint2)
-                        {
-                            print OUTPUT5 "DETECT_REPETITIVE2\n";
-                        }
-                    }
-                }
-            }
-        }
 
                                                 
                                                 if (length($read) > $genome_range_low)
@@ -3351,7 +3719,7 @@ REPEAT:
                                                 }
                                 chomp $read;
                            
-                                if ($position > $insert_size2 - $read_length + 300)
+                                if ($position > $insert_size2 - $read_length + 300 || $noback eq "")
                                 {
                                     my $read_end_AT = substr $read_short_end2, -$read_length+$right-3;
                                     my $A_rich_test = $read_end_AT =~ tr/A\.//;
@@ -3368,19 +3736,37 @@ REPEAT:
                                     my $T_rich_test2 = $read_end_AT2 =~ tr/T\.//;
                                     my $G_rich_test2 = $read_end_AT2 =~ tr/G\.//;
                                     my $C_rich_test2 = $read_end_AT2 =~ tr/C\.//;
-                                    if ($A_rich_test2 > $overlap || $T_rich_test2 > $overlap || $G_rich_test2 > $overlap || $C_rich_test2 > $overlap)
+                                    if ($A_rich_test2 > $overlap-5 || $T_rich_test2 > $overlap-5 || $G_rich_test2 > $overlap-5 || $C_rich_test2 > $overlap-5)
                                     {
                                         $AT_rich_before = "yes";
+                                        $last_chance = ""
                                     }
-                                    my $read_start_AT = substr $read_short_start2, 0, $overlap+3;
-                                    my $A_rich_test3 = $read_start_AT =~ tr/A\.//;
-                                    my $T_rich_test3 = $read_start_AT =~ tr/T\.//;
-                                    my $G_rich_test3 = $read_start_AT =~ tr/G\.//;
-                                    my $C_rich_test3 = $read_start_AT =~ tr/C\.//;
-                                    if ($A_rich_test3 > $overlap || $T_rich_test3 > $overlap || $G_rich_test3 > $overlap || $C_rich_test3 > $overlap)
+                                    if ($noback eq "")
                                     {
-                                        $noback = "stop";
-                                        $noback{$id} = "stop";
+                                        my $read_start_AT = substr $read_short_start2, 0, $read_length-$right+5;
+                                        my $A_rich_test3 = $read_start_AT =~ tr/A/A/;
+                                        my $T_rich_test3 = $read_start_AT =~ tr/T/T/;
+                                        my $G_rich_test3 = $read_start_AT =~ tr/G/G/;
+                                        my $C_rich_test3 = $read_start_AT =~ tr/C/C/;
+                                        my $dot_rich_test3 = $read_start_AT =~ tr/\./\./;
+                                        if ($A_rich_test3+$dot_rich_test3 > $read_length-$right || $T_rich_test3+$dot_rich_test3 > $read_length-$right || $G_rich_test3+$dot_rich_test3 > $read_length-$right || $C_rich_test3+$dot_rich_test3 > $read_length-$right)
+                                        {
+                                            $noback = "stop";
+                                            $noback{$id} = "stop";
+                                            goto MERGE;
+                                        }
+                                        my $read_start_AT2 = substr $read_short_start2, 0, $overlap+3;
+                                        my $A_rich_test32 = $read_start_AT2 =~ tr/A/A/;
+                                        my $T_rich_test32 = $read_start_AT2 =~ tr/T/T/;
+                                        my $G_rich_test32 = $read_start_AT2 =~ tr/G/G/;
+                                        my $C_rich_test32 = $read_start_AT2 =~ tr/C/C/;
+                                        my $dot_rich_test32 = $read_start_AT2 =~ tr/\./\./;
+                                        if ($A_rich_test32+$dot_rich_test32 > $overlap-5 || $T_rich_test32+$dot_rich_test32 > $overlap-5 || $G_rich_test32+$dot_rich_test32 > $overlap-5 || $C_rich_test32+$dot_rich_test32 > $overlap-5)
+                                        {
+                                            $AT_rich_before_back = "yes";
+                                            print OUTPUT5 $AT_rich_before_back." AT_RICH_BACK\n";
+                                            $last_chance_back = "";
+                                        }
                                     }
                                                                     
                                     my $s = '0';
@@ -3409,467 +3795,471 @@ REPEAT:
                                                 $enough_back = "yes";
                                             }           
                                         }                                    
-                                            my $read_end_d = substr $read_short_end2, -($s+$overlap), $overlap;
-                                            my $read_start_t = substr $read_short_start2, $e, $overlap;
+                                        my $read_end_d = substr $read_short_end2, -($s+$overlap), $overlap;
+                                        my $read_start_t = substr $read_short_start2, $e, $overlap;
+                                        
+                                        if ($containX_short_end2 > 0)
+                                        {
+                                            my $star = $read_end_d =~ tr/\*//;
+
+                                            $read_end_d = substr $read_short_end2, -($s+$overlap+($star*2)), $overlap+($star*2);
+                                            my $star2 = $read_end_d =~ tr/\*//;                                                
+                                            while ($star2 > $star)
+                                            {
+                                                $read_end_d = substr $read_short_end2, -($s+$overlap+($star*2)+(($star2-$star)*2)), $overlap+($star*2)+(($star2-$star)*2);
+                                                $star = $star2;
+                                                $star2 = $read_end_d =~ tr/\*//;
+                                            }   
+                                        }
+                                        if ($containX_short_start2 > 0)
+                                        {
+                                            my $star = $read_start_t =~ tr/\*//;
+                
+                                            $read_start_t = substr $read_short_start2, $e, $overlap+($star*2);
+                                            my $star2 = $read_start_t =~ tr/\*//;                                                
+                                            while ($star2 > $star)
+                                            {
+                                                $read_start_t = substr $read_short_start2, $e, $overlap+($star*2)+(($star2-$star)*2);
+                                                $star = $star2;
+                                                $star2 = $read_start_t =~ tr/\*//;
+                                            }
+                                        }     
+                                        if ($s eq 0)
+                                        {                      
+                                            my $X = "";
+                                            my $Xb = "";
+                                            $read_end = $read_end_d;
+                                            $read_start = $read_start_t;
+                                            $read_end =~ tr/N|K|R|Y|S|W|M|B|D|H|V/\./;
+                                            $read_start =~ tr/N|K|R|Y|S|W|M|B|D|H|V/\./;
                                             
+                                            my $read_end_c = $read_end;
+                                            $read_end_c =~ tr/ATCG/TAGC/;
+                                            $read_end_b = reverse($read_end_c);                                                
+                                            
+                                            my $read_start_c = $read_start;
+                                            $read_start_c =~ tr/ATCG/TAGC/;
+                                            $read_start_b = reverse($read_start_c);
+  
                                             if ($containX_short_end2 > 0)
                                             {
-                                                my $star = $read_end_d =~ tr/\*//;
-
-                                                $read_end_d = substr $read_short_end2, -($s+$overlap+($star*2)), $overlap+($star*2);
-                                                my $star2 = $read_end_d =~ tr/\*//;                                                
-                                                while ($star2 > $star)
+                                                $X = $read_end =~ tr/\*//;
+                                                if ($X > 0)
                                                 {
-                                                    $read_end_d = substr $read_short_end2, -($s+$overlap+($star*2)+(($star2-$star)*2)), $overlap+($star*2)+(($star2-$star)*2);
-                                                    $star = $star2;
-                                                    $star2 = $read_end_d =~ tr/\*//;
-                                                }   
-                                            }
-                                            if ($containX_short_start2 > 0)
-                                            {
-                                                my $star = $read_start_t =~ tr/\*//;
-                    
-                                                $read_start_t = substr $read_short_start2, $e, $overlap+($star*2);
-                                                my $star2 = $read_start_t =~ tr/\*//;                                                
-                                                while ($star2 > $star)
-                                                {
-                                                    $read_start_t = substr $read_short_start2, $e, $overlap+($star*2)+(($star2-$star)*2);
-                                                    $star = $star2;
-                                                    $star2 = $read_start_t =~ tr/\*//;
-                                                }
-                                            }     
-                                            if ($s eq 0)
-                                            {                      
-                                                my $X = "";
-                                                my $Xb = "";
-                                                $read_end = $read_end_d;
-                                                $read_start = $read_start_t;
-                                                $read_end =~ tr/N|K|R|Y|S|W|M|B|D|H|V/\./;
-                                                $read_start =~ tr/N|K|R|Y|S|W|M|B|D|H|V/\./;
-                                                
-                                                my $read_end_c = $read_end;
-                                                $read_end_c =~ tr/ATCG/TAGC/;
-                                                $read_end_b = reverse($read_end_c);                                                
-                                                
-                                                my $read_start_c = $read_start;
-                                                $read_start_c =~ tr/ATCG/TAGC/;
-                                                $read_start_b = reverse($read_start_c);
-      
-                                                if ($containX_short_end2 > 0)
-                                                {
-                                                    $X = $read_end =~ tr/\*//;
-                                                    if ($X > 0)
-                                                    {
-                                                        %read_end = build_partial3c $read_end, "";
-                                                        %read_end_b = build_partial3c ($read_end_b, "reverse");
-                                                    }
-                                                    else
-                                                    {
-                                                        $read_end{$read_end} = undef;
-                                                        $read_end_b{$read_end_b} = undef;
-                                                    }
+                                                    %read_end = build_partial3c $read_end, "";
+                                                    %read_end_b = build_partial3c ($read_end_b, "reverse");
                                                 }
                                                 else
                                                 {
                                                     $read_end{$read_end} = undef;
                                                     $read_end_b{$read_end_b} = undef;
-                                                }                                                   
-                                                if ($containX_short_start2 > 0)
+                                                }
+                                            }
+                                            else
+                                            {
+                                                $read_end{$read_end} = undef;
+                                                $read_end_b{$read_end_b} = undef;
+                                            }                                                   
+                                            if ($containX_short_start2 > 0)
+                                            {
+                                                $Xb = $read_start =~ tr/\*//;
+                                                if ($Xb > 0)
                                                 {
-                                                    $Xb = $read_start =~ tr/\*//;
-                                                    if ($Xb > 0)
-                                                    {
-                                                        %read_start = build_partial3c $read_start, "reverse";
-                                                        %read_start_b = build_partial3c ($read_start_b, "");
-                                                    }
-                                                    else
-                                                    {
-                                                        $read_start{$read_start} = undef;
-                                                        $read_start_b{$read_start_b} = undef;
-                                                    }
+                                                    %read_start = build_partial3c $read_start, "reverse";
+                                                    %read_start_b = build_partial3c ($read_start_b, "");
                                                 }
                                                 else
                                                 {
                                                     $read_start{$read_start} = undef;
                                                     $read_start_b{$read_start_b} = undef;
                                                 }
-                                                if ($y > $startprint2)
+                                            }
+                                            else
+                                            {
+                                                $read_start{$read_start} = undef;
+                                                $read_start_b{$read_start_b} = undef;
+                                            }
+                                            if ($y > $startprint2)
+                                            {
+                                                print OUTPUT5 $read_end." READ_END\n";
+                                                if ($X > 0)
                                                 {
-                                                    print OUTPUT5 $read_end." READ_END\n";
-                                                    if ($X > 0)
+                                                   foreach (keys %read_end)
                                                     {
-                                                       foreach (keys %read_end)
-                                                        {
-                                                            print OUTPUT5 $_."\n";
-                                                        } 
-                                                    }
-                                                    print OUTPUT5 $read_start." READ_START\n";
-                                                    if ($Xb > 0)
+                                                        print OUTPUT5 $_."\n";
+                                                    } 
+                                                }
+                                                print OUTPUT5 $read_start." READ_START\n";
+                                                if ($Xb > 0)
+                                                {
+                                                    foreach (keys %read_start)
                                                     {
-                                                        foreach (keys %read_start)
-                                                        {
-                                                            print OUTPUT5 $_."\n";
-                                                        } 
-                                                    }
+                                                        print OUTPUT5 $_."\n";
+                                                    } 
                                                 }
                                             }
-                                            if ($enough ne "yes" && $noforward ne "stop") 
+                                        }
+                                        if ($enough ne "yes" && $noforward ne "stop") 
+                                        {
+                                            my $read_end_c = $read_end_d;
+                                            
+                                            $read_end_c =~ tr/ATCG/TAGC/;
+                                            my $read_end_e = reverse($read_end_c);
+                                                                                     
+   
+                                            my %read_end_e;
+                                            undef %read_end_e;
+                                            
+                                            if ($contain_dot_short_end2 > 0 || $containX_short_end2 > 0)
                                             {
-                                                my $read_end_c = $read_end_d;
-                                                
-                                                $read_end_c =~ tr/ATCG/TAGC/;
-                                                my $read_end_e = reverse($read_end_c);
-                                                                                         
-       
-                                                my %read_end_e;
-                                                undef %read_end_e;
-                                                
-                                                if ($contain_dot_short_end2 > 0 || $containX_short_end2 > 0)
+                                                my $dot = $read_end_e =~ tr/\.//;
+                                                my $X = $read_end_e =~ tr/\*//;
+                                                if ($X > 0 || $dot > 0)
                                                 {
-                                                    my $dot = $read_end_e =~ tr/\.//;
-                                                    my $X = $read_end_e =~ tr/\*//;
-                                                    if ($X > 0 || $dot > 0)
-                                                    {
-                                                        %read_end_e = build_partial3c ($read_end_e, "reverse");
-                                                    }
-                                                    else
-                                                    {
-                                                        $read_end_e{$read_end_e} = undef;
-                                                    }
+                                                    %read_end_e = build_partial3c ($read_end_e, "reverse");
                                                 }
                                                 else
                                                 {
                                                     $read_end_e{$read_end_e} = undef;
                                                 }
-                                                if ($use_regex ne "" || $last_chance eq "yes")
+                                            }
+                                            else
+                                            {
+                                                $read_end_e{$read_end_e} = undef;
+                                            }
+                                            if ($use_regex ne "" || $last_chance eq "yes")
+                                            {
+                                                my %read_end_e = build_partial3b ($read_end_e, "reverse");
+                                                my $X_test = $read_end_e =~ tr/\./\./;
+                                                my %list;
+                                                undef %list;
+                                                if ($X_test < 2 && $use_regex ne "yes2")
                                                 {
-                                                    my %read_end_e = build_partial3b ($read_end_e, "reverse");
-                                                    my $X_test = $read_end_e =~ tr/\./\./;
-                                                    my %list;
-                                                    undef %list;
-                                                    if ($X_test < 2 && $use_regex ne "yes2")
-                                                    {
-                                                        %list = build_partial2b %read_end_e;
-                                                        %read_end_e = %list;
-                                                    }
+                                                    %list = build_partial2b %read_end_e;
+                                                    %read_end_e = %list;
+                                                }
 
-                                                    foreach my $list (keys %read_end_e) 
-                                                    {
-                                                        if (exists($hash2c{$list}))
-                                                        {                       
-                                                            my $search = $hash2c{$list};
-                                                                    
-                                                            $search = substr $search, 1;
-                                                            my @search = split /,/,$search;
-                                                                            
-                                                            foreach my $search (@search)
+                                                foreach my $list (keys %read_end_e) 
+                                                {
+                                                    if (exists($hash2c{$list}))
+                                                    {                       
+                                                        my $search = $hash2c{$list};
+                                                                
+                                                        $search = substr $search, 1;
+                                                        my @search = split /,/,$search;
+                                                                        
+                                                        foreach my $search (@search)
+                                                        {
+                                                            my $search_tmp = substr $search, 0, -1;
+                                                            my $search_end = substr $search, -1;
+                                                            if (exists($hash{$search_tmp}))
                                                             {
-                                                                my $search_tmp = substr $search, 0, -1;
-                                                                my $search_end = substr $search, -1;
-                                                                if (exists($hash{$search_tmp}))
+                                                                my @search_tmp = split /,/,$hash{$search_tmp};
+                                                                my $found;
+                                                                if ($search_end eq "1")
                                                                 {
-                                                                    my @search_tmp = split /,/,$hash{$search_tmp};
-                                                                    my $found;
-                                                                    if ($search_end eq "1")
-                                                                    {
-                                                                        $found = $search_tmp[0];
-                                                                    }
-                                                                    elsif ($search_end eq "2")
-                                                                    {
-                                                                        $found = $search_tmp[1];
-                                                                    }
-                                                                    if ($encrypt eq "yes")
-                                                                    {
-                                                                        $found = decrypt $found;
-                                                                    }
-                                                                    $merged_match{$search} = $found;
+                                                                    $found = $search_tmp[0];
                                                                 }
+                                                                elsif ($search_end eq "2")
+                                                                {
+                                                                    $found = $search_tmp[1];
+                                                                }
+                                                                if ($encrypt eq "yes")
+                                                                {
+                                                                    $found = decrypt $found;
+                                                                }
+                                                                $merged_match{$search} = $found;
+                                                                $merged_match_pos{$search} = $s;
                                                             }
                                                         }
                                                     }
                                                 }
-                                                else
-                                                {
-                                                    foreach my $read_end_e2 (keys %read_end_e)
-                                                    {                                                   
-                                                        if (exists($hash2c{$read_end_e2}))
-                                                        {                       
-                                                            my $search = $hash2c{$read_end_e2};
-                                                            $search = substr $search, 1;
-                                                            my @search = split /,/,$search;
-                                                
-                                                            foreach my $search (@search)
+                                            }
+                                            else
+                                            {
+                                                foreach my $read_end_e2 (keys %read_end_e)
+                                                {                                                   
+                                                    if (exists($hash2c{$read_end_e2}))
+                                                    {                       
+                                                        my $search = $hash2c{$read_end_e2};
+                                                        $search = substr $search, 1;
+                                                        my @search = split /,/,$search;
+                                            
+                                                        foreach my $search (@search)
+                                                        {
+                                                            my $search_tmp = substr $search, 0, -1;
+                                                            my $search_end = substr $search, -1;
+                                                            if (exists($hash{$search_tmp}))
                                                             {
-                                                                my $search_tmp = substr $search, 0, -1;
-                                                                my $search_end = substr $search, -1;
-                                                                if (exists($hash{$search_tmp}))
+                                                                my @search_tmp = split /,/,$hash{$search_tmp};
+                                                                my $found;
+                                                                if ($search_end eq "1")
                                                                 {
-                                                                    my @search_tmp = split /,/,$hash{$search_tmp};
-                                                                    my $found;
-                                                                    if ($search_end eq "1")
-                                                                    {
-                                                                        $found = $search_tmp[0];
-                                                                    }
-                                                                    elsif ($search_end eq "2")
-                                                                    {
-                                                                        $found = $search_tmp[1];
-                                                                    }
-                                                                    if ($encrypt eq "yes")
-                                                                    {
-                                                                        $found = decrypt $found;
-                                                                    }
-                                                                    $merged_match{$search} = $found;     
+                                                                    $found = $search_tmp[0];
                                                                 }
+                                                                elsif ($search_end eq "2")
+                                                                {
+                                                                    $found = $search_tmp[1];
+                                                                }
+                                                                if ($encrypt eq "yes")
+                                                                {
+                                                                    $found = decrypt $found;
+                                                                }
+                                                                $merged_match{$search} = $found;
+                                                                $merged_match_pos{$search} = $s;
                                                             }
-                                                        }         
-                                                    }                                                                               
-                                                }
-                                                if ($last_chance eq "yes")
+                                                        }
+                                                    }         
+                                                }                                                                               
+                                            }
+                                            if ($last_chance eq "yes")
+                                            {
+                                                my %read_end_d;
+                                                undef %read_end_d;
+                                            
+                                                if ($contain_dot_short_end2 > 0 || $containX_short_end2 > 0)
                                                 {
-                                                    my %read_end_d;
-                                                    undef %read_end_d;
-                                                
-                                                    if ($contain_dot_short_end2 > 0 || $containX_short_end2 > 0)
+                                                    my $dot = $read_end_d =~ tr/\.//;
+                                                    my $X = $read_end_d =~ tr/\*//;
+                                                    if ($X > 0 || $dot > 0)
                                                     {
-                                                        my $dot = $read_end_d =~ tr/\.//;
-                                                        my $X = $read_end_d =~ tr/\*//;
-                                                        if ($X > 0 || $dot > 0)
-                                                        {
-                                                            %read_end_d = build_partial3b $read_end_d, "";
-                                                        }
-                                                        else
-                                                        {
-                                                            $read_end_d{$read_end_d} = undef;
-                                                        }
+                                                        %read_end_d = build_partial3b $read_end_d, "";
                                                     }
                                                     else
                                                     {
                                                         $read_end_d{$read_end_d} = undef;
                                                     }
-                                                    
-                                                    my $X_test = $read_end_d =~ tr/\./\./;
-                                                    my %list;
-                                                    undef %list;
-                                                    if ($X_test < 2 && $use_regex ne "yes2")
+                                                }
+                                                else
+                                                {
+                                                    $read_end_d{$read_end_d} = undef;
+                                                }
+                                                
+                                                my $X_test = $read_end_d =~ tr/\./\./;
+                                                my %list;
+                                                undef %list;
+                                                if ($X_test < 2 && $use_regex ne "yes2")
+                                                {
+                                                    %list = build_partial2b %read_end_d;
+                                                }
+                                                else
+                                                {
+                                                    %list = %read_end_d;
+                                                }
+                                                foreach my $list (keys %list) 
+                                                {
+                                                    if (exists($hash2b{$list}))
                                                     {
-                                                        %list = build_partial2b %read_end_d;
+                                                        my $search = $hash2b{$list};
+                                                        
+                                                        $search = substr $search, 1;
+                                                        my @search = split /,/,$search;
+                                                                    
+                                                        foreach my $search (@search)
+                                                        {
+                                                            my $search_tmp = substr $search, 0, -1;
+                                                            my $search_end = substr $search, -1;
+                                                            if (exists($hash{$search_tmp}))
+                                                            {
+                                                                my @search_tmp = split /,/,$hash{$search_tmp};
+                                                                my $found;
+                                                                if ($search_end eq "1")
+                                                                {
+                                                                    $found = $search_tmp[0];
+                                                                }
+                                                                elsif ($search_end eq "2")
+                                                                {
+                                                                    $found = $search_tmp[1];
+                                                                }
+                                                                if ($encrypt eq "yes")
+                                                                {
+                                                                    $found = decrypt $found;
+                                                                }
+                                                                $merged_match{$search} = $found;
+                                                                $merged_match_pos{$search} = $s;
+                                                            }
+                                                        }
+                                                    }
+                                                }
+                                            }
+                                        }
+                                        if ($noback ne "stop" && $enough_back ne "yes")
+                                        {
+                                            my %read_start_t;
+                                            undef %read_start_t;
+                                            
+                                            if ($contain_dot_short_start2 > 0 || $containX_short_start2 > 0)
+                                            {
+                                                my $dot = $read_start_t =~ tr/\.//;
+                                                my $X = $read_start_t =~ tr/X|\*//;
+                                                if ($X > 0 || $dot > 0)
+                                                {
+                                                    %read_start_t = build_partial3c ($read_start_t, "reverse");
+                                                }
+                                                else
+                                                {
+                                                    $read_start_t{$read_start_t} = undef;
+                                                }
+                                            }
+                                            else
+                                            {
+                                                $read_start_t{$read_start_t} = undef;
+                                            }                                                                          
+                                            if ($last_chance_back eq "yes" || $use_regex_back ne "")
+                                            {
+                                                my %read_start_t = build_partial3b ($read_start_t, "reverse");
+                                                my $X_test = $read_start_t =~ tr/\./\./;
+                                                my %list;
+                                                undef %list;
+                                                if ($X_test < 2 && $use_regex_back ne "yes2")
+                                                {
+                                                    %list = build_partial2b %read_start_t;
+                                                    %read_start_t = %list;
+                                                }
+                                                foreach my $list (keys %read_start_t) 
+                                                {
+                                                    if (exists($hash2c{$list}))
+                                                    {                       
+                                                        my $search = $hash2c{$list};
+                                                                                
+                                                        $search = substr $search, 1;
+                                                        my @search = split /,/,$search;
+                                                                                        
+                                                        foreach my $search (@search)
+                                                        {
+                                                            my $search_tmp = substr $search, 0, -1;
+                                                            my $search_end = substr $search, -1;
+                                                            if (exists($hash{$search_tmp}))
+                                                            {
+                                                                my @search_tmp = split /,/,$hash{$search_tmp};
+                                                                my $found;
+                                                                if ($search_end eq "1")
+                                                                {
+                                                                    $found = $search_tmp[0];
+                                                                }
+                                                                elsif ($search_end eq "2")
+                                                                {
+                                                                    $found = $search_tmp[1];
+                                                                }
+                                                                if ($encrypt eq "yes")
+                                                                {
+                                                                    $found = decrypt $found;
+                                                                }
+                                                                $merged_match_back{$search} = $found;
+                                                                $merged_match_back_pos{$search} = $e;
+                                                            }
+                                                        }
+                                                    }
+                                                }
+                                            }
+                                            else
+                                            {
+                                                foreach my $read_start_t2 (keys %read_start_t)
+                                                {
+                                                    if (exists($hash2c{$read_start_t2}))
+                                                    {                       
+                                                        my $search = $hash2c{$read_start_t2};
+                                                        $search = substr $search, 1;
+                                                        my @search = split /,/,$search;
+                                                                                        
+                                                        foreach my $search (@search)
+                                                        {
+                                                            my $search_tmp = substr $search, 0, -1;
+                                                            my $search_end = substr $search, -1;
+                                                            if (exists($hash{$search_tmp}))
+                                                            {
+                                                                my @search_tmp = split /,/,$hash{$search_tmp};
+                                                                my $found;
+                                                                if ($search_end eq "1")
+                                                                {
+                                                                    $found = $search_tmp[0];
+                                                                }
+                                                                elsif ($search_end eq "2")
+                                                                {
+                                                                    $found = $search_tmp[1];
+                                                                }
+                                                                if ($encrypt eq "yes")
+                                                                {
+                                                                    $found = decrypt $found;
+                                                                }
+                                                                $merged_match_back{$search} = $found;
+                                                                $merged_match_back_pos{$search} = $e;
+                                                            }
+                                                        }
+                                                    }
+                                                }         
+                                            }
+                                            if ($last_chance_back eq "yes")
+                                            {
+                                                my $read_start_c = $read_start_t;
+                                                $read_start_c =~ tr/ATCG/TAGC/;
+                                                my $read_start_e = reverse($read_start_c);
+                                                
+                                                my %read_start_e;
+                                                undef %read_start_e;
+                                            
+                                                if ($contain_dot_short_start2 > 0 || $containX_short_start2 > 0)
+                                                {
+                                                    my $dot = $read_start_e =~ tr/\.//;
+                                                    my $X = $read_start_e =~ tr/\*//;
+                                                    if ($X > 0 || $dot > 0)
+                                                    {
+                                                        %read_start_e = build_partial3c ($read_start_e, "");
                                                     }
                                                     else
                                                     {
-                                                        %list = %read_end_d;
+                                                        $read_start_e{$read_start_e} = undef;
                                                     }
-                                                        foreach my $list (keys %list) 
-                                                        {
-                                                            if (exists($hash2b{$list}))
+                                                }
+                                                else
+                                                {
+                                                    $read_start_e{$read_start_e} = undef;
+                                                }
+                                                    %read_start_e = build_partial3b ($read_start_e, "");
+                                                    my $X_test = $read_start_e =~ tr/\./\./;
+                                                    my %list;
+                                                    undef %list;
+                                                    if ($X_test < 2 && $use_regex_back ne "yes2")
+                                                    {
+                                                        %list = build_partial2b %read_start_e;
+                                                        %read_start_e = %list;
+                                                    }
+                                                    foreach my $list (keys %read_start_e) 
+                                                    {
+                                                        if (exists($hash2b{$list}))
+                                                        {                       
+                                                            my $search = $hash2b{$list};
+                                                                                    
+                                                            $search = substr $search, 1;
+                                                            my @search = split /,/,$search;
+                                                                                            
+                                                            foreach my $search (@search)
                                                             {
-                                                                my $search = $hash2b{$list};
-                                                                
-                                                                $search = substr $search, 1;
-                                                                my @search = split /,/,$search;
-                                                                            
-                                                                foreach my $search (@search)
+                                                                my $search_tmp = substr $search, 0, -1;
+                                                                my $search_end = substr $search, -1;
+                                                                if (exists($hash{$search_tmp}))
                                                                 {
-                                                                    my $search_tmp = substr $search, 0, -1;
-                                                                    my $search_end = substr $search, -1;
-                                                                    if (exists($hash{$search_tmp}))
+                                                                    my @search_tmp = split /,/,$hash{$search_tmp};
+                                                                    my $found;
+                                                                    if ($search_end eq "1")
                                                                     {
-                                                                        my @search_tmp = split /,/,$hash{$search_tmp};
-                                                                        my $found;
-                                                                        if ($search_end eq "1")
-                                                                        {
-                                                                            $found = $search_tmp[0];
-                                                                        }
-                                                                        elsif ($search_end eq "2")
-                                                                        {
-                                                                            $found = $search_tmp[1];
-                                                                        }
-                                                                        if ($encrypt eq "yes")
-                                                                        {
-                                                                            $found = decrypt $found;
-                                                                        }
-                                                                        $merged_match{$search} = $found;
+                                                                        $found = $search_tmp[0];
                                                                     }
+                                                                    elsif ($search_end eq "2")
+                                                                    {
+                                                                        $found = $search_tmp[1];
+                                                                    }
+                                                                    if ($encrypt eq "yes")
+                                                                    {
+                                                                        $found = decrypt $found;
+                                                                    }
+                                                                    $merged_match_back{$search} = $found;
                                                                 }
                                                             }
                                                         }
-                                                }
+                                                    }
                                             }
-                        if ($noback ne "stop" && $enough_back ne "yes")
-                        {
-                            my %read_start_t;
-                            undef %read_start_t;
-                            
-                            if ($contain_dot_short_start2 > 0 || $containX_short_start2 > 0)
-                            {
-                                my $dot = $read_start_t =~ tr/\.//;
-                                my $X = $read_start_t =~ tr/X|\*//;
-                                if ($X > 0 || $dot > 0)
-                                {
-                                    %read_start_t = build_partial3c ($read_start_t, "reverse");
-                                }
-                                else
-                                {
-                                    $read_start_t{$read_start_t} = undef;
-                                }
-                            }
-                            else
-                            {
-                                $read_start_t{$read_start_t} = undef;
-                            }
-                                                             
-                                if ($last_chance_back eq "yes" || $use_regex_back ne "")
-                                {
-                                    my %read_start_t = build_partial3b ($read_start_t, "reverse");
-                                    my $X_test = $read_start_t =~ tr/\./\./;
-                                    my %list;
-                                    undef %list;
-                                    if ($X_test < 2 && $use_regex_back ne "yes2")
-                                    {
-                                        %list = build_partial2b %read_start_t;
-                                        %read_start_t = %list;
-                                    }
-                                    foreach my $list (keys %read_start_t) 
-                                    {
-                                        if (exists($hash2c{$list}))
-                                        {                       
-                                            my $search = $hash2c{$list};
-                                                                    
-                                            $search = substr $search, 1;
-                                            my @search = split /,/,$search;
-                                                                            
-                                            foreach my $search (@search)
-                                            {
-                                                my $search_tmp = substr $search, 0, -1;
-                                                my $search_end = substr $search, -1;
-                                                if (exists($hash{$search_tmp}))
-                                                {
-                                                    my @search_tmp = split /,/,$hash{$search_tmp};
-                                                    my $found;
-                                                    if ($search_end eq "1")
-                                                    {
-                                                        $found = $search_tmp[0];
-                                                    }
-                                                    elsif ($search_end eq "2")
-                                                    {
-                                                        $found = $search_tmp[1];
-                                                    }
-                                                    if ($encrypt eq "yes")
-                                                    {
-                                                        $found = decrypt $found;
-                                                    }
-                                                    $merged_match_back{$search} = $found;
-                                                }
-                                            }
-                                        }
-                                    }
-                                }
-                            else
-                            {
-                                foreach my $read_start_t2 (keys %read_start_t)
-                                {
-                                    if (exists($hash2c{$read_start_t2}))
-                                    {                       
-                                        my $search = $hash2c{$read_start_t2};
-                                        $search = substr $search, 1;
-                                        my @search = split /,/,$search;
-                                                                        
-                                        foreach my $search (@search)
-                                        {
-                                            my $search_tmp = substr $search, 0, -1;
-                                            my $search_end = substr $search, -1;
-                                            if (exists($hash{$search_tmp}))
-                                            {
-                                                my @search_tmp = split /,/,$hash{$search_tmp};
-                                                my $found;
-                                                if ($search_end eq "1")
-                                                {
-                                                    $found = $search_tmp[0];
-                                                }
-                                                elsif ($search_end eq "2")
-                                                {
-                                                    $found = $search_tmp[1];
-                                                }
-                                                if ($encrypt eq "yes")
-                                                {
-                                                    $found = decrypt $found;
-                                                }
-                                                $merged_match_back{$search} = $found;
-                                            }
-                                        }
-                                    }
-                                }         
-                            }
-                            if ($last_chance_back eq "yes")
-                            {
-                                my $read_start_c = $read_start_t;
-                                $read_start_c =~ tr/ATCG/TAGC/;
-                                my $read_start_e = reverse($read_start_c);
-                                
-                                my %read_start_e;
-                                undef %read_start_e;
-                            
-                                if ($contain_dot_short_start2 > 0 || $containX_short_start2 > 0)
-                                {
-                                    my $dot = $read_start_e =~ tr/\.//;
-                                    my $X = $read_start_e =~ tr/\*//;
-                                    if ($X > 0 || $dot > 0)
-                                    {
-                                        %read_start_e = build_partial3c ($read_start_e, "");
-                                    }
-                                    else
-                                    {
-                                        $read_start_e{$read_start_e} = undef;
-                                    }
-                                }
-                                else
-                                {
-                                    $read_start_e{$read_start_e} = undef;
-                                }
-                                    %read_start_e = build_partial3b ($read_start_e, "");
-                                    my $X_test = $read_start_e =~ tr/\./\./;
-                                    my %list;
-                                    undef %list;
-                                    if ($X_test < 2 && $use_regex_back ne "yes2")
-                                    {
-                                        %list = build_partial2b %read_start_e;
-                                        %read_start_e = %list;
-                                    }
-                                    foreach my $list (keys %read_start_e) 
-                                    {
-                                        if (exists($hash2b{$list}))
-                                        {                       
-                                            my $search = $hash2b{$list};
-                                                                    
-                                            $search = substr $search, 1;
-                                            my @search = split /,/,$search;
-                                                                            
-                                            foreach my $search (@search)
-                                            {
-                                                my $search_tmp = substr $search, 0, -1;
-                                                my $search_end = substr $search, -1;
-                                                if (exists($hash{$search_tmp}))
-                                                {
-                                                    my @search_tmp = split /,/,$hash{$search_tmp};
-                                                    my $found;
-                                                    if ($search_end eq "1")
-                                                    {
-                                                        $found = $search_tmp[0];
-                                                    }
-                                                    elsif ($search_end eq "2")
-                                                    {
-                                                        $found = $search_tmp[1];
-                                                    }
-                                                    if ($encrypt eq "yes")
-                                                    {
-                                                        $found = decrypt $found;
-                                                    }
-                                                    $merged_match_back{$search} = $found;
-                                                }
-                                            }
-                                        }
-                                    }
-                            }
-                        }  
+                                        }  
                                         $s++;
                                         $e++;
                                     }
@@ -3918,40 +4308,6 @@ REPEAT:
                                                             $search = substr $search, 1;
                                                             my @search = split /,/,$search;
                                                                 
-                                                                foreach my $search (@search)
-                                                                {
-                                                                    my $search_tmp = substr $search, 0, -1;
-                                                                    my $search_end = substr $search, -1;
-                                                                    if (exists($hash{$search_tmp}))
-                                                                    {
-                                                                        my @search_tmp = split /,/,$hash{$search_tmp};
-                                                                        my $found;
-                                                                        if ($search_end eq "1")
-                                                                        {
-                                                                            $found = $search_tmp[0];
-                                                                        }
-                                                                        elsif ($search_end eq "2")
-                                                                        {
-                                                                            $found = $search_tmp[1];
-                                                                        }
-                                                                        if ($encrypt eq "yes")
-                                                                        {
-                                                                            $found = decrypt $found;
-                                                                        }
-                                                                        $merged_match{$search} = $found;
-                                                                    }
-                                                                }
-                                                        }
-                                                    }
-                                                }
-                                                else
-                                                {
-                                                    if (exists($hash2c{$read_end_e}))
-                                                    {                       
-                                                        my $search = $hash2c{$read_end_e};
-                                                        $search = substr $search, 1;
-                                                        my @search = split /,/,$search;
-                                                            
                                                             foreach my $search (@search)
                                                             {
                                                                 my $search_tmp = substr $search, 0, -1;
@@ -3973,8 +4329,44 @@ REPEAT:
                                                                         $found = decrypt $found;
                                                                     }
                                                                     $merged_match{$search} = $found;
+                                                                    $merged_match_pos{$search} = $s;
                                                                 }
                                                             }
+                                                        }
+                                                    }
+                                                }
+                                                else
+                                                {
+                                                    if (exists($hash2c{$read_end_e}))
+                                                    {                       
+                                                        my $search = $hash2c{$read_end_e};
+                                                        $search = substr $search, 1;
+                                                        my @search = split /,/,$search;
+                                                            
+                                                        foreach my $search (@search)
+                                                        {
+                                                            my $search_tmp = substr $search, 0, -1;
+                                                            my $search_end = substr $search, -1;
+                                                            if (exists($hash{$search_tmp}))
+                                                            {
+                                                                my @search_tmp = split /,/,$hash{$search_tmp};
+                                                                my $found;
+                                                                if ($search_end eq "1")
+                                                                {
+                                                                    $found = $search_tmp[0];
+                                                                }
+                                                                elsif ($search_end eq "2")
+                                                                {
+                                                                    $found = $search_tmp[1];
+                                                                }
+                                                                if ($encrypt eq "yes")
+                                                                {
+                                                                    $found = decrypt $found;
+                                                                }
+                                                                $merged_match{$search} = $found;
+                                                                $merged_match_pos{$search} = $s;
+                                                            }
+                                                        }
                                                     } 
                                                 }
                                                 if ($last_chance eq "yes")
@@ -4011,40 +4403,40 @@ REPEAT:
                                                     {
                                                         %list = %read_end_d;
                                                     }
-                                                        foreach my $list (keys %list) 
+                                                    foreach my $list (keys %list) 
+                                                    {
+                                                        if (exists($hash2b{$list}))
                                                         {
-                                                            if (exists($hash2b{$list}))
+                                                            my $search = $hash2b{$list};
+                                                            
+                                                            $search = substr $search, 1;
+                                                            my @search = split /,/,$search;
+                                                                        
+                                                            foreach my $search (@search)
                                                             {
-                                                                my $search = $hash2b{$list};
-                                                                
-                                                                $search = substr $search, 1;
-                                                                my @search = split /,/,$search;
-                                                                            
-                                                                foreach my $search (@search)
+                                                                my $search_tmp = substr $search, 0, -1;
+                                                                my $search_end = substr $search, -1;
+                                                                if (exists($hash{$search_tmp}))
                                                                 {
-                                                                    my $search_tmp = substr $search, 0, -1;
-                                                                    my $search_end = substr $search, -1;
-                                                                    if (exists($hash{$search_tmp}))
+                                                                    my @search_tmp = split /,/,$hash{$search_tmp};
+                                                                    my $found;
+                                                                    if ($search_end eq "1")
                                                                     {
-                                                                        my @search_tmp = split /,/,$hash{$search_tmp};
-                                                                        my $found;
-                                                                        if ($search_end eq "1")
-                                                                        {
-                                                                            $found = $search_tmp[0];
-                                                                        }
-                                                                        elsif ($search_end eq "2")
-                                                                        {
-                                                                            $found = $search_tmp[1];
-                                                                        }
-                                                                        if ($encrypt eq "yes")
-                                                                        {
-                                                                            $found = decrypt $found;
-                                                                        }
-                                                                        $merged_match{$search} = $found;
+                                                                        $found = $search_tmp[0];
                                                                     }
+                                                                    elsif ($search_end eq "2")
+                                                                    {
+                                                                        $found = $search_tmp[1];
+                                                                    }
+                                                                    if ($encrypt eq "yes")
+                                                                    {
+                                                                        $found = decrypt $found;
+                                                                    }
+                                                                    $merged_match{$search} = $found;
                                                                 }
                                                             }
                                                         }
+                                                    }
                                                 }
                                             $s++;
                                         }
@@ -4075,7 +4467,6 @@ REPEAT:
                 my $add_read = substr $add_read2, 0, -1;
                 $count_reads_all{$add_read} = undef;
             }
-
 REGEX:
             my $X4 = $read_short_end =~ tr/\*//;
         
@@ -4167,14 +4558,28 @@ NO_MATCH:   foreach my $ln (keys %merged_match)
                             foreach my $read_end_b_sub (@read_end_b_sub)
                             {
                                 $found_seq = $match2 =~ s/(.)$read_end_b_sub/$1+/;
-                                if ($found_seq > 0)
+                                if ($found_seq > 1)
+                                {
+                                    my $pos = $merged_match_pos{$ln};
+                                    my $match4b = substr $match, 0, -$pos;
+                                    $match4b =~ s/(.+)$line/$1+/;
+                                    my @ext = split /\+/, $match4b;
+                                    my $extension5 = $ext[0];
+                                    $extension5 =~ tr/ATCG/TAGC/;
+                                    $extension = reverse ($extension5);                           
+    
+                                    $read_count++;
+                                    goto LAST1;     
+                                }
+                                elsif ($found_seq > 0)
                                 {
                                     my @ext = split /\+/, $match2;
                                     my $extension5 = $ext[0];
                                     $extension5 =~ tr/ATCG/TAGC/;
-                                    $extension = reverse ($extension5);                                                   
+                                    $extension = reverse ($extension5);                           
+    
                                     $read_count++;
-                                    goto LAST1;
+                                    goto LAST1;     
                                 }
                             }
                         }
@@ -4225,7 +4630,6 @@ LAST1:                  my $id_match_end = substr $id_match, -1, 1;
                                 else
                                 {
                                     $extensions1b{$id_match} = $extension;
-                                    push @extensions2, $extension;
                                 }
                                 $extensions2{$extension} = $id_match;
                                 push @extensions2, $extension;
@@ -4235,33 +4639,49 @@ LAST1:                  my $id_match_end = substr $id_match, -1, 1;
                     }
                     elsif ($extra_regex eq "yes" || $use_regex eq "yes")
                     {  
-                        foreach my $line (keys %read_end_b)
+                        if ($repetitive_detect eq "")
                         {
-                            if (exists($match{$line}))
+                            foreach my $line (keys %read_end_b)
                             {
-                                my $extension5 = $match{$line};
-                                $extension5 =~ tr/ATCG/TAGC/;
-                                $extension = reverse ($extension5);                           
-                                                       
-                                $read_count++;
-                                goto FOUND;
+                                if (exists($match{$line}))
+                                {
+                                    my $extension5 = $match{$line};
+                                    $extension5 =~ tr/ATCG/TAGC/;
+                                    $extension = reverse ($extension5);                           
+                                                           
+                                    $read_count++;
+                                    goto FOUND;
+                                }
                             }
                         }
                         foreach my $line (keys %read_end_b)
                         {
                             my $found_seq = '0';
-                            my $match4 = reverse($match);
+                            my $match4 = $match;
                             my @read_end_b_sub = build_partialb $line;
                             
                             foreach my $read_end_b_subc (@read_end_b_sub)
                             {
-                                my $read_end_b_sub = reverse($read_end_b_subc);
-                                $found_seq = $match4 =~ s/$read_end_b_sub/+/;
-                                if ($found_seq > 0)
+                                $found_seq = $match4 =~ s/(.)$read_end_b_subc/$1+/g;
+                                if ($found_seq > 1)
+                                {
+                                    my $pos = $merged_match_pos{$ln};
+                                    my $match4b = substr $match, 0, -$pos;
+                                    $match4b =~ s/(.+)$line/$1+/;
+                                    my @ext = split /\+/, $match4b;
+                                    my $extension5 = $ext[0];
+                                    $extension5 =~ tr/ATCG/TAGC/;
+                                    $extension = reverse ($extension5);                           
+        
+                                    $read_count++;
+                                    goto FOUND;     
+                                }
+                                elsif ($found_seq > 0)
                                 {
                                     my @ext = split /\+/, $match4;
-                                    $extension = $ext[1];
-                                    $extension =~ tr/ATCG/TAGC/;
+                                    my $extension5 = $ext[0];
+                                    $extension5 =~ tr/ATCG/TAGC/;
+                                    $extension = reverse ($extension5); 
                                                                                            
                                     $read_count++;
                                     goto FOUND;     
@@ -4321,16 +4741,19 @@ REGEXORNOT:                 while ($gh > 1)
                     }
                     else
                     {
-                        foreach my $line (keys %read_end_b)
+                        if ($repetitive_detect eq "")
                         {
-                            if (exists($match{$line}))
+                            foreach my $line (keys %read_end_b)
                             {
-                                my $extension5 = $match{$line};
-                                $extension5 =~ tr/ATCG/TAGC/;
-                                $extension = reverse ($extension5);                           
-                                                       
-                                $read_count++;
-                                goto FOUND;
+                                if (exists($match{$line}))
+                                {
+                                    my $extension5 = $match{$line};
+                                    $extension5 =~ tr/ATCG/TAGC/;
+                                    $extension = reverse ($extension5);                           
+                                                           
+                                    $read_count++;
+                                    goto FOUND;
+                                }
                             }
                         }
                         foreach my $line (keys %read_end_b)
@@ -4338,8 +4761,21 @@ REGEXORNOT:                 while ($gh > 1)
                             my $found_seq = '0';
                             my $match4 = $match;
                             
-                            $found_seq = $match4 =~ s/$line/+/;
-                            if ($found_seq > 0)
+                            $found_seq = $match4 =~ s/(.)$line/$1+/g;
+                            if ($found_seq > 1)
+                            {
+                                my $pos = $merged_match_pos{$ln};
+                                my $match4b = substr $match, 0, -$pos;
+                                $match4b =~ s/(.+)$line/$1+/;
+                                my @ext = split /\+/, $match4b;
+                                my $extension5 = $ext[0];
+                                $extension5 =~ tr/ATCG/TAGC/;
+                                $extension = reverse ($extension5);                           
+
+                                $read_count++;
+                                goto FOUND;     
+                            }
+                            elsif ($found_seq > 0)
                             {
                                 my @ext = split /\+/, $match4;
                                 my $extension5 = $ext[0];
@@ -4599,7 +5035,7 @@ SKIP3:
             }
             
             
-            if ($ext < 8 && $extra_regex eq "" && $last_chance ne "yes" && $indel_split eq '0' && $ext < $mmr)
+            if ($ext < 8 && $extra_regex eq "" && $last_chance ne "yes" && $indel_split eq '0' && $ext < $mmr && $repetitive_detect eq "")
             {
                 undef %extensions1;
                 undef %extensions2;
@@ -4629,10 +5065,11 @@ SKIP3:
                     my $mp_reverse = reverse($matchesb[4]);
                     $mp_reverse =~ tr/ACTG/TGAC/;
                     print OUTPUT5 $matchesb[0].",".$matchesb[1]."\n";
+                    print OUTPUT5 $m_reverse." MATCH_REVERSE\n";
                 }               
             }
             
-            my $id_original      = $id;
+            my $id_original = $id;
             
             my @extensions_group1;
             my @extensions_group2;
@@ -4908,10 +5345,8 @@ NUCLEO:     while ($l < $read_length - ($overlap+$left-1) + $extra_l)
                 if ($SNR_read ne "" && $l > 0)
                 {
                     my $best_extension_tmp8 = $best_extension;
-                    if ($y > $startprint2)
-                    {
-                    }
                     $best_extension_tmp8 =~ tr/N|K|R|Y|S|W|M|B|D|H|V/\./;
+                    
                     my $last_nuc = substr $best_extension_tmp8, -1;
                     my $arrSize1 = @extensions;
                     if ($last_nuc ne '.' && $arrSize1 > 4)
@@ -4973,7 +5408,7 @@ NUCLEO:     while ($l < $read_length - ($overlap+$left-1) + $extra_l)
                 {
                     $c = '3.7';
                 }
-                if ($ext > 6 && $SNR_read eq "" && $type ne "chloro")
+                if ($ext > 6 && $SNR_read eq "" && ($type ne "chloro" || $extensions_before ne ""))
                 {
                     $c = '5';
                 }
@@ -4985,32 +5420,36 @@ NUCLEO:     while ($l < $read_length - ($overlap+$left-1) + $extra_l)
                 {
                     $c = '8.4';
                 }
-                if ($repetitive_detect eq "yes" && $ext < 23 && $SNR_read eq "")
+                if ($repetitive_detect ne "" && $ext < 23 && $SNR_read eq "")
                 {
                    $c = '7';
                 }
-                if ($repetitive_detect2 eq "yes")
+                if ($repetitive_detect ne "" && $ext >= 23 && $SNR_read eq "")
                 {
-                   $c = '10';
+                   $c = '9';
+                }
+                if ($repetitive_detect2 eq "yes" || ($repetitive_detect ne "" && $ext > 150))
+                {
+                   $c = '15';
                 }
                 if ($extensions_before eq "yes")
                 {
                    $c = '6.3';
                 }
-                
+                if ($type eq "mito_plant")
+                {
+                    $c += 2;
+                }
                 my $v = '5';
                 my $s = '3';
-                my $z = '2';
+                my $z = '1';
                 if ($split ne "")
                 {
                     $v = '10';
                     $z = '0';
                     $s = '2';
                 }
-                if ($last_chance eq "yes")
-                {
-                    $z = '1';
-                }
+
                 if ($A > ($C + $T + $G)*$c && (($A > $s && ($ext)/$A < $q) || ($A > $z && $l < $v && ($C + $T + $G) eq 0 )))
                 {
                     $best_extension = $best_extension."A";
@@ -5344,7 +5783,7 @@ NUCLEO:     while ($l < $read_length - ($overlap+$left-1) + $extra_l)
                 }
                 if ($before eq "yes")
                 {
-                    if ((length($best_extension2) < 3 || (length($best_extension2) < 6 && ($ext > 15 || $SNR_read ne ""))) && $repetitive_detect ne "yes" && $before eq "yesss")
+                    if ((length($best_extension2) < 3 || (length($best_extension2) < 6 && ($ext > 15 || $SNR_read ne ""))) && $repetitive_detect eq "" && $before eq "yesss")
                     {
                         if ($y > $startprint2)
                         {
@@ -5586,7 +6025,6 @@ NUCLEO:     while ($l < $read_length - ($overlap+$left-1) + $extra_l)
                     $id      = "e".$position."_".$id;
                     $id_split3 = $id;
                 }
-                
                 $position{$id} = $position;
                 $position_back{$id} = $position_back;
                 $contig_count{$id} = $contig_count{$id_original};
@@ -5605,6 +6043,14 @@ NUCLEO:     while ($l < $read_length - ($overlap+$left-1) + $extra_l)
                 {
                     $old_id{$id} = $old_id{$id_original};
                 }
+                if (exists($old_rep{$id_original}))
+                {
+                    $old_rep{$id} = $old_rep{$id_original};
+                }
+                if (exists($old_rep_old{$id_original}))
+                {
+                    $old_rep_old{$id} = $old_rep_old{$id_original};
+                }
                 if (exists($nosecond{$id_original}))
                 {
                     $nosecond{$id} = undef;
@@ -5612,6 +6058,14 @@ NUCLEO:     while ($l < $read_length - ($overlap+$left-1) + $extra_l)
                 if (exists($seed_split{$id_original}))
                 {
                     $seed_split{$id} = undef;
+                }
+                if (exists($rep_return{$id_original}))
+                {
+                    $rep_return{$id} = $rep_return{$id_original};
+                }
+                if (exists($rep_return_back{$id_original}))
+                {
+                    $rep_return_back{$id} = $rep_return_back{$id_original};
                 }
             }
             elsif ($split eq "yes5")
@@ -5643,7 +6097,7 @@ NUCLEO:     while ($l < $read_length - ($overlap+$left-1) + $extra_l)
                 my $contigs_end0;
                 if ($before eq "yes")
                 {
-                    if ((length($best_extension1) < 3 || (length($best_extension1) < 6 && ($ext > 15 || $SNR_read ne ""))) && $repetitive_detect ne "yes" && $repetitive_detect eq "yesff")
+                    if ((length($best_extension1) < 3 || (length($best_extension1) < 6 && ($ext > 15 || $SNR_read ne ""))) && $repetitive_detect eq "" && $repetitive_detect eq "yesff")
                     {               
                         if ($y > $startprint2)
                         {
@@ -5882,7 +6336,7 @@ NUCLEO:     while ($l < $read_length - ($overlap+$left-1) + $extra_l)
                             }   
                         }  
                     }
-                    if ($repetitive_detect eq "yes" && $contig_end_check eq "yes")
+                    if ($repetitive_detect ne "" && $contig_end_check eq "yes")
                     {
                         my $contigs_end1 = substr $best_extension1, 0, 10;
                          $contigs_end1 =~ tr/N|K|R|Y|S|W|M|B|D|H|V/\./;
@@ -6138,91 +6592,84 @@ INDEL3:                         while ($f < @chars3)
                         }  
                     }
                 }
-                if (length($best_extension1) > 4 && length($best_extension2) > 4 && $reference eq "yes")
+                if (length($best_extension1) > 4 && length($best_extension2) > 4 && $cp_input ne "" && $type eq "mito_plant")
                 {
                     my $p = -$overlap;
+                    if ($y > $startprint2)
+                    {
+                        print OUTPUT5 "CHECK_REFERENCE\n\n";
+                    }                   
                     while ($p > (-$overlap*2))
                     {
                         my $ref_part2 = substr $read_short_end2, $p, $overlap;
                         my %ref_part = build_partial3b $ref_part2, "";
+                        
                         foreach my $ref_part (keys %ref_part)
                         {
                             if (exists($hashref{$ref_part}))
-                            {
-                                my $ref_loc = -(($p + $overlap)/10) + 6;
-                                $ref_loc =~ s/\..*$//;
+                            {                            
+                                my $ref_loc = $p + $overlap;
                                 
                                 my $ref_id3 = $hashref{$ref_part};      
                                 my $ref_id2 = substr $ref_id3, 1;
                                 my @ref_id3 = split /,/,$ref_id2;
+                                if ($y > $startprint2)
+                                {
+                                    print OUTPUT5 $ref_part." EXISTS ".$ref_loc." LOC ".$ref_id3." LOC_REF\n";
+                                }
                            
                                 foreach my $ref_id (@ref_id3)
                                 {
-                                    my $prev_loc1 = $ref_id -6;
-                                    my $prev_loc2 = $ref_id -12;
-                                    my $ref_part_prev = substr $read_short_end2, $p-($overlap*2), ($overlap*2)+15;
+                                    my $prev_loc1 = $ref_id + $overlap - $ref_loc;
                                     
                                     if (exists($hashref2{$prev_loc1}))
                                     {
-                                        my $ref_check_prev1 = $hashref2{$prev_loc1};
+                                        my $ref_check = $hashref2{$prev_loc1};
+
+                                        print OUTPUT5 $ref_check." EXISTSREF1\n";
+   
+                                        my $best_extension1_part = substr $best_extension1, 0, 30;
+                                        my $best_extension2_part = substr $best_extension2, 0, 30;
+                                        my @ref1 = build_partial $best_extension1_part;
                                         
-                                        if (exists($hashref2{$prev_loc2}))
-                                        {
-                                            my $ref_check_prev2 = $hashref2{$prev_loc2};
-                                            my @ref_check_prev1 = build_partialb $ref_check_prev1;
-                                            
-                                            foreach my $ref_check_prev1 (@ref_check_prev1)
-                                            {
-                                                my $found_ref1 = $ref_part_prev =~ s/$ref_check_prev1/$ref_check_prev1/;
-                                                if ($found_ref1 > 0)
-                                                {
-                                                    my @ref_check_prev2 = build_partialb $ref_check_prev2;
-                                                    
-                                                    foreach my $ref_check_prev2 (@ref_check_prev2)
-                                                    {
-                                                        my $found_ref2 = $ref_part_prev =~ s/$ref_check_prev2/$ref_check_prev2/;
-                       
-                                                        if ($found_ref2 > 0)
-                                                        {
-                                                            if (exists($hashref2{$ref_id+$ref_loc}))
-                                                            {
-                                                                my $ref_check = $hashref2{$ref_id+$ref_loc};      
-                                                                my $best_extension1_part = substr $best_extension1,0 ,30;
-                                                                my $best_extension2_part = substr $best_extension2,0 ,30;
-                                                                my @ref1 =  build_partial $best_extension1_part;
-                                                                
-                                                                my $ref_part3 = substr $read_short_end2, $p;
-                                                                my $star_ref = $ref_part3 =~ tr/\*//;
-                                                                my $loc_start = $overlap*3-($ref_loc*10)-($p + ($overlap*3))-($star_ref*2);
-                                                                
-                                                                foreach my $best_extension1_part2 (@ref1)
-                                                                {                                    
-                                                                    if ($ref_check =~ m/.{$loc_start}$best_extension1_part2.*/)
-                                                                    {    
-                                                                        print OUTPUT5 "REFERNCE_GUIDED\n";
-                                                                        print OUTPUT5 $best_extension1." BEST_EXTENSION1\n\n";
-                                                                        delete $seed{$id};
-                                                                        goto INDEL;
-                                                                    }
-                                                                }
-                                                                my @ref2 =  build_partial $best_extension2_part;
-                                                                foreach my $best_extension2_part2 (@ref2)
-                                                                {
-                                                                    if ($ref_check =~ m/.{$loc_start}$best_extension2_part2.*/)
-                                                                    {
-                                                                        print OUTPUT5 "REFERNCE_GUIDED\n";
-                                                                        print OUTPUT5 $best_extension2." BEST_EXTENSION2\n\n";
-                                                                        delete $seed{$id};
-                                                                        $best_extension = $best_extension2;
-                                                                        goto INDEL;
-                                                                    }
-                                                                }                              
-                                                            }  
-                                                        }
-                                                    }
-                                                }
+                                        foreach my $best_extension1_part2 (@ref1)
+                                        {                                    
+                                            my $ref_check_tmp = $ref_check;
+                                            if ($ref_check_tmp =~ s/$best_extension1_part2/$best_extension1_part2/)
+                                            {    
+                                                print OUTPUT5 "REFERNCE_GUIDED\n";
+                                                print OUTPUT5 $best_extension2." BEST_EXTENSION2\n\n";
+                                                $best_extension = $best_extension2;
+                                                $reference_guided = "yes";
                                             }
-                                        }    
+                                        }
+                                        my @ref2 = build_partial $best_extension2_part;
+                                        foreach my $best_extension2_part2 (@ref2)
+                                        {
+                                            my $ref_check_tmp = $ref_check;
+                                            if ($ref_check_tmp =~ s/$best_extension2_part2/$best_extension2_part2/)
+                                            {                                           
+                                                $best_extension = $best_extension1;
+                                                if ($reference_guided eq "")
+                                                {
+                                                    $reference_guided = "yes";
+                                                }
+                                                else
+                                                {
+                                                    $reference_guided = "";
+                                                }
+                                                print OUTPUT5 $reference_guided." REFERNCE_GUIDED\n";
+                                                print OUTPUT5 $best_extension1." BEST_EXTENSION1\n\n";
+                                            }
+                                        }
+                                        if ($reference_guided eq "yes")
+                                        {
+                                            goto INDELa;
+                                        }
+                                        else
+                                        {
+                                            $best_extension = "";
+                                        }
                                     }
                                 }                        
                             }
@@ -6232,7 +6679,7 @@ INDEL3:                         while ($f < @chars3)
                 }
 
 INDELa:                
-                if ($last_chance ne "yes" && $before eq "yes" && $indel_split_skip ne "yes" && $ext_total > 15 && ($delete_first ne "yes" || (length($best_extension1) < 5 && length($best_extension2) < 5)) && $indel_split < ($read_length-25 -$overlap))
+                if (($last_chance ne "yes" || length($read) <= $insert_size) && $before eq "yes" && $indel_split_skip ne "yes" && $ext_total > 15 && ($delete_first ne "yes" || (length($best_extension1) < 5 && length($best_extension2) < 5)) && $indel_split < ($read_length-25 -$overlap))
                 {
                     delete $seed{$id};
                     delete $seed{$id_split1};
@@ -6261,10 +6708,30 @@ INDEL:
                 $split_forward  = "yes";
                 
 
-                if ($jump_rep eq "yes" || ($extensions_before ne "yes" && $contig_end ne "yes" && $indel_split_skip ne "yes" && ($delete_first eq "" || $delete_second eq "" || $delete_third eq "") && $before ne "yes"))
+                if ($jump_rep eq "yes" || ($extensions_before ne "yes" && $contig_end ne "yes" && $indel_split_skip ne "yes" && ($delete_first eq "" || $delete_second eq "" || $delete_third eq "") && $before ne "yes" && $reference_guided ne "yes"))
                 {                   
                     my $before_shorter = "";
-                    my $overhangb = 2+($read_length/40);
+                    my $overhangb = 1+($read_length/40);
+                    my $count_one = '0';
+                    my $count_two = '0';
+                    while (($count_one < 2 || $count_two < 2) && $overhangb < 15)
+                    {
+                        $overhangb++;
+                        foreach my $one (@extensions_group1)
+                        {
+                            if (length($one) < $overhangb && length($one) > 0)
+                            {
+                                $count_one++;
+                            }
+                        }
+                        foreach my $two (@extensions_group2)
+                        {
+                            if (length($two) < $overhangb && length($two) > 0)
+                            {
+                                $count_two++;
+                            }
+                        }
+                    }
                     my $overhang = sprintf("%.0f", $overhangb);
                     delete $jump_rep{$id};
 BEFORE:
@@ -6293,7 +6760,7 @@ BEFORE:
                     my $skip_overhang = "";
                     if ($AT_rich_before eq "yes")
                     {
-                        my $before_split_tmp = substr $read_short_end2, -($read_length+$overhang);
+                        my $before_split_tmp = substr $read_short_end2, -($read_length-$overhang);
                         my $A_rich_test = $before_split_tmp =~ tr/AX\.//;
                         my $T_rich_test = $before_split_tmp =~ tr/TX\.//;
                         my $G_rich_test = $before_split_tmp =~ tr/GX\.//;
@@ -6963,7 +7430,7 @@ print OUTPUT5 $count_all." COUNT_ALL\n";
                         }
                     }
               
-                    if ($first_yuyu eq "yes" && $second_yuyu ne "yes" && $third_yuyu ne "yes" && $fourth_yuyu ne "yes" && $first_yuyu2 > 2 && ($correction eq $check_dot || $overhang >= $read_length-($overlap+15)))
+                    if ($first_yuyu eq "yes" && $second_yuyu ne "yes" && $third_yuyu ne "yes" && $fourth_yuyu ne "yes" && $first_yuyu2 > 3 && ($correction eq $check_dot || $overhang >= $read_length-($overlap+15)))
                     {
                         if (@extensions_before > 3000000)
                         {
@@ -6984,7 +7451,7 @@ print OUTPUT5 $count_all." COUNT_ALL\n";
                         delete $before_shorter_skip{$id};
                         goto AFTER_EXT;
                     }
-                    elsif ($second_yuyu eq "yes" && $first_yuyu ne "yes" && $third_yuyu ne "yes" && $fourth_yuyu ne "yes" && $second_yuyu2 > 2 && ($correction eq $check_dot || $overhang >= $read_length-($overlap+15)))
+                    elsif ($second_yuyu eq "yes" && $first_yuyu ne "yes" && $third_yuyu ne "yes" && $fourth_yuyu ne "yes" && $second_yuyu2 > 3 && ($correction eq $check_dot || $overhang >= $read_length-($overlap+15)))
                     {
                         if (@extensions_before > 3000000)
                         {
@@ -7016,7 +7483,7 @@ print OUTPUT5 $count_all." COUNT_ALL\n";
                             goto BACK;
                         }
                     }
-                    elsif ($third_yuyu eq "yes" && $first_yuyu ne "yes" && $second_yuyu ne "yes" && $fourth_yuyu ne "yes" && $third_yuyu2 > 2 && ($correction eq $check_dot || $overhang >= $read_length-($overlap+15)))
+                    elsif ($third_yuyu eq "yes" && $first_yuyu ne "yes" && $second_yuyu ne "yes" && $fourth_yuyu ne "yes" && $third_yuyu2 > 3 && ($correction eq $check_dot || $overhang >= $read_length-($overlap+15)))
                     {
                         if (@extensions_before > 300000)
                         {
@@ -7048,7 +7515,7 @@ print OUTPUT5 $count_all." COUNT_ALL\n";
                             goto BACK;
                         }
                     }
-                    elsif ($fourth_yuyu eq "yes" && $first_yuyu ne "yes" && $third_yuyu ne "yes" && $second_yuyu ne "yes" && $fourth_yuyu2 > 2 && ($correction eq $check_dot || $overhang >= $read_length-($overlap+15)))
+                    elsif ($fourth_yuyu eq "yes" && $first_yuyu ne "yes" && $third_yuyu ne "yes" && $second_yuyu ne "yes" && $fourth_yuyu2 > 3 && ($correction eq $check_dot || $overhang >= $read_length-($overlap+15)))
                     {
                         if (@extensions_before > 3000000)
                         {
@@ -7100,6 +7567,10 @@ print OUTPUT5 $count_all." COUNT_ALL\n";
                         my $count2 = '0';
                         my $count3 = '0';
                         my $count4 = '0';
+                        my $count1_pair = '0';
+                        my $count2_pair = '0';
+                        my $count3_pair = '0';
+                        my $count4_pair = '0';
                         foreach my $exb (keys %filter_before1)
                         {
                             my $search_tmp = substr $exb, 0, -1;
@@ -7123,16 +7594,17 @@ print OUTPUT5 $count_all." COUNT_ALL\n";
                                 {
                                     $found = decrypt $found;
                                 }
-                                if ($y > $startprint2)
-                                {
-                                    print OUTPUT5 $found." 1\n";
-                                }
                                 $count1++;
                                 if (exists($filter_before1{$exb}))
                                 {
                                     if (exists($filter_before1_pair{$exb}))
                                     {
                                         $filter_before1{$exb} = $found;
+                                        $count1_pair++;
+                                        if ($y > $startprint2)
+                                        {
+                                            print OUTPUT5 $found." 1\n";
+                                        }
                                     }
                                     else
                                     {
@@ -7164,16 +7636,17 @@ print OUTPUT5 $count_all." COUNT_ALL\n";
                                 {
                                     $found = decrypt $found;
                                 }
-                                if ($y > $startprint2)
-                                {
-                                    print OUTPUT5 $found." 2\n";
-                                }
                                 $count2++;
                                 if (exists($filter_before2{$exb}))
                                 {
                                     if (exists($filter_before2_pair{$exb}))
                                     {
                                         $filter_before2{$exb} = $found;
+                                        $count2_pair++;
+                                        if ($y > $startprint2)
+                                        {
+                                            print OUTPUT5 $found." 2\n";
+                                        }
                                     }
                                     else
                                     {
@@ -7202,16 +7675,17 @@ print OUTPUT5 $count_all." COUNT_ALL\n";
                                 {
                                     $found = decrypt $found;
                                 }
-                                if ($y > $startprint2)
-                                {
-                                    print OUTPUT5 $found." 3\n";
-                                }
                                 $count3++;
                                 if (exists($filter_before3{$exb}))
                                 {
                                     if (exists($filter_before3_pair{$exb}))
                                     {
                                         $filter_before3{$exb} = $found;
+                                        $count3_pair++;
+                                        if ($y > $startprint2)
+                                        {
+                                            print OUTPUT5 $found." 3\n";
+                                        }
                                     }
                                     else
                                     {
@@ -7239,17 +7713,18 @@ print OUTPUT5 $count_all." COUNT_ALL\n";
                                 if ($encrypt eq "yes")
                                 {
                                     $found = decrypt $found;
-                                }
-                                if ($y > $startprint2)
-                                {
-                                    print OUTPUT5 $found." 4\n";
-                                }
+                                }                               
                                 $count4++;
                                 if (exists($filter_before4{$exb}))
                                 {
                                     if (exists($filter_before4_pair{$exb}))
                                     {
                                         $filter_before4{$exb} = $found;
+                                        $count4_pair++;
+                                        if ($y > $startprint2)
+                                        {
+                                            print OUTPUT5 $found." 4\n";
+                                        }
                                     }
                                     else
                                     {
@@ -7265,10 +7740,10 @@ print OUTPUT5 $count_all." COUNT_ALL\n";
                             print OUTPUT5 $count3." COUNT3\n";
                             print OUTPUT5 $count4." COUNT4\n";
                         }
-                        $count1234{'1'} = $count1;
-                        $count1234{'2'} = $count2;
-                        $count1234{'3'} = $count3;
-                        $count1234{'4'} = $count4;
+                        $count1234{'1'} = $count1_pair;
+                        $count1234{'2'} = $count2_pair;
+                        $count1234{'3'} = $count3_pair;
+                        $count1234{'4'} = $count4_pair;
                         
                         my $morethan3 = '0';
                         my $difference = "";
@@ -7280,6 +7755,27 @@ print OUTPUT5 $count_all." COUNT_ALL\n";
                                 $morethan3++;
                             }
                         }
+                        my $best_extension1_tmp = $best_extension1;
+                        my $best_extension2_tmp = $best_extension2;
+                        my $SNR_check1 = $best_extension1_tmp =~ s/AAAAAAAA|CCCCCCCC|GGGGGGGG|TTTTTTTT//;
+                        my $SNR_check2 = $best_extension2_tmp =~ s/AAAAAAAA|CCCCCCCC|GGGGGGGG|TTTTTTTT//;
+                        my $GGGG2 = $best_extension2 =~ tr/G/G/;
+                        my $TTTT2 = $best_extension2 =~ tr/T/T/;
+                        my $CCCC2 = $best_extension2 =~ tr/C/C/;
+                        my $AAAA2 = $best_extension2 =~ tr/A/A/;
+                        if ($GGGG2 eq length($best_extension2) || $TTTT2 eq length($best_extension2) || $CCCC2 eq length($best_extension2) || $AAAA2 eq length($best_extension2))
+                        {
+                            $SNR_check2 = '1';
+                        }
+                        my $GGGG1 = $best_extension1 =~ tr/G/G/;
+                        my $TTTT1 = $best_extension1 =~ tr/T/T/;
+                        my $CCCC1 = $best_extension1 =~ tr/C/C/;
+                        my $AAAA1 = $best_extension1 =~ tr/A/A/;
+                        if ($GGGG1 eq length($best_extension1) || $TTTT1 eq length($best_extension1) || $CCCC1 eq length($best_extension1) || $AAAA1 eq length($best_extension1))
+                        {
+                            $SNR_check1 = '1';
+                        }
+
                         if ((($count1 > 3 && ($count2+$count3+$count4) eq 0) || ($count1 > ($count2+$count3+$count4)*6 && ($count2+$count3+$count4) ne 0)) && $repetitive_detect2 ne "yes" && $correction eq $check_dot)
                         {
                             delete $seed{$id_split1};
@@ -7347,7 +7843,7 @@ print OUTPUT5 $count_all." COUNT_ALL\n";
                             $best_extension = $best_extension4;
                             goto AFTER_EXT;
                         }
-                        elsif((($morethan3 eq 0 && $overhang < $read_length-($overlap*1.5)) || ($morethan3 > 0 && length($read) <= $insert_size && $overhang < 30)) && $skip_overhang ne "yes")
+                        elsif((($morethan3 < 2 && $overhang < $read_length-($overlap*1.5)) || ($morethan3 > 1 && length($read) <= $insert_size && $overhang < 30)) && $skip_overhang ne "yes")
                         {
                             if ($y > $startprint2)
                             {
@@ -7356,7 +7852,7 @@ print OUTPUT5 $count_all." COUNT_ALL\n";
                             $before_shorter = "yes";
                             goto BEFORE;
                         }
-                        elsif ($morethan3 > 0 && $last_chance ne "yes")
+                        elsif ($morethan3 > 1 && $last_chance ne "yes" && (($SNR_check1 eq "" && $SNR_check2 eq "") || $overhang < 30))
                         {
                             my $count1b = '0';
                             my $count2b = '0';
@@ -7546,7 +8042,7 @@ FILTER_4:                       foreach my $line (keys %hash_read_short_end)
                                 print OUTPUT5 $count4b." COUNT4B\n";
                             }
                             my $f = '5';
-                            if ($repetitive_detect eq "yes")
+                            if ($repetitive_detect ne "")
                             {
                                 $f = '10';
                             }
@@ -7933,48 +8429,59 @@ REP_PAIR1:                          foreach my $rep_pair (keys %rep_pair)
                                         {
                                             next REP_PAIR1;
                                         }
-                                        else
+                                        my $part2 = substr $rep_pair, -$overlap-10;
+                                        my $s = '0';
+                                        my $most_match_total = '0';
+                                        while ($s < length($part2)-$overlap)
                                         {
-                                           my $part2 = substr $rep_pair, -$overlap-10;
-                                            my $s = '0';
-                                            my $most_match_total = '0';
-                                            while ($s < length($part2)-$overlap)
+                                            my $part2b = substr $part2, $s, $overlap;
+                                            my $part2b_reverse = reverse($part2b);
+                                            $part2b_reverse =~ tr/ACTG/TGAC/;
+                                            if (exists($hash2b{$part2b}))
                                             {
-                                                my $part2b = substr $part2, $s, $overlap;
-                                                my $part2b_reverse = reverse($part2b);
-                                                $part2b_reverse =~ tr/ACTG/TGAC/;
-                                                if (exists($hash2b{$part2b}))
-                                                {
-                                                    $most_match_total++;
-                                                }
-                                                if (exists($hash2c{$part2b}))
-                                                {
-                                                    $most_match_total++;
-                                                }
-                                                if (exists($hash2b{$part2b_reverse}))
-                                                {
-                                                    $most_match_total++;
-                                                }
-                                                if (exists($hash2c{$part2b_reverse}))
-                                                {
-                                                    $most_match_total++;
-                                                }
-                                                $s++;
+                                                $most_match_total++;
                                             }
-                                            if ($most_match_total > $most_match_max)
+                                            if (exists($hash2c{$part2b}))
                                             {
-                                                $most_match_max = $most_match_total;
-                                                $id_rep = $rep_pair{$rep_pair};
-                                                $rep_pair2 = $rep_pair;
-                                            } 
-                                        }       
+                                                $most_match_total++;
+                                            }
+                                            if (exists($hash2b{$part2b_reverse}))
+                                            {
+                                                $most_match_total++;
+                                            }
+                                            if (exists($hash2c{$part2b_reverse}))
+                                            {
+                                                $most_match_total++;
+                                            }
+                                            $s++;
+                                        }
+                                        if ($most_match_total > $most_match_max)
+                                        {
+                                            $most_match_max = $most_match_total;
+                                            $id_rep = $rep_pair{$rep_pair};
+                                            while (exists($seeds_check{$id_rep}))
+                                            {
+                                                $id_rep = "0".$id_rep;
+                                            }
+                                            foreach my $test (keys %contigs)                                                
+                                            {
+                                                if ($test =~ m/.*\+$id_rep$/)
+                                                {
+                                                    $id_rep = "0".$id_rep;
+                                                }
+                                                if ($test =~ m/.*\+0$id_rep$/)
+                                                {
+                                                    $id_rep = "00".$id_rep;
+                                                }
+                                            }
+                                            $rep_pair2 = $rep_pair;
+                                        }      
                                     }
                                     if ($id_rep ne "")
                                     {
                                         $noforward{$id} = "stop";
                                         $noforward = "stop";
                                         my $rep_pair2_tmp = $rep_pair2;
-                                        $rep_pair2 = correct ($rep_pair2);
                                         if ($rep_pair2 eq "")
                                         {
                                             $rep_pair_exclude{$rep_pair2_tmp} = undef;
@@ -7982,69 +8489,30 @@ REP_PAIR1:                          foreach my $rep_pair (keys %rep_pair)
                                             goto REP_PAIR1;
                                         }
                                         $seed{$id_rep} = $rep_pair2;
+                                        $seeds_check{$id_rep} = undef;
                                         $nosecond{$id} = undef;
                                         $nosecond = "yes";
                                         $insert_size2{$id_rep} = $insert_size;
                                         $position{$id_rep} = length($rep_pair2);
-                                        $tree{$id} = $id_rep."REP";
+                                        $old_id{$id_rep} = $id;
+                                        $old_id2{$id_rep} = undef;
+                                        $old_rep{$id_rep} = undef;
+                                        $old_rep_old{$id} = undef;
+                                        $seed_old{$id} = $read;
                                         
                                         $read_new = $read;     
                                         $read_new1 = $read_new;
                                         delete $seed{$id_split1};
                                         
+                                        if (exists($old_id{$id}))
+                                        {
+                                            $merge_now = "yes";
+                                            goto MERGE;
+                                        }                                       
                                         if ($noback eq "stop")
                                         {  
                                             print OUTPUT5 ">".$id."\n";
                                             print OUTPUT5 $read."\n";
-                                            if ($contig_num eq '1')
-                                            {
-                                                $contigs{$contig_num."+".$id} = $read;
-                                                my $start_point = '500';
-                                                my $check_repetitive = '3';
-                                                                                                            
-                                                while ($check_repetitive > 2)
-                                                {
-                                                    my $repetitive = substr $read, $start_point, 15;
-                                                    $repetitive =~ tr/N|K|R|Y|S|W|M|B|D|H|V|\.//;
-                                                    my $read_short_area = substr $read, $start_point -170, 340;
-                                                    $check_repetitive = $read_short_area =~ s/$repetitive/$repetitive/g;
-                                                    if ($check_repetitive > 2)
-                                                    {
-                                                        $start_point += 20;
-                                                        if ($y > $startprint2)
-                                                        {
-                                                            print OUTPUT5 "DETECT_REPETITIVE_IN_START_SEQUENCE\n";
-                                                        }
-                                                    } 
-                                                }
-                                                $first_contig_start = substr $read, $start_point, $overlap;
-                                                my $check_start = $first_contig_start =~ tr/N|K|R|Y|S|W|M|B|D|H|V|\.//;
-                                                while ($check_start > 0)
-                                                {
-                                                    $start_point += 10;
-                                                    $first_contig_start = substr $read, $start_point, $overlap;
-                                                    $check_start = $first_contig_start =~ tr/N|K|R|Y|S|W|M|B|D|H|V|\.//;
-                                                }
-                                                if ($y > $startprint2)
-                                                {
-                                                    print OUTPUT5 $first_contig_start." CONTIG_START1\n";
-                                                }
-                                                foreach my $seedie (keys %seed)
-                                                {
-                                                    my $seedie_part = substr $seed{$seedie}, 0, 1000;
-                                                    my $check_seedie = $seedie_part =~ s/$first_contig_start/$first_contig_start/;
-                                                    if ($check_seedie > 0)
-                                                    {
-                                                        delete $seed{$seedie};
-                                                    }
-                                                }
-                                            }
-                                            else
-                                            {
-                                                $contigs{$contig_num."+".$id} = $read;
-                                            }
-                                            $contig_num++;
-
                                             delete $seed{$id};
                                             if (!keys %seed)
                                             {
@@ -8058,6 +8526,7 @@ REP_PAIR1:                          foreach my $rep_pair (keys %rep_pair)
                                         }
                                         else
                                         {
+                                            print OUTPUT5 ">\n";
                                             $noforward = "stop";
                                             $noforward{$id} = "stop";
                                             $seed_split{$id} = undef;
@@ -8155,71 +8624,32 @@ REP_CHECK0:                         foreach my $exts (keys %extensions_original)
                                         $noforward{$id} = "stop";
                                         $noforward = "stop";
                                         my $id_rep = $rep_check{$rep_pair};
-                                        $rep_pair = correct ($rep_pair);
                                         $seed{$id_rep} = $rep_pair;
+                                        $seeds_check{$id_rep} = undef;
                                         $nosecond{$id} = undef;
                                         $nosecond = "yes";
                                         $insert_size2{$id_rep} = $insert_size;
                                         $position{$id_rep} = length($rep_pair);
-                                        $tree{$id} = $id_rep."REP";
+                                        $old_id{$id_rep} = $id;
+                                        $old_id2{$id_rep} = undef;
+                                        $old_rep{$id_rep} = undef;
+                                        $old_rep_old{$id} = undef;
+                                        $seed_old{$id} = $read;
                                         
                                         $read_new = $read;     
                                         $read_new1 = $read_new;
                                         delete $seed{$id_split1};
                                         
+                                        if (exists($old_id{$id}))
+                                        {
+                                            $merge_now = "yes";
+                                            goto MERGE;
+                                        }
                                         if ($noback eq "stop")
                                         {
-                                            if (length($read) > 250)
-                                            {   
-                                                if ($contig_num eq '1')
-                                                {
-                                                    $contigs{$contig_num."+".$id} = $read;
-                                                    my $start_point = '500';
-                                                    my $check_repetitive = '3';
-                                                                                                                
-                                                    while ($check_repetitive > 2)
-                                                    {
-                                                        my $repetitive = substr $read, $start_point, 15;
-                                                        $repetitive =~ tr/N|K|R|Y|S|W|M|B|D|H|V|\.//;
-                                                        my $read_short_area = substr $read, $start_point -170, 340;
-                                                        $check_repetitive = $read_short_area =~ s/$repetitive/$repetitive/g;
-                                                        if ($check_repetitive > 2)
-                                                        {
-                                                            $start_point += 20;
-                                                            if ($y > $startprint2)
-                                                            {
-                                                                print OUTPUT5 "DETECT_REPETITIVE_IN_START_SEQUENCE\n";
-                                                            }
-                                                        } 
-                                                    }
-                                                    $first_contig_start = substr $read, $start_point, $overlap;
-                                                    my $check_start = $first_contig_start =~ tr/N|K|R|Y|S|W|M|B|D|H|V|\.//;
-                                                    while ($check_start > 0)
-                                                    {
-                                                        $start_point += 10;
-                                                        $first_contig_start = substr $read, $start_point, $overlap;
-                                                        $check_start = $first_contig_start =~ tr/N|K|R|Y|S|W|M|B|D|H|V|\.//;
-                                                    }
-                                                    if ($y > $startprint2)
-                                                    {
-                                                        print OUTPUT5 $first_contig_start." CONTIG_START2\n";
-                                                    }
-                                                    foreach my $seedie (keys %seed)
-                                                    {
-                                                        my $seedie_part = substr $seed{$seedie}, 0, 1000;
-                                                        my $check_seedie = $seedie_part =~ s/$first_contig_start/$first_contig_start/;
-                                                        if ($check_seedie > 0)
-                                                        {
-                                                            delete $seed{$seedie};
-                                                        }
-                                                    }
-                                                }
-                                                else
-                                                {
-                                                    $contigs{$contig_num."+".$id} = $read;
-                                                }
-                                                $contig_num++;
-                                            }
+                                            print OUTPUT5 ">".$id."\n";
+                                            print OUTPUT5 $read."\n";
+                                            
                                             delete $seed{$id};
                                             if (!keys %seed)
                                             {
@@ -8233,6 +8663,7 @@ REP_CHECK0:                         foreach my $exts (keys %extensions_original)
                                         }
                                         else
                                         {
+                                            print OUTPUT5 ">\n";
                                             $noforward = "stop";
                                             $noforward{$id} = "stop";
                                             $seed_split{$id} = undef;
@@ -8295,8 +8726,20 @@ REP_CHECK0:                         foreach my $exts (keys %extensions_original)
                                 goto BACK;
                     }
                 }
-                
-                if ($last_chance ne "yes" && $SNP_active eq "" && $contig_end ne "yes" && $indel_split_skip ne "yes" && ($delete_first ne "yes" || (length($best_extension1) < 5 && length($best_extension2) < 5)) && $ext_total > 18 && $indel_split < ($read_length-25 -$overlap))
+                my $split_no_rep = "";
+                if ($jump_rep ne "yes" && $repetitive_detect eq "yes")
+                {
+                    my $read_end9 = substr $read_short_end2, -$read_length;
+                    my $ext1 = substr $best_extension1, 0, 9;
+                    my $ext2 = substr $best_extension2, 0, 9;
+                    my $check_ext1 = $read_end9 =~ s/(.)$ext1/$1$ext1/;
+                    my $check_ext2 = $read_end9 =~ s/(.)$ext2/$1$ext2/;
+                    if ($check_ext1 > 0 || $check_ext2 > 0)
+                    {
+                        $split_no_rep = "yes";
+                    }
+                }
+                if ($deletion ne "yes" && $reference_guided ne "yes" && $type ne "mito_plant" && $last_chance ne "yes" && $SNP_active eq "" && $contig_end ne "yes" && $indel_split_skip ne "yes" && ($delete_first ne "yes" || (length($best_extension1) < 5 && length($best_extension2) < 5)) && $ext_total > 18 && $indel_split < ($read_length-25 -$overlap))
                 {
                     $best_extension = "";
                     $indel_split{$id} = $indel_split+10;
@@ -8309,7 +8752,7 @@ REP_CHECK0:                         foreach my $exts (keys %extensions_original)
                     $read_new1 = $read_new;
                     goto BACK;
                 }
-                elsif (($SNP_active eq "" || ($extensions_before eq "yes" && $deletion ne "yes")) && $contig_end ne "yes" && ($delete_first ne "yes" || (length($best_extension1) < 5 && length($best_extension2) < 5)) && $deletion ne "yes")
+                elsif (($SNP_active eq "" || ($extensions_before eq "yes" && $deletion ne "yes" && $reference_guided ne "yes")) && $contig_end ne "yes" && ($delete_first ne "yes" || (length($best_extension1) < 5 && length($best_extension2) < 5)) && $deletion ne "yes" && $reference_guided ne "yes")
                 {
                     $best_extension = "";
                     if ($y > $startprint2)
@@ -8323,7 +8766,7 @@ REP_CHECK0:                         foreach my $exts (keys %extensions_original)
                     $read_new1 = $read_new;
                     goto BACK;
                 }
-                elsif ($deletion eq "yes")
+                elsif ($deletion eq "yes" || $reference_guided eq "yes")
                 {
                     if ($y > $startprint2)
                     {
@@ -8336,7 +8779,7 @@ REP_CHECK0:                         foreach my $exts (keys %extensions_original)
                     $read_new = $read;     
                     $read_new1 = $read_new;
                 }
-                elsif ($jump_rep ne "yes" && $repetitive_detect eq "yes")
+                elsif ($jump_rep ne "yes" && $repetitive_detect eq "yes" && ($split_no_rep eq "yes" || $repetitive_detect2 eq "yes"))
                 {
                     if ($y > $startprint2)
                     {
@@ -8351,7 +8794,7 @@ REP_CHECK0:                         foreach my $exts (keys %extensions_original)
                 }
                 
                 
-                elsif($delete_first ne "yes" && $deletion ne "yes")
+                elsif($delete_first ne "yes" && $deletion ne "yes" && $reference_guided ne "yes")
                 {            
                     if (exists $old_id{$id} && ($noback eq "stop" || $position_back >= ($insert_size*3)))
                     {                                     
@@ -8359,6 +8802,7 @@ REP_CHECK0:                         foreach my $exts (keys %extensions_original)
                         $merge_read = "yes"; 
                         $read = $seed_old{$old_id{$id}} ."LLLLLLLLLLLLLLL".$read;
                         $seed{$id} = $read;
+                        $seeds_check{$id} = undef;
                         $hasL = "yes";
                         foreach my $tree_tmp (keys %tree)
                         {
@@ -8428,6 +8872,7 @@ REP_CHECK0:                         foreach my $exts (keys %extensions_original)
                     delete $seed{$id_split1};
                     delete $seed{$id};
                     $seed{$id} = $read;
+                    $seeds_check{$id} = undef;
                     $read_new = $read;
                     $read_new1 = $read;                 
                     
@@ -8478,8 +8923,8 @@ CORRECT:            my $contig_id2_tmp = substr $contig_id2, 0,-1;
                     }
                     else
                     {
-                        
                         $seed{$contig_id2} = $contig_read2;
+                        $seeds_check{$contig_id2} = undef;
                         $insert_size2{$contig_id2} = $insert_size;
                         $position{$contig_id2} = length($contig_read2);
                         $old_id2{$contig_id2} = undef;
@@ -8504,6 +8949,7 @@ CORRECT:            my $contig_id2_tmp = substr $contig_id2, 0,-1;
                         {
                             delete $seed{$contig_id2};
                             $seed{$contig_id2} = $read.$best_extension2;
+                            $seeds_check{$contig_id2} = undef;
                             delete $tree{$id};
                             if ($y > $startprint2)
                             {
@@ -8570,6 +9016,7 @@ CORRECT:            my $contig_id2_tmp = substr $contig_id2, 0,-1;
                     {
                         
                         $seed{$contig_id1} = $contig_read1;
+                        $seeds_check{$contig_id1} = undef;
                         $insert_size2{$contig_id1} = $insert_size;
                         $position{$contig_id1} = length($contig_read1);
                         $old_id2{$contig_id1} = undef;
@@ -8602,6 +9049,7 @@ CORRECT:            my $contig_id2_tmp = substr $contig_id2, 0,-1;
                         {
                             delete $seed{$contig_id1};
                             $seed{$contig_id1} = $read.$best_extension1;
+                            $seeds_check{$contig_id1} = undef;
                             delete $tree{$id};
                             foreach my $tree_tmp (keys %tree)
                             {
@@ -8793,6 +9241,7 @@ CORRECT:            my $contig_id2_tmp = substr $contig_id2, 0,-1;
                         $noforward{$id} = "stop";
                         $seed_split{$id} = undef;
                         $best_extension = "";
+                        $nosecond{$id} = undef;
                         goto BACK;
                     }
                 }
@@ -9057,7 +9506,7 @@ EXTEND_READ:
                                                     print OUTPUT5 "OPTION1\n";
                                                 }
                                             }
-                                            elsif ($use_regex ne "yes")
+                                            elsif ($use_regex ne "yes" && $repetitive_detect eq "")
                                             {                                              
                                                 delete $regex{$id};
                                                 $regex{$id} = "yes";
@@ -9079,7 +9528,7 @@ EXTEND_READ:
                                                     print OUTPUT5 "OPTION3\n";
                                                 }
                                             }
-                                            elsif ($use_regex eq "yes" && $last_chance ne "yes")
+                                            elsif (($use_regex eq "yes" || $repetitive_detect ne "") && $last_chance ne "yes" && $AT_rich_before eq "")
                                             {
                                                 $read_new = $read;
                                                 delete $last_chance{$id};
@@ -9103,7 +9552,7 @@ EXTEND_READ:
                                                     print OUTPUT5 "OPTION5\n";
                                                 }
                                             }
-                                            elsif ($last_chance eq "yes" && $use_regex ne "")
+                                            elsif (($last_chance eq "yes" || $AT_rich_before ne "") && $use_regex ne "")
                                             {
                                                 $read_new = $read;
                                                 delete $last_chance{$id};
@@ -9224,28 +9673,28 @@ REGEX_BACK:
                 }
             }
 
-NO_MATCH_BACK:   foreach my $ln (keys %merged_match_back)
-            {              
-                $match = $merged_match_back{$ln};
-                $id_match = $ln;
-                chomp $id_match;
-                chomp $match;
-
-                my %match;
-                my %match2;
-                undef %match;
-                undef %match2;
-        
-                my $n = '1';
-                while ($n < length($match)-($overlap+1))
-                {
-                    my $match_part = substr $match, $n, $overlap;
-                    my $match_part2 = substr $match, 0, $n;
-                    my $match_part3 = substr $match, $n+$overlap;
-                    $match{$match_part} = $match_part2;
-                    $match2{$match_part} = $match_part3;
-                    $n++;     
-                }
+NO_MATCH_BACK:  foreach my $ln (keys %merged_match_back)
+                {              
+                    $match = $merged_match_back{$ln};
+                    $id_match = $ln;
+                    chomp $id_match;
+                    chomp $match;
+    
+                    my %match;
+                    my %match2;
+                    undef %match;
+                    undef %match2;
+            
+                    my $n = '1';
+                    while ($n < length($match)-($overlap+1))
+                    {
+                        my $match_part = substr $match, $n, $overlap;
+                        my $match_part2 = substr $match, 0, $n;
+                        my $match_part3 = substr $match, $n+$overlap;
+                        $match{$match_part} = $match_part2;
+                        $match2{$match_part} = $match_part3;
+                        $n++;     
+                    }
                     if ($last_chance_back eq "yes")
                     {                             
                         my $forward = "";
@@ -9272,17 +9721,27 @@ NO_MATCH_BACK:   foreach my $ln (keys %merged_match_back)
                         }
                         foreach my $line (keys %read_start)
                         {
-                            my @read_start_sub = build_partialb $line;
-                                                        
+                            my @read_start_sub = build_partialb $line;                                
                             my $found_seq = '0';
-                            my $match2 = $match;
+                            my $match4 = $match;
                                                                 
                             foreach my $read_start_sub (@read_start_sub)
                             {
-                                $found_seq = $match2 =~ s/(.)$read_start_sub/$1+/;
-                                if ($found_seq > 0)
+                                $found_seq = $match4 =~ s/(.)$read_start_sub/$1+/g;
+                                if ($found_seq > 1)
                                 {
-                                    my @ext = split /\+/, $match2;
+                                    my $pos = $merged_match_back_pos{$ln};
+                                    my $match4b = substr $match, 0, -$pos;
+                                    $match4b =~ s/(.+)$line/$1+/;
+                                    my @ext = split /\+/, $match4;
+                                    $extension = reverse($ext[0]);                                                
+                                    $read_count++;
+                                    $forward = "yes";
+                                    goto LAST1_BACK;
+                                }
+                                elsif ($found_seq > 0)
+                                {
+                                    my @ext = split /\+/, $match4;
                                     $extension = reverse($ext[0]);                                                
                                     $read_count++;
                                     $forward = "yes";
@@ -9329,13 +9788,16 @@ LAST1_BACK:             my $id_match_end = substr $id_match, -1, 1,"",;
                     }                   
                     elsif ($extra_regex eq "yes" || $use_regex_back eq "yes")
                     {  
-                        foreach my $line (keys %read_start)
-                        {
-                            if (exists($match{$line}))
+                        if ($repetitive_detect_back eq "")
+                        {  
+                            foreach my $line (keys %read_start)
                             {
-                                $extension = reverse($match{$line});                                                                    
-                                $read_count++;;
-                                goto FOUND_BACK;
+                                if (exists($match{$line}))
+                                {
+                                    $extension = reverse($match{$line});                                                                    
+                                    $read_count++;;
+                                    goto FOUND_BACK;
+                                }
                             }
                         }
                         foreach my $line (keys %read_start)
@@ -9346,13 +9808,23 @@ LAST1_BACK:             my $id_match_end = substr $id_match, -1, 1,"",;
                                                                 
                             foreach my $read_start_sub (@read_start_sub)
                             {
-                                $found_seq = $match4 =~ s/$read_start_sub/+/;
-                                if ($found_seq > 0)
+                                $found_seq = $match4 =~ s/(.)$read_start_sub/$1+/g;
+                                if ($found_seq > 1)
+                                {
+                                    my $pos = $merged_match_back_pos{$ln};
+                                    my $match4b = substr $match, 0, -$pos;
+                                    $match4b =~ s/(.+)$line/$1+/;
+                                    my @ext = split /\+/, $match4;
+                                    $extension = reverse($ext[0]);
+                                    $read_count++;
+                                    goto FOUND_BACK; 
+                                }
+                                elsif ($found_seq > 0)
                                 {
                                     my @ext = split /\+/, $match4;
                                     $extension = reverse($ext[0]);
                                     $read_count++;
-                                    goto FOUND_BACK; ;     
+                                    goto FOUND_BACK;     
                                 }
                             }
                         }
@@ -9360,13 +9832,16 @@ LAST1_BACK:             my $id_match_end = substr $id_match, -1, 1,"",;
                     }
                     else
                     {
-                        foreach my $line (keys %read_start)
+                        if ($repetitive_detect_back eq "")
                         {
-                            if (exists($match{$line}))
+                            foreach my $line (keys %read_start)
                             {
-                                $extension = reverse($match{$line});                                                                    
-                                $read_count++;;
-                                goto FOUND_BACK;
+                                if (exists($match{$line}))
+                                {
+                                    $extension = reverse($match{$line});                                                                    
+                                    $read_count++;;
+                                    goto FOUND_BACK;
+                                }
                             }
                         }
                         foreach my $line (keys %read_start)
@@ -9374,14 +9849,24 @@ LAST1_BACK:             my $id_match_end = substr $id_match, -1, 1,"",;
                             my $found_seq = '0';
                             my $match4 = $match;
                                                                 
-                            $found_seq = $match4 =~ s/$line/+/;
-                            if ($found_seq > 0)
+                            $found_seq = $match4 =~ s/(.)$line/$1+/g;
+                            if ($found_seq > 1)
+                            {
+                                my $pos = $merged_match_back_pos{$ln};
+                                my $match4b = substr $match, 0, -$pos;
+                                $match4b =~ s/(.+)$line/$1+/;
+                                my @ext = split /\+/, $match4;
+                                $extension = reverse($ext[0]);
+                                $read_count++;
+                                goto FOUND_BACK; ; 
+                            }
+                            elsif ($found_seq > 0)
                             {
                                 my @ext = split /\+/, $match4;
                                 $extension = reverse($ext[0]);
                                 $read_count++;
-                                goto FOUND_BACK; ;     
-                            }
+                                goto FOUND_BACK; ;
+                            }                          
                         }
                         next NO_MATCH_BACK;
                     }
@@ -9627,7 +10112,7 @@ SKIP_BACK:
                 print OUTPUT5 $ext ." EXTENSIONS_BACK\n";
             }               
 
-            if ($ext < 8 && $extra_regex eq "" && $last_chance_back ne "yes" && $indel_split_back eq '0' && $ext < $mmbr)
+            if ($ext < 8 && $extra_regex eq "" && $last_chance_back ne "yes" && $indel_split_back eq '0' && $ext < $mmbr && $repetitive_detect_back eq "")
             {
                 
                 undef %extensions1;
@@ -9658,7 +10143,7 @@ SKIP_BACK:
                     print OUTPUT5 $matchesb[0].",".$matchesb[1]."\n";
                 }               
             }
-            my $id_original      = $id;
+            my $id_original = $id;
 
             my $l = '0';
             my $best_extension = "";
@@ -9962,10 +10447,7 @@ NUCLEO_BACK: while ($l < $read_length - ($overlap+$left-1) + $extra_l)
                     $best_extension_tmp8 =~ tr/N|K|R|Y|S|W|M|B|D|H|V/\./;
                     my $last_nuc = substr $best_extension_tmp8, -1;
                     my $arrSize1 = @extensions;
-                if ($y > $startprint2)
-                {
-                    print OUTPUT5 $best_extension_tmp8." EXT_TMP_SNR\n";
-                }
+
                     if ($last_nuc ne "." && $arrSize1 > 4)
                     {
                         my @extensions_tmp;
@@ -10018,14 +10500,14 @@ NUCLEO_BACK: while ($l < $read_length - ($overlap+$left-1) + $extra_l)
                         $G++;
                     }
                 }
-                my $c = '2.8';
-                if ($ext > 6 && $type ne "chloro" && $SNR_read_back eq "")
-                {
-                    $c = '5';
-                }
+                my $c = '2.8';               
                 if ($ext > 22 && $SNR_read eq "")
                 {
-                    $c = '4.7';
+                    $c = '3.7';
+                }
+                if ($ext > 6 && ($type ne "chloro" || $extensions_before ne "") && $SNR_read_back eq "")
+                {
+                    $c = '5';
                 }
                 if ($ext > 22 && $SNR_read eq "" && $type ne "chloro")
                 {
@@ -10035,20 +10517,24 @@ NUCLEO_BACK: while ($l < $read_length - ($overlap+$left-1) + $extra_l)
                 {
                     $c = '8.4';
                 }
-                if ($ext > 6 && $type eq "chloro" && $SNR_read_back eq "")
+                if ($repetitive_detect_back ne "" && $ext < 23 && $SNR_read_back eq "")
                 {
-                    $c = '5';
+                   $c = '7';
                 }
-                if ($repetitive_detect_back eq "yes" && $ext < 23 && $SNR_read_back eq "")
+                if ($repetitive_detect_back ne "" && $ext >= 23 && $SNR_read_back eq "")
                 {
-                   $c = '6';
+                   $c = '9';
                 }
-                if ($repetitive_detect_back2 eq "yes")
+                if ($repetitive_detect_back2 eq "yes" || ($repetitive_detect_back ne "" && $ext > 120))
                 {
-                   $c = '10';
+                   $c = '15';
+                }
+                if ($type eq "mito_plant")
+                {
+                    $c += 2;
                 }
                 my $q = '2';
-                my $z = '2';
+                my $z = '1';
                 my $v = '5';
                 my $s = '3';
                 if ($split ne "" && $indel_split_back eq 0)
@@ -10057,19 +10543,19 @@ NUCLEO_BACK: while ($l < $read_length - ($overlap+$left-1) + $extra_l)
                     $s = '2';
                     $z = '0';
                 }
-                if ($A > ($C + $T + $G)*$c && (($A > $s && ($ext)/$A < $q) || ($A > $z && $l < $v && ($C + $T + $G) eq 0 && ($ext)/$A < $q && $indel_split_back eq 0)))
+                if ($A > ($C + $T + $G)*$c && (($A > $s && ($ext)/$A < $q) || ($A > $z && $l < $v && ($C + $T + $G) eq 0 && ($ext)/$A < $q)))
                 {
                     $best_extension = $best_extension."A";
                 }
-                elsif ($C > ($A + $T + $G)*$c && (($C > $s && ($ext)/$C < $q) || ($C > $z && $l < $v && ($A + $T + $G) eq 0 && ($ext)/$C < $q && $indel_split_back eq 0)))
+                elsif ($C > ($A + $T + $G)*$c && (($C > $s && ($ext)/$C < $q) || ($C > $z && $l < $v && ($A + $T + $G) eq 0 && ($ext)/$C < $q)))
                 {
                     $best_extension = $best_extension."C";  
                 }
-                elsif ($T > ($A + $C + $G)*$c && (($T > $s && ($ext)/$T < $q) || ($T > $z && $l < $v && ($A + $C + $G) eq 0 && ($ext)/$T < $q && $indel_split_back eq 0)))
+                elsif ($T > ($A + $C + $G)*$c && (($T > $s && ($ext)/$T < $q) || ($T > $z && $l < $v && ($A + $C + $G) eq 0 && ($ext)/$T < $q)))
                 {
                     $best_extension = $best_extension."T"; 
                 }
-                elsif ($G > ($C + $T + $A)*$c && (($G > $s && ($ext)/$G < $q) || ($G > $z && $l < $v && ($C + $T + $A) eq 0 && ($ext)/$G < $q && $indel_split_back eq 0)))
+                elsif ($G > ($C + $T + $A)*$c && (($G > $s && ($ext)/$G < $q) || ($G > $z && $l < $v && ($C + $T + $A) eq 0 && ($ext)/$G < $q)))
                 {
                     $best_extension = $best_extension."G";  
                 }
@@ -10181,8 +10667,8 @@ NUCLEO_BACK: while ($l < $read_length - ($overlap+$left-1) + $extra_l)
                         else
                         {
                             delete $seed{$id};
-                            $id             = $id_original;
-                            $split          = "";
+                            $id = $id_original;
+                            $split = "";
                             goto AFTER_EXT_BACK;
                         }
                     }
@@ -10356,7 +10842,7 @@ NUCLEO_BACK: while ($l < $read_length - ($overlap+$left-1) + $extra_l)
                         print OUTPUT5 $best_extension_tmp." BEST_EXTENSION_BACK4\n\n";
                     }    
                 }           
-                if ((length($best_extension2) < 3 || (length($best_extension2) < 6 && $ext > 15)) && $repetitive_detect_back ne "yes" && $before_back eq "yesss")
+                if ((length($best_extension2) < 3 || (length($best_extension2) < 6 && $ext > 15)) && $repetitive_detect_back eq "" && $before_back eq "yesss")
                 {
                     if ($y > $startprint2)
                     {
@@ -10379,7 +10865,7 @@ NUCLEO_BACK: while ($l < $read_length - ($overlap+$left-1) + $extra_l)
                     
                     if (length($read) > $genome_range_low)
                     {
-  }                 
+                    }                 
                     my $found_seq_cp2 = $read_cp =~ s/$best_extension2_reverse/$best_extension2_reverse/;
                     my $found_seq_cp4 = $read_cp =~ s/$read_start_rev_tmp/$read_start_rev_tmp/;
                     
@@ -10493,10 +10979,18 @@ NUCLEO_BACK: while ($l < $read_length - ($overlap+$left-1) + $extra_l)
                     $contig_gap_min{$id."_".$count_contig_tmp} = $contig_gap_min{$id_original."_".$count_contig_tmp};
                     $contig_gap_max{$id."_".$count_contig_tmp} = $contig_gap_max{$id_original."_".$count_contig_tmp};
                     $count_contig_tmp--;    
-                } 
-                if ($old_id{$id_original})
+                }
+                if (exists($old_id{$id_original}))
                 {
                     $old_id{$id} = $old_id{$id_original};
+                }
+                if (exists($old_rep{$id_original}))
+                {
+                    $old_rep{$id} = $old_rep{$id_original};
+                }
+                if (exists($old_rep_old{$id_original}))
+                {
+                    $old_rep_old{$id} = $old_rep_old{$id_original};
                 }
                 if (exists($noforward{$id_original}))
                 {
@@ -10518,6 +11012,14 @@ NUCLEO_BACK: while ($l < $read_length - ($overlap+$left-1) + $extra_l)
                 {
                     $jump_rep{$id} = undef;
                 }
+                if (exists($rep_return{$id_original}))
+                {
+                    $rep_return{$id} = $rep_return{$id_original};
+                }
+                if (exists($rep_return_back{$id_original}))
+                {
+                    $rep_return_back{$id} = $rep_return_back{$id_original};
+                }
             }
             elsif ($split eq "yes5_back")
             {
@@ -10532,7 +11034,7 @@ NUCLEO_BACK: while ($l < $read_length - ($overlap+$left-1) + $extra_l)
                     }
                     print OUTPUT5 $best_extension1." BEST_EXTENSION_BACK1\n\n";
                 }
-                if ((length($best_extension1) < 3 || (length($best_extension1) < 6 && $ext > 15)) && $before_back eq "yessss" && $repetitive_detect_back ne "yes")
+                if ((length($best_extension1) < 3 || (length($best_extension1) < 6 && $ext > 15)) && $before_back eq "yessss" && $repetitive_detect_back eq "")
                 {
                     if ($y > $startprint2)
                     {
@@ -10893,7 +11395,7 @@ INDEL3_BACK:                    while ($f < @chars3)
                         }
                     }
                 }
-                if (length($best_extension1) > 4 && length($best_extension2) > 4 && $reference eq "yes")
+                if (length($best_extension1) > 4 && length($best_extension2) > 4 && $cp_input ne "" && $type eq "mito_plant")
                 {
                    my $p = -$overlap;
                     while ($p > (-$overlap*2))
@@ -11048,7 +11550,27 @@ INDEL_BACK:
                 if ($jump_rep_back eq "yes" || ($extensions_before ne "yes" && $indel_split_skip_back ne "yes" && ($delete_first eq "" || $delete_second eq "" || $delete_third eq "") && $before_back ne "yes"))
                 {                   
                     my $before_shorter = "";
-                    my $overhangb = 2+($read_length/40);
+                    my $overhangb = 1+($read_length/40);
+                    my $count_one = '0';
+                    my $count_two = '0';
+                    while (($count_one < 2 || $count_two < 2) && $overhangb < 15)
+                    {
+                        $overhangb++;
+                        foreach my $one (@extensions_group1)
+                        {
+                            if (length($one) < $overhangb && length($one) > 0)
+                            {
+                                $count_one++;
+                            }
+                        }
+                        foreach my $two (@extensions_group2)
+                        {
+                            if (length($two) < $overhangb && length($two) > 0)
+                            {
+                                $count_two++;
+                            }
+                        }
+                    }
                     my $overhang = sprintf("%.0f", $overhangb);
                     delete $jump_rep_back{$id};
 BEFORE_BACK:
@@ -11074,6 +11596,20 @@ BEFORE_BACK:
                     my %before4B;
                     undef %repetitive_pair;
                     
+                    my $skip_overhang = "";
+                    if ($AT_rich_before_back eq "yes")
+                    {
+                        my $before_split_tmp = substr $read_short_start2, 0, $read_length-$overhang;
+                        my $A_rich_test = $before_split_tmp =~ tr/AX\.//;
+                        my $T_rich_test = $before_split_tmp =~ tr/TX\.//;
+                        my $G_rich_test = $before_split_tmp =~ tr/GX\.//;
+                        my $C_rich_test = $before_split_tmp =~ tr/CX\.//;
+                        if ($A_rich_test > ($read_length-$overhang-3) || $T_rich_test > ($read_length-$overhang-3) || $G_rich_test > ($read_length-$overhang-3) || $C_rich_test > ($read_length-$overhang-3))
+                        {
+                            $skip_overhang = "yes";
+                            $overhang -= 5;
+                        }
+                    }
                     $s = '0';
                     my $before_split = substr $read_short_start2, $read_length-$left-1-$overhang-$overlap, $overhang+$overlap;
                     my $star0 = '0';
@@ -11824,7 +12360,7 @@ print OUTPUT5 $count_all." COUNT_ALL\n";
                             goto FINISH;
                         }
                     }
-                    elsif($count_all < 3 && $overhang < $read_length-($overlap+15))
+                    elsif($count_all < 3 && $overhang < $read_length-($overlap+15) && $skip_overhang ne "yes")
                     {
                         if ($y > $startprint2)
                         {
@@ -11843,6 +12379,10 @@ print OUTPUT5 $count_all." COUNT_ALL\n";
                         my $count2 = '0';
                         my $count3 = '0';
                         my $count4 = '0';
+                        my $count1_pair = '0';
+                        my $count2_pair = '0';
+                        my $count3_pair = '0';
+                        my $count4_pair = '0';
                         foreach my $exb (keys %filter_before1)
                         {
                             my $search_tmp = substr $exb, 0, -1;
@@ -11869,15 +12409,17 @@ print OUTPUT5 $count_all." COUNT_ALL\n";
                                 $count1++;
                                 my $found_reverse = reverse($found);
                                 $found_reverse =~ tr/ACTG/TGAC/;
-                                if ($y > $startprint2)
-                                {
-                                    print OUTPUT5 $found_reverse." 1\n";
-                                }
+                                
                                 if (exists($filter_before1{$exb}))
                                 {
                                     if (exists($filter_before1_pair{$exb}))
                                     {
                                         $filter_before1{$exb} = $found_reverse;
+                                        $count1_pair++;
+                                        if ($y > $startprint2)
+                                        {
+                                            print OUTPUT5 $found_reverse." 1\n";
+                                        }
                                     }
                                     else
                                     {
@@ -11911,16 +12453,17 @@ print OUTPUT5 $count_all." COUNT_ALL\n";
                                 }
                                 my $found_reverse = reverse($found);
                                 $found_reverse =~ tr/ACTG/TGAC/;
-                                if ($y > $startprint2)
-                                {
-                                    print OUTPUT5 $found_reverse." 2\n";
-                                }
                                 $count2++;
                                 if (exists($filter_before2{$exb}))
                                 {
                                     if (exists($filter_before2_pair{$exb}))
                                     {
                                         $filter_before2{$exb} = $found_reverse;
+                                        $count2_pair++;
+                                        if ($y > $startprint2)
+                                        {
+                                            print OUTPUT5 $found_reverse." 2\n";
+                                        }
                                     }
                                     else
                                     {
@@ -11950,17 +12493,18 @@ print OUTPUT5 $count_all." COUNT_ALL\n";
                                     $found = decrypt $found;
                                 }
                                 my $found_reverse = reverse($found);
-                                $found_reverse =~ tr/ACTG/TGAC/;
-                                if ($y > $startprint2)
-                                {
-                                    print OUTPUT5 $found_reverse." 3\n";
-                                }
+                                $found_reverse =~ tr/ACTG/TGAC/;                      
                                 $count3++;
                                 if (exists($filter_before3{$exb}))
                                 {
                                     if (exists($filter_before3_pair{$exb}))
                                     {
                                         $filter_before3{$exb} = $found_reverse;
+                                        $count3_pair++;
+                                        if ($y > $startprint2)
+                                        {
+                                            print OUTPUT5 $found_reverse." 3\n";
+                                        }
                                     }
                                     else
                                     {
@@ -11991,16 +12535,17 @@ print OUTPUT5 $count_all." COUNT_ALL\n";
                                 }
                                 my $found_reverse = reverse($found);
                                 $found_reverse =~ tr/ACTG/TGAC/;
-                                if ($y > $startprint2)
-                                {
-                                    print OUTPUT5 $found_reverse." 4\n";
-                                }
                                 $count4++;
                                 if (exists($filter_before4{$exb}))
                                 {
                                     if (exists($filter_before4_pair{$exb}))
                                     {
                                         $filter_before4{$exb} = $found_reverse;
+                                        $count4_pair++;
+                                        if ($y > $startprint2)
+                                        {
+                                            print OUTPUT5 $found_reverse." 4\n";
+                                        }
                                     }
                                     else
                                     {
@@ -12016,10 +12561,10 @@ print OUTPUT5 $count_all." COUNT_ALL\n";
                             print OUTPUT5 $count3." COUNT3\n";
                             print OUTPUT5 $count4." COUNT4\n";
                         }
-                        $count1234{'1'} = $count1;
-                        $count1234{'2'} = $count2;
-                        $count1234{'3'} = $count3;
-                        $count1234{'4'} = $count4;
+                        $count1234{'1'} = $count1_pair;
+                        $count1234{'2'} = $count2_pair;
+                        $count1234{'3'} = $count3_pair;
+                        $count1234{'4'} = $count4_pair;
                         
                         my $morethan3 = '0';
                         my $difference = "";
@@ -12030,6 +12575,26 @@ print OUTPUT5 $count_all." COUNT_ALL\n";
                             {
                                 $morethan3++;
                             }
+                        }
+                        my $best_extension1_tmp = $best_extension1;
+                        my $best_extension2_tmp = $best_extension2;
+                        my $SNR_check1 = $best_extension1_tmp =~ s/AAAAAAAA|CCCCCCCC|GGGGGGGG|TTTTTTTT//;
+                        my $SNR_check2 = $best_extension2_tmp =~ s/AAAAAAAA|CCCCCCCC|GGGGGGGG|TTTTTTTT//;
+                        my $GGGG2 = $best_extension2 =~ tr/G/G/;
+                        my $TTTT2 = $best_extension2 =~ tr/T/T/;
+                        my $CCCC2 = $best_extension2 =~ tr/C/C/;
+                        my $AAAA2 = $best_extension2 =~ tr/A/A/;
+                        if ($GGGG2 eq length($best_extension2) || $TTTT2 eq length($best_extension2) || $CCCC2 eq length($best_extension2) || $AAAA2 eq length($best_extension2))
+                        {
+                            $SNR_check2 = '1';
+                        }
+                        my $GGGG1 = $best_extension1 =~ tr/G/G/;
+                        my $TTTT1 = $best_extension1 =~ tr/T/T/;
+                        my $CCCC1 = $best_extension1 =~ tr/C/C/;
+                        my $AAAA1 = $best_extension1 =~ tr/A/A/;
+                        if ($GGGG1 eq length($best_extension1) || $TTTT1 eq length($best_extension1) || $CCCC1 eq length($best_extension1) || $AAAA1 eq length($best_extension1))
+                        {
+                            $SNR_check1 = '1';
                         }
                         if ((($count1 > 4 && ($count2+$count3+$count4) eq 0) || ($count1 > ($count2+$count3+$count4)*10 && ($count2+$count3+$count4) ne 0)) && $repetitive_detect_back2 ne "yes" && $correction eq $check_dot)
                         {
@@ -12103,7 +12668,7 @@ print OUTPUT5 $count_all." COUNT_ALL\n";
                             $best_extension = $best_extension4;
                             goto AFTER_EXT_BACK;
                         }
-                        elsif(($morethan3 eq 0 && $overhang < $read_length-($overlap*1.5)) || ($morethan3 > 0 && length($read) <= $insert_size && $overhang < 30))
+                        elsif(($morethan3 < 2 && $overhang < $read_length-($overlap*1.5)) || ($morethan3 > 1 && length($read) <= $insert_size && $overhang < 30) && $skip_overhang ne "yes")
                         {
                             if ($y > $startprint2)
                             {
@@ -12113,7 +12678,7 @@ print OUTPUT5 $count_all." COUNT_ALL\n";
                             goto BEFORE_BACK;
                         }
                         
-                        elsif ($morethan3 > 0 && length($read) > $insert_size)
+                        elsif ($morethan3 > 1 && length($read) > $insert_size && $last_chance_back ne "yes" && (($SNR_check1 eq "" && $SNR_check2 eq "") || $overhang < 30))
                         {
                             undef @extensions_before;
                             undef @extensions_before1;
@@ -12309,7 +12874,7 @@ FILTER_4_BACK:                  foreach my $line (keys %hash_read_short_start)
                                 print OUTPUT5 $count4b." COUNT4B\n";
                             }
                             my $f = '7';
-                            if ($repetitive_detect_back eq "yes")
+                            if ($repetitive_detect_back ne "")
                             {
                                 $f = '10';
                             }
@@ -12346,7 +12911,7 @@ FILTER_4_BACK:                  foreach my $line (keys %hash_read_short_start)
                             
                             if (($count1b > 2 && ($count2b+$count3b+$count4b) eq '0') || $differenceb1 eq "yes")
                             {
-                                if (@extensions_before > 3)
+                                if (@extensions_before > 15 && $repetitive_detect_back2 eq "")
                                 {
                                     $ext_before = "yes";
                                     @extensions_before = @extensions_before1;
@@ -12367,7 +12932,7 @@ FILTER_4_BACK:                  foreach my $line (keys %hash_read_short_start)
                             }
                             elsif (($count2b > 2 && ($count1b+$count3b+$count4b) eq '0') || $differenceb2 eq "yes")
                             {
-                                if (@extensions_before > 3)
+                                if (@extensions_before > 15 && $repetitive_detect_back2 eq "")
                                 {
                                     $ext_before = "yes";
                                     @extensions_before = @extensions_before2;
@@ -12398,7 +12963,7 @@ FILTER_4_BACK:                  foreach my $line (keys %hash_read_short_start)
                             }
                             elsif (($count3b > 2 && ($count1b+$count2b+$count4b) eq '0') || $differenceb3 eq "yes")
                             {
-                                if (@extensions_before > 3)
+                                if (@extensions_before > 15 && $repetitive_detect_back2 eq "")
                                 {
                                     $ext_before = "yes";
                                     @extensions_before = @extensions_before3;
@@ -12429,7 +12994,7 @@ FILTER_4_BACK:                  foreach my $line (keys %hash_read_short_start)
                             }
                             elsif (($count4b > 2 && ($count1b+$count2b+$count3b) eq '0') || $differenceb4 eq "yes")
                             {
-                                if (@extensions_before > 3)
+                                if (@extensions_before > 15 && $repetitive_detect_back2 eq "")
                                 {
                                     $ext_before = "yes";
                                     @extensions_before = @extensions_before4;
@@ -12458,7 +13023,7 @@ FILTER_4_BACK:                  foreach my $line (keys %hash_read_short_start)
                                     goto FINISH;
                                 }
                             }
-                            elsif(($count1b+$count2b+$count3b+$count4b) < 10 && $overhang < $read_length-($overlap*1.5) && $before_shorter_skip_back ne "yes")
+                            elsif(($count1b+$count2b+$count3b+$count4b) < 10 && $overhang < $read_length-($overlap*1.5) && $before_shorter_skip_back ne "yes" && $skip_overhang ne "yes")
                             {
                                 if ($y > $startprint2)
                                 {
@@ -12529,7 +13094,7 @@ EXT_BEFORE_BACK:        if ($ext_before eq "yes")
                             $extensions_before = "yes";
                             if ($y > $startprint2)
                             {
-                                print OUTPUT5 "\nEXTENSIONS FROM BEFORE BACK\n\n";
+                                print OUTPUT5 "\nEXTENSIONS FROM BEFORE BACK2\n\n";
                             }
                             $SNP_active_back = "yes";
                             delete $before_back{$id};
@@ -12886,7 +13451,7 @@ AFTER_EXT_BACK:
                                                     print OUTPUT5 "2B\n";
                                                 }
                                             }
-                                            elsif ($use_regex_back ne "yes" && $noback ne "stop")
+                                            elsif ($use_regex_back ne "yes" && $noback ne "stop" && $repetitive_detect_back eq "")
                                             {                                              
                                                 delete $regex_back{$id};
                                                 $regex_back{$id} = "yes";
@@ -12896,7 +13461,7 @@ AFTER_EXT_BACK:
                                                     print OUTPUT5 "3B\n";
                                                 }
                                             }
-                                            elsif ($use_regex_back ne "yes" &&  $last_chance_back ne "yes" && $indel_split_back > 0 && $noback ne "stop")
+                                            elsif ($use_regex_back ne "yes" && $last_chance_back ne "yes" && $indel_split_back > 0 && $noback ne "stop")
                                             {
                                                 $read_new = $read_new1;
                                                 $indel_split_skip_back{$id} = "yes";
@@ -12908,7 +13473,7 @@ AFTER_EXT_BACK:
                                                     print OUTPUT5 "4B\n";
                                                 }
                                             }
-                                            elsif ($use_regex_back eq "yes" &&  $last_chance_back ne "yes" && $noback ne "stop")
+                                            elsif (($use_regex_back eq "yes" || $repetitive_detect_back ne "") && $last_chance_back ne "yes" && $noback ne "stop" && $AT_rich_before_back eq "")
                                             {
                                                 $read_new = $read_new1;
                                                 delete $last_chance_back{$id};
@@ -12942,7 +13507,7 @@ AFTER_EXT_BACK:
                                                     print OUTPUT5 "7B\n";
                                                 }
                                             }
-                                            elsif ($last_chance_back eq "yes" && $noforward ne "stop" && $noback ne "stop" && $use_regex_back eq "yes")
+                                            elsif (($last_chance_back eq "yes" || $AT_rich_before_back ne "") && $noforward ne "stop" && $noback ne "stop" && $use_regex_back eq "yes")
                                             {
                                                 $read_new = $read_new1;
                                                 delete $last_chance_back{$id};
@@ -12954,6 +13519,15 @@ AFTER_EXT_BACK:
                                                     print OUTPUT5 "8B\n";
                                                 }
                                             }
+                                            elsif (exists($old_id{$id}) && $noforward eq "stop")
+                                            {
+                                                $merge_now = "yes2";
+                                                if ($y > $startprint2)
+                                                {
+                                                    print OUTPUT5 "8B_MERGE\n";
+                                                }
+                                                goto MERGE;
+                                            }
                                             elsif (exists($seed_split{$id}))
                                             {
                                                 delete $seed{$id};
@@ -12961,7 +13535,12 @@ AFTER_EXT_BACK:
                                                 {
                                                     print OUTPUT5 "9B\n";
                                                 }
-                                                if (length($read) > 250)
+                                                my $old_rep_old_check = "";
+                                                if (exists ($old_rep_old{$id}))
+                                                {
+                                                    $old_rep_old_check = "yes";
+                                                }
+                                                if (length($read) > 250 && $old_rep_old_check eq "")
                                                 {
                                                     if ($id =~ m/(.*_|)(\d+)$/)
                                                     {
@@ -13012,6 +13591,7 @@ AFTER_EXT_BACK:
                                                            $contigs{$contig_num."+".$check_id} = $read; 
                                                         }
                                                         $contig_num++;
+                                                        $seed_old{$id} = $read;
                                                     }
                                                 }
 SKIP1:                                          if ($y > $startprint2)
@@ -13364,6 +13944,7 @@ NEXT_SEED:                                      while ($xy > $tt)
                                                                         $id_bad{$id_b} = undef;
                                                                                                                                               
                                                                         $seed{$id} = $seed;
+                                                                        $seeds_check{$id} = undef;
                                                                         $position{$id} = length($seed);
                                                                         $old_id{$id} = $id_old;
                                                                         $old_id2{$id} = undef;
@@ -13776,6 +14357,10 @@ FINISH2:
             {
                 $tree = $1;
             }
+            if ($tree3 =~ m/.*_(\d+(REP))$/)
+            {
+                $tree3 = $1;
+            }
             delete $tree{$tree2};
             $tree{$tree} = $tree3;
             my $tree_tmp = $tree;
@@ -14096,7 +14681,7 @@ ORDER:              foreach my $tmp (@order)
                 }
             }                                                   
         }
-        print OUTPUT7 "\n\nEach option has a seperate fasta file\n";
+        print OUTPUT7 "\n\nEach option has a separate fasta file\n";
     }
     elsif ($count_contigs eq 1)
     {
