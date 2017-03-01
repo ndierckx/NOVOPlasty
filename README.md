@@ -24,15 +24,6 @@ For the moment NOVOPlasty only supports whole genome Illumina paired-end reads a
 **04/01/17**  
 - Improved assembly of duplicated and repetitive regions.
 - 'chloro' setting is replaced by the 'chloro2' setting (now the only options are 'chloro' and 'mito')  
-**11/11/16**  
-- Improved seed retrieval with low coverage
-- Data files without quality scores can be used as input file  
-**09/11/16**  
-- IUPAC codes are correctly called, in stead of to many 'N's
-- Bugs fixed
-- Additional metrics are automatically calculated (Total reads, aligned reads, assembled reads, percentage organelle reads, average organelle coverage)
-- Bugs in contig output fixed
-
 
 ## Cite
 
