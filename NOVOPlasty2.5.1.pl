@@ -3063,8 +3063,8 @@ MERGE:
                 my $read_newest = $read;
                                                             
                 my $start_seq = substr $read, 0, $insert_size*3;
-                my $start_seq1 = substr $read, 0, 50;
-                my $start_seq2 = substr $read, 30, 50;
+                my $start_seq1 = substr $read, 0, 39;
+                my $start_seq2 = substr $read, 30, 39;
                 my $end_seq = substr $read_oldie, -$insert_size*3;
                 $merge_read_length = length ($read);
                 $start_seq =~ tr/N|K|R|Y|S|W|M|B|D|H|V/\./;
