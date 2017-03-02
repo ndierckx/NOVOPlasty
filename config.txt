@@ -14,7 +14,7 @@ Combined reads       = /path/to/reads/AOB_reads.fastq
 Forward reads        = 
 Reverse reads        = 
 Seed Input           = Seed_AOB.fasta
-Chloroplast sequence = 
+Chloroplast sequence =
 
 
 Project name         = Choose a name for your project, it will be used for the output files.
