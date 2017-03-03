@@ -330,12 +330,12 @@ my $USAGE = "\nUsage: perl NOVOPlasty.pl -c config_example.txt";
 
 print "\n\n-----------------------------------------------";
 print "\nNOVOPlasty: The Organelle Assembler\n";
-print "Version 2.5\n";
+print "Version 2.5.2\n";
 print "Author: Nicolas Dierckxsens, (c) 2015-2016\n";
 print "-----------------------------------------------\n\n";
 print OUTPUT4 "\n\n-----------------------------------------------";
 print OUTPUT4 "\nNOVOPlasty: The Organelle Assembler\n";
-print OUTPUT4 "Version 2.5\n";
+print OUTPUT4 "Version 2.5.2\n";
 print OUTPUT4 "Author: Nicolas Dierckxsens, (c) 2015-2016\n";
 print OUTPUT4 "-----------------------------------------------\n\n";
 
@@ -1467,7 +1467,7 @@ print "Chloroplast sequence = ".$cp_input."\n\n";
 
 print OUTPUT4 "\n\n-----------------------------------------------";
 print OUTPUT4 "\nNOVOPlasty: The Organelle Assembler\n";
-print OUTPUT4 "Version 2.5\n";
+print OUTPUT4 "Version 2.5.2\n";
 print OUTPUT4 "Author: Nicolas Dierckxsens, (c) 2015-2016\n";
 print OUTPUT4 "-----------------------------------------------\n\n";
 
@@ -3224,6 +3224,7 @@ MERGE:
                 if ($noback eq "stop" && $noforward eq "stop" && $merge_now eq "yes2")
                 {
                     $contigs{$contig_num."+".$id} = $read;
+                    $contig_num++;
                 }
             }
         }
@@ -3416,6 +3417,7 @@ MERGE:
                 }
                 delete $old_id{$id};
                 $noback{$id} = "stop";
+                $noback = "stop";
                 $merge_extra = $position;
                 if ($y > $startprint2)
                 {
@@ -3423,13 +3425,18 @@ MERGE:
                 }
                 $contig_gap_min{$id."_".$contig_count} = ($contig_gap_min{$id."_".$contig_count}-$position_back);
                 $contig_gap_max{$id."_".$contig_count} = ($contig_gap_max{$id."_".$contig_count}-$position_back);
+                if ($noback eq "stop" && $noforward eq "stop" && $merge_now eq "yes2")
+                {
+                    $contigs{$contig_num."+".$id} = $read;
+                    $contig_num++;
+                }
             }
         }
         if ($merge_now ne "")
         {
-            if ($noback eq "stop")
+            if ($noforward eq "stop")
             {  
-                print OUTPUT5 ">".$id."\n";
+                print OUTPUT5 ">MERGE_NOW ".$id."\n";
                 print OUTPUT5 $read."\n";
                 delete $seed{$id};
                 if (!keys %seed)
@@ -3445,11 +3452,11 @@ MERGE:
             else
             {
                 print OUTPUT5 ">\n";
-                $noforward = "stop";
-                $noforward{$id} = "stop";
+                $noback = "stop";
+                $noback{$id} = "stop";
                 $seed_split{$id} = undef;
                 $best_extension = "";
-                goto BACK;
+                goto FINISH;
             }
         }
         
@@ -10950,7 +10957,6 @@ NUCLEO_BACK: while ($l < $read_length - ($overlap+$left-1) + $extra_l)
                         goto SPLIT_BACK;    
                     }  
                 }              
- 
                 if ($split eq "yes2_back")
                 {
                     delete $seed{$id};
