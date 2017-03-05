@@ -10580,7 +10580,7 @@ NUCLEO_BACK: while ($l < $read_length - ($overlap+$left-1) + $extra_l)
                     my $IUPAC = IUPAC($A,$C,$T,$G);
                     $best_extension = $best_extension.$IUPAC;
                 }
-                elsif ($SNP eq "yes_back" && ($A + $T + $G + $C) > 4  && $l < 15)
+                elsif ($SNP eq "yes_back" && ($A + $T + $G + $C) > 4  && $l < 15 && ($ext)/($A + $T + $G + $C) < $q && ($ext)/($A + $T + $G + $C) < $q)  
                 {
                     $SNP = "yes2_back";
                     $A_SNP2 = $A;
@@ -10593,7 +10593,7 @@ NUCLEO_BACK: while ($l < $read_length - ($overlap+$left-1) + $extra_l)
                     my $IUPAC = IUPAC($A,$C,$T,$G);
                     $best_extension = $best_extension.$IUPAC;
                 }
-                elsif ($SNP eq "yes2_back" && ($A + $T + $G + $C) > 4  && $l < 15)
+                elsif ($SNP eq "yes2_back" && ($A + $T + $G + $C) > 4  && $l < 15 && ($ext)/($A + $T + $G + $C) < $q && ($ext)/($A + $T + $G + $C) < $q)  
                 {
                     $SNP = "yes3_back";
                     $A_SNP3 = $A;
@@ -10606,7 +10606,7 @@ NUCLEO_BACK: while ($l < $read_length - ($overlap+$left-1) + $extra_l)
                     my $IUPAC = IUPAC($A,$C,$T,$G);
                     $best_extension = $best_extension.$IUPAC;
                 }
-                elsif ($SNP eq "yes3_back" && ($pos_SNP ne 0 || ($pos_SNP3 > $pos_SNP+12 && $l > 11 ) || ($extensions_before eq "yes" && $l > 9)) && $split eq "")
+                elsif ($SNP eq "yes3_back" && ($pos_SNP ne 0 || ($pos_SNP3 > $pos_SNP+12 && $l > 11 ) || ($extensions_before eq "yes" && $l > 9)) && $split eq "" && ($ext)/($A + $T + $G + $C) < $q) 
                 {
                     $SNP = "yes4_back";
                     my $g = $l;
