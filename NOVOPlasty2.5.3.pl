@@ -330,12 +330,12 @@ my $USAGE = "\nUsage: perl NOVOPlasty.pl -c config_example.txt";
 
 print "\n\n-----------------------------------------------";
 print "\nNOVOPlasty: The Organelle Assembler\n";
-print "Version 2.5.2\n";
+print "Version 2.5\n";
 print "Author: Nicolas Dierckxsens, (c) 2015-2016\n";
 print "-----------------------------------------------\n\n";
 print OUTPUT4 "\n\n-----------------------------------------------";
 print OUTPUT4 "\nNOVOPlasty: The Organelle Assembler\n";
-print OUTPUT4 "Version 2.5.2\n";
+print OUTPUT4 "Version 2.5\n";
 print OUTPUT4 "Author: Nicolas Dierckxsens, (c) 2015-2016\n";
 print OUTPUT4 "-----------------------------------------------\n\n";
 
@@ -1467,7 +1467,7 @@ print "Chloroplast sequence = ".$cp_input."\n\n";
 
 print OUTPUT4 "\n\n-----------------------------------------------";
 print OUTPUT4 "\nNOVOPlasty: The Organelle Assembler\n";
-print OUTPUT4 "Version 2.5.2\n";
+print OUTPUT4 "Version 2.5\n";
 print OUTPUT4 "Author: Nicolas Dierckxsens, (c) 2015-2016\n";
 print OUTPUT4 "-----------------------------------------------\n\n";
 
@@ -3048,8 +3048,11 @@ ALREADY_X0b:  while ($v0b < $u0b)
 MERGE:
         my $merge_extra = '0';
         if ($y > $startprint2)
-        {
-            print OUTPUT5 $old_id{$id}." OLD_ID\n";
+        {    
+            if (exists($old_id{$id}))
+            {
+                print OUTPUT5 $old_id{$id}." OLD_ID\n";
+            }
             if (exists($old_rep{$id}))
             {
                 print OUTPUT5 "OLD_REP\n";
@@ -4487,7 +4490,6 @@ REGEX:
             }
 
             my $read_count = '0';
-            my $read2_count = '0';
             my $read_ex = '0';
             my $read2_ex = '0';
             
@@ -5036,7 +5038,6 @@ SKIP3:
             if ($y > $startprint2)
             {
                 print OUTPUT5 "\n".$read_count ." READ_COUNT\n";
-                print OUTPUT5 $read2_count ." READ2_COUNT\n";
                 print OUTPUT5 $read_ex ." READ_EX\n";
                 print OUTPUT5 $ext ." EXTENSIONS\n";
             }
@@ -5457,23 +5458,23 @@ NUCLEO:     while ($l < $read_length - ($overlap+$left-1) + $extra_l)
                     $s = '2';
                 }
 
-                if ($A > ($C + $T + $G)*$c && (($A > $s && ($ext)/$A < $q) || ($A > $z && $l < $v && ($C + $T + $G) eq 0 )))
+                if ($A > ($C + $T + $G)*$c && (($A > $s && ($ext)/($A + $T + $G + $C) < $q) || ($A > $z && $l < $v && ($C + $T + $G) eq 0)))
                 {
                     $best_extension = $best_extension."A";
                 }
-                elsif ($C > ($A + $T + $G)*$c && (($C > $s && ($ext)/$C < $q) || ($C > $z && $l < $v && ($A + $T + $G) eq 0)))
+                elsif ($C > ($A + $T + $G)*$c && (($C > $s && ($ext)/($A + $T + $G + $C) < $q) || ($C > $z && $l < $v && ($A + $T + $G) eq 0)))
                 {
                     $best_extension = $best_extension."C"; 
                 }
-                elsif ($T > ($A + $C + $G)*$c && (($T > $s && ($ext)/$T < $q) || ($T > $z && $l < $v && ($C + $A + $G) eq 0)))
+                elsif ($T > ($A + $C + $G)*$c && (($T > $s && ($ext)/($A + $T + $G + $C) < $q) || ($T > $z && $l < $v && ($C + $A + $G) eq 0)))
                 {
                     $best_extension = $best_extension."T";  
                 }
-                elsif ($G > ($C + $T + $A)*$c && (($G > $s && ($ext)/$G < $q) || ($G > $z && $l < $v && ($C + $T + $A) eq 0)))
+                elsif ($G > ($C + $T + $A)*$c && (($G > $s && ($ext)/($A + $T + $G + $C) < $q) || ($G > $z && $l < $v && ($C + $T + $A) eq 0)))
                 {
                     $best_extension = $best_extension."G";
                 }
-                elsif (($SNP_active eq "yes" || ($SNR_read ne "" && $l > 0) || ($extensions_before eq "yes" && $ext_before ne "yes")) && $SNP eq "" && ($A + $T + $G + $C) > 4 && $l < 15 && ($ext)/($A + $T + $G + $C) < 4 && $split eq "") 
+                elsif (($SNP_active eq "yes" || ($SNR_read ne "" && $l > 0) || ($extensions_before eq "yes" && $ext_before ne "yes")) && $SNP eq "" && ($A + $T + $G + $C) > 4 && $l < 15 && ($ext)/($A + $T + $G + $C) < $q && $split eq "") 
                 {
                     delete $SNP_active{$id};
                     $SNP = "yes";
@@ -9654,7 +9655,6 @@ BACK:   if (keys %merged_match_back eq 0 && $use_regex_back ne "yes" && $noback 
         
 REGEX_BACK:
             $read_count = '0';
-            $read2_count = '0';
             $read_ex = '0';
             $read2_ex = '0';
 
@@ -10550,23 +10550,23 @@ NUCLEO_BACK: while ($l < $read_length - ($overlap+$left-1) + $extra_l)
                     $s = '2';
                     $z = '0';
                 }
-                if ($A > ($C + $T + $G)*$c && (($A > $s && ($ext)/$A < $q) || ($A > $z && $l < $v && ($C + $T + $G) eq 0 && ($ext)/$A < $q)))
+                if ($A > ($C + $T + $G)*$c && (($A > $s && ($ext)/($A + $T + $G + $C) < $q) || ($A > $z && $l < $v && ($C + $T + $G) eq 0 && ($ext)/($A + $T + $G + $C) < $q)))
                 {
                     $best_extension = $best_extension."A";
                 }
-                elsif ($C > ($A + $T + $G)*$c && (($C > $s && ($ext)/$C < $q) || ($C > $z && $l < $v && ($A + $T + $G) eq 0 && ($ext)/$C < $q)))
+                elsif ($C > ($A + $T + $G)*$c && (($C > $s && ($ext)/($A + $T + $G + $C) < $q) || ($C > $z && $l < $v && ($A + $T + $G) eq 0 && ($ext)/($A + $T + $G + $C) < $q)))
                 {
                     $best_extension = $best_extension."C";  
                 }
-                elsif ($T > ($A + $C + $G)*$c && (($T > $s && ($ext)/$T < $q) || ($T > $z && $l < $v && ($A + $C + $G) eq 0 && ($ext)/$T < $q)))
+                elsif ($T > ($A + $C + $G)*$c && (($T > $s && ($ext)/($A + $T + $G + $C) < $q) || ($T > $z && $l < $v && ($A + $C + $G) eq 0 && ($ext)/($A + $T + $G + $C) < $q)))
                 {
                     $best_extension = $best_extension."T"; 
                 }
-                elsif ($G > ($C + $T + $A)*$c && (($G > $s && ($ext)/$G < $q) || ($G > $z && $l < $v && ($C + $T + $A) eq 0 && ($ext)/$G < $q)))
+                elsif ($G > ($C + $T + $A)*$c && (($G > $s && ($ext)/($A + $T + $G + $C) < $q) || ($G > $z && $l < $v && ($C + $T + $A) eq 0 && ($ext)/($A + $T + $G + $C) < $q)))
                 {
                     $best_extension = $best_extension."G";  
                 }
-                elsif (($SNP_active_back eq "yes" || ($SNR_read_back ne "" && $l > 0) || ($extensions_before eq "yes" && $ext_before ne "yes")) && $SNP eq "" && ($A + $T + $G + $C) > 4 && (($l < 15 && $split eq "") || ($l < 11 && $split ne "")) && ($ext)/($A + $T + $G + $C) < 4) 
+                elsif (($SNP_active_back eq "yes" || ($SNR_read_back ne "" && $l > 0) || ($extensions_before eq "yes" && $ext_before ne "yes")) && $SNP eq "" && ($A + $T + $G + $C) > 4 && (($l < 15 && $split eq "") || ($l < 11 && $split ne "")) && ($ext)/($A + $T + $G + $C) < $q) 
                 {
                     delete $SNP_active_back{$id};
                     $SNP = "yes_back";
@@ -13652,14 +13652,29 @@ FINISH:
                                             {
                                                 $count_seed++;
                                             }
-                                            if ($y > $startprint2)
+                                           if ($y > $startprint2)
                                             {
-                                                print OUTPUT5 $noback." NOBACK\n";
-                                                print OUTPUT5 $noforward." NOFORWARD\n";
+                                                if ($noback ne "")
+                                                {
+                                                    print OUTPUT5 $noback." NOBACK\n";
+                                                }
+                                                if ($noforward ne "")
+                                                {
+                                                    print OUTPUT5 $noforward." NOFORWARD\n";
+                                                }
+                                                if ($last_chance ne "")
+                                                {
+                                                    print OUTPUT5 $last_chance." LASTCHANCE\n";
+                                                }
+                                                if ($use_regex_back ne "")
+                                                {
+                                                    print OUTPUT5 $use_regex_back." REGEX_BACK\n";
+                                                }
+                                                if ($last_chance_back ne "")
+                                                {
+                                                    print OUTPUT5 $last_chance_back." LASTCHANCE_BACK\n";
+                                                }
                                                 print OUTPUT5 $count_seed." COUNTSEED\n";
-                                                print OUTPUT5 $last_chance." LASTCHANCE\n";
-                                                print OUTPUT5 $use_regex_back." REGEX_BACK\n";
-                                                print OUTPUT5 $last_chance_back." LASTCHANCE_BACK\n";
                                             }
                                             if ($delete_first eq "yes2" && $indel_split > 0 && $SNR_next_seed ne "yes")
                                             {
