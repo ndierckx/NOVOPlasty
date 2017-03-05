@@ -5447,7 +5447,7 @@ NUCLEO:     while ($l < $read_length - ($overlap+$left-1) + $extra_l)
                 {
                     $c += 2;
                 }
-                my $v = '5';
+                my $v = '6';
                 my $s = '3';
                 my $z = '1';
                 if ($split ne "")
@@ -10542,7 +10542,7 @@ NUCLEO_BACK: while ($l < $read_length - ($overlap+$left-1) + $extra_l)
                 }
                 my $q = '2';
                 my $z = '1';
-                my $v = '5';
+                my $v = '6';
                 my $s = '3';
                 if ($split ne "" && $indel_split_back eq 0)
                 {
