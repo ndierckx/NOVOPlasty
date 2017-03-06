@@ -13374,18 +13374,7 @@ AFTER_EXT_BACK:
                                                     }
                                                 }
                                                 
-                                                my $SNR_check2 = $best_extension =~ qr/AAAAAAA|CCCCCCC|GGGGGGG|TTTTTTT/;
-                                                if ($SNR_check2 > 0)
-                                                {
-                                                    if ($best_extension =~ m/(.*?(AAAAAA|CCCCCC|GGGGGG|TTTTTT)).*/)
-                                                    {
-                                                        $best_extension = $1;
-                                                        if ($y > $startprint2)
-                                                        {
-                                                            print OUTPUT5 reverse($best_extension)." BEST_EXTENSION_SHORT_BACK\n\n";
-                                                        }
-                                                    }
-                                                }
+             
                                             }
  
                                             if ($noback ne "stop" && ($best_extension ne "" && $best_extension ne " "))
