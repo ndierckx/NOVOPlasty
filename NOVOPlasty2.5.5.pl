@@ -20,9 +20,9 @@ my $startprint = "1000000";
 my $startprint2 = "1000000";
 my $high_coverage = "yes";
 my $coverage_cut_off = '1000';
+my $max_memory;
 my $option = '1';
 
-my $simple_read = "yes";
 my $insert_size_correct;
 my $overlap;
 my $insert_range_b;
@@ -283,35 +283,40 @@ while (my $line = <CONFIG>)
     }
     if ($ln eq '10')
     {
+        $max_memory = substr $line, 23;
+        chomp $max_memory;
+    }
+    if ($ln eq '11')
+    {
         $coverage_cut_off = substr $line, 23;
         chomp $coverage_cut_off;
     }
-    if ($ln eq '11')
+    if ($ln eq '12')
     {
         $print_log = substr $line, 23;
         chomp $print_log;
     }
-    if ($ln eq '12')
+    if ($ln eq '13')
     {
         $reads12 = substr $line, 23;
         chomp $reads12;
     }
-    if ($ln eq '13')
+    if ($ln eq '14')
     {
         $reads1 = substr $line, 23;
         chomp $reads1;
     }
-    if ($ln eq '14')
+    if ($ln eq '15')
     {
         $reads2 = substr $line, 23;
         chomp $reads2;
     }
-    if ($ln eq '15')
+    if ($ln eq '16')
     {
         $seed_input0 = substr $line, 23;
         chomp $seed_input0;
     }
-    if ($ln eq '16')
+    if ($ln eq '17')
     {
         $cp_input = substr $line, 23;
         chomp $seed_input0;
@@ -330,12 +335,12 @@ my $USAGE = "\nUsage: perl NOVOPlasty.pl -c config_example.txt";
 
 print "\n\n-----------------------------------------------";
 print "\nNOVOPlasty: The Organelle Assembler\n";
-print "Version 2.5\n";
+print "Version 2.5.5\n";
 print "Author: Nicolas Dierckxsens, (c) 2015-2016\n";
 print "-----------------------------------------------\n\n";
 print OUTPUT4 "\n\n-----------------------------------------------";
 print OUTPUT4 "\nNOVOPlasty: The Organelle Assembler\n";
-print OUTPUT4 "Version 2.5\n";
+print OUTPUT4 "Version 2.5.5\n";
 print OUTPUT4 "Author: Nicolas Dierckxsens, (c) 2015-2016\n";
 print OUTPUT4 "-----------------------------------------------\n\n";
 
@@ -1368,6 +1373,32 @@ my $output_file5  = "log_extended_".$project.".txt";
 my $output_file6  = "contigs_tmp_".$project.".txt";
 my $output_file7  = "Merged_contigs_".$project.".txt";
 
+my $check_zip = substr $reads_tmp[0], -2;
+my $firstLine;
+my $secondLine;
+my $thirdLine;
+
+if ($check_zip eq "gz")
+{
+    open (my $FILE, '-|', 'gzip', '-dc', $reads_tmp[0]) or die "Can't open file $reads_tmp[0], $!\n";
+    $firstLine = <$FILE>;
+    chomp $firstLine;
+    $secondLine = <$FILE>;
+    chomp $secondLine;
+    $thirdLine = <$FILE>;
+    close $FILE;
+}
+else
+{
+    open(INPUT, $reads_tmp[0]) or die "No input file found, make sure it are fastq files $!\n";
+    $firstLine = <INPUT>;
+    chomp $firstLine;
+    $secondLine = <INPUT>;
+    chomp $secondLine;
+    $thirdLine = <INPUT>;
+    close INPUT;
+}
+
 open(INPUT, $reads_tmp[0]) or die "\nNo input file found, make sure it are fastq files $!\n";
 open(INPUT3, $seed_input0)  or die "\nCan't open the seed file, $!\n";
 open(OUTPUT4, ">" .$output_file4) or die "\nCan't open file $output_file4, $!\n";
@@ -1386,12 +1417,6 @@ select(STDOUT); # default
 $| = 1;
 print "\nReading Input...";
 
-my $firstLine = <INPUT>;
-chomp $firstLine;
-my $secondLine = <INPUT>;
-chomp $secondLine;
-my $thirdLine = <INPUT>;
-close INPUT;
 my $firstLine_reverse = "";
 if ($reads12 eq "")
 {
@@ -1457,6 +1482,7 @@ print "K-mer                = ".$overlap."\n";
 print "Insert range         = ".$insert_range_b."\n";
 print "Insert range strict  = ".$insert_range_c."\n";
 print "Paired/Single        = ".$paired."\n";
+print "Max memory           = ".$max_memory."\n";
 print "Coverage Cut off     = ".$coverage_cut_off."\n";
 print "Extended log         = ".$print_log."\n";
 print "Combined reads       = ".$reads12."\n";
@@ -1467,7 +1493,7 @@ print "Chloroplast sequence = ".$cp_input."\n\n";
 
 print OUTPUT4 "\n\n-----------------------------------------------";
 print OUTPUT4 "\nNOVOPlasty: The Organelle Assembler\n";
-print OUTPUT4 "Version 2.5\n";
+print OUTPUT4 "Version 2.5.5\n";
 print OUTPUT4 "Author: Nicolas Dierckxsens, (c) 2015-2016\n";
 print OUTPUT4 "-----------------------------------------------\n\n";
 
@@ -1482,6 +1508,7 @@ print OUTPUT4 "K-mer                = ".$overlap."\n";
 print OUTPUT4 "Insert range         = ".$insert_range_b."\n";
 print OUTPUT4 "Insert range strict  = ".$insert_range_c."\n";
 print OUTPUT4 "Paired/Single        = ".$paired."\n";
+print OUTPUT4 "Max memory           = ".$max_memory."\n";
 print OUTPUT4 "Coverage Cut off     = ".$coverage_cut_off."\n";
 print OUTPUT4 "Extended log         = ".$print_log."\n";
 print OUTPUT4 "Combined reads       = ".$reads12."\n";
@@ -1553,10 +1580,22 @@ else
     
 my $file_count= '0';
 my $type_of_file2 = "";
+my $count_char = '0';
+my $count_hash_element = '0';
+my $out_of_memory;
+my $memory_max_current;
 
 foreach my $reads_tmp (@reads_tmp)
 {
-    open(INPUT, $reads_tmp) or die "\n\nCan't open file $reads_tmp, $!\n";
+    my $FILE;
+    if ($check_zip eq "gz")
+    {
+        open ($FILE, '-|', 'gzip', '-dc', $reads_tmp) or die "Can't open file $reads_tmp, $!\n";
+    }
+    else
+    {
+        open($FILE, $reads_tmp) or die "\n\nCan't open file $reads_tmp, $!\n";
+    }
 
     my $N = '0';
     my $f = "";
@@ -1564,7 +1603,7 @@ foreach my $reads_tmp (@reads_tmp)
     my $code_new = '0';
     my $value = "";
     
-    while (my $line = <INPUT>)
+    while (my $line = <$FILE>)
     {
         chomp $line;
        
@@ -1616,7 +1655,7 @@ foreach my $reads_tmp (@reads_tmp)
                         $type_of_file2 = -length($3)-1;
                     }   
                 }             
-                if ($code_end eq "1" )
+                if ($code_end eq "1" && $out_of_memory ne "yes")
                 {
                     my $code0 = substr $code2, 0, $type_of_file;
                     
@@ -1627,9 +1666,16 @@ foreach my $reads_tmp (@reads_tmp)
                     if ($type_of_file eq "yes")
                     {
                        $code0 = substr $code2, 0, $type_of_file2;
-                    }
-                  
-                    $hash{$code0."1"} = $value;         
+                    }                
+                    if ($memory_max_current > $max_memory && $max_memory ne "")
+                    {
+                        $out_of_memory = "yes";
+                    } 
+                    $hash{$code0."1"} = $value;
+                    $count_char += length($value)*2;
+                    $count_char += $overlap*2;
+                    $count_hash_element++;
+                    $memory_max_current = ((($count_hash_element/4805)*4.5) + ($count_char/1312123))/1000;
                 }
                 if ($code_end eq "2" )
                 {
@@ -1665,7 +1711,7 @@ foreach my $reads_tmp (@reads_tmp)
                         }
                         $hash{$code_new} = $value3;
                         $hash{$code_new} .= exists $hash{$code_new} ? ",$value4" : $value4;
- 
+
                         my $first = substr $value, $left, $overlap;
                         my $second = substr $value, -($overlap+$right), $overlap;
                     
@@ -1693,6 +1739,7 @@ foreach my $reads_tmp (@reads_tmp)
     close INPUT;
 }
 print "...OK\n";
+
 
 select(STDERR);
 $| = 1;
@@ -2130,7 +2177,6 @@ my $noforward = "";
 my $split = "";
 my $best_extension_split;
 my $merge = "";
-my $X = '0';
 my $last_chance = "";
 my %last_chance;
 my $last_chance_back = "";
@@ -2412,7 +2458,7 @@ ALREADY_X0:  while ($v0 < $u0)
                 {
                     $SNR_read = "yes";
                     $SNR_nucleo = substr $read, $Spn0, 1;
-                    if ($SNR_end0[$u0-1] eq $SNR_nucleo)
+                    if ($SNR_end0[$u0-1] eq $SNR_nucleo || $SNR_end0[$u0-2] eq $SNR_nucleo || $SNR_end0[$u0-3] eq $SNR_nucleo)
                     {
                         $SNR_read2 = "yes";
                     }
@@ -3040,6 +3086,19 @@ ALREADY_X0b:  while ($v0b < $u0b)
                         if ($y > $startprint2)
                         {
                             print OUTPUT5 "DETECT_REPETITIVE2\n";
+                        }
+                        my $repetitive_test_stop = substr $read_short_end2, -30;
+                        my $end_repetitive_stop = substr $read, -$insert_size-550;
+                        my $check_repetitive_stop = $end_repetitive_stop =~ s/$repetitive_test_stop/$repetitive_test_stop/g;
+                        if ($check_repetitive_stop > 3)
+                        {
+                            $noforward = "stop";
+                            $noforward{$id} = "stop";
+                            $read = substr $read, 0, -$read_length;
+                            if ($y > $startprint2)
+                            {
+                                print OUTPUT5 "STUCK_IN_REP\n";
+                            }
                         }
                     }
                 }
@@ -7771,7 +7830,7 @@ print OUTPUT5 $count_all." COUNT_ALL\n";
                         my $TTTT2 = $best_extension2 =~ tr/T/T/;
                         my $CCCC2 = $best_extension2 =~ tr/C/C/;
                         my $AAAA2 = $best_extension2 =~ tr/A/A/;
-                        if ($GGGG2 eq length($best_extension2) || $TTTT2 eq length($best_extension2) || $CCCC2 eq length($best_extension2) || $AAAA2 eq length($best_extension2))
+                        if (($GGGG2 eq length($best_extension2) || $TTTT2 eq length($best_extension2) || $CCCC2 eq length($best_extension2) || $AAAA2 eq length($best_extension2)) && length($best_extension2) > 2)
                         {
                             $SNR_check2 = '1';
                         }
@@ -7779,7 +7838,7 @@ print OUTPUT5 $count_all." COUNT_ALL\n";
                         my $TTTT1 = $best_extension1 =~ tr/T/T/;
                         my $CCCC1 = $best_extension1 =~ tr/C/C/;
                         my $AAAA1 = $best_extension1 =~ tr/A/A/;
-                        if ($GGGG1 eq length($best_extension1) || $TTTT1 eq length($best_extension1) || $CCCC1 eq length($best_extension1) || $AAAA1 eq length($best_extension1))
+                        if (($GGGG1 eq length($best_extension1) || $TTTT1 eq length($best_extension1) || $CCCC1 eq length($best_extension1) || $AAAA1 eq length($best_extension1)) && length($best_extension1) > 2)
                         {
                             $SNR_check1 = '1';
                         }
@@ -9548,7 +9607,7 @@ EXTEND_READ:
                                                     print OUTPUT5 "OPTION4\n";
                                                 }
                                             }
-                                            elsif ($last_chance eq "yes" && $use_regex eq "")
+                                            elsif ($last_chance eq "yes" && $use_regex ne "yes")
                                             {
                                                 $read_new = $read;
                                                 delete $last_chance{$id};
@@ -9573,7 +9632,8 @@ EXTEND_READ:
                                             }
                                             else
                                             {
-                                                delete $seed{$id};
+                                                $noforward = "stop";
+                                                $noforward{$id} = $noforward;
                                                 if ($y > $startprint2)
                                                 {
                                                     print OUTPUT5 "OPTION7\n";
@@ -12251,7 +12311,7 @@ print OUTPUT5 $count_all." COUNT_ALL\n";
                         }
                     }
        
-                    if ($first_yuyu eq "yes" && $second_yuyu ne "yes" && $third_yuyu ne "yes" && $fourth_yuyu ne "yes" && $first_yuyu2 > 2 && $correction eq $check_dot)
+                    if ($first_yuyu eq "yes" && $second_yuyu ne "yes" && $third_yuyu ne "yes" && $fourth_yuyu ne "yes" && $first_yuyu2 > 3 && $correction eq $check_dot)
                     {
                         if (@extensions_before > 3)
                         {
@@ -12272,7 +12332,7 @@ print OUTPUT5 $count_all." COUNT_ALL\n";
                         delete $before_shorter_skip_back{$id};
                         goto AFTER_EXT_BACK;
                     }
-                    elsif ($second_yuyu eq "yes" && $first_yuyu ne "yes" && $third_yuyu ne "yes" && $fourth_yuyu ne "yes" && $second_yuyu2 > 2 && $correction eq $check_dot)
+                    elsif ($second_yuyu eq "yes" && $first_yuyu ne "yes" && $third_yuyu ne "yes" && $fourth_yuyu ne "yes" && $second_yuyu2 > 3 && $correction eq $check_dot)
                     {
                         if (@extensions_before > 3)
                         {
@@ -12304,7 +12364,7 @@ print OUTPUT5 $count_all." COUNT_ALL\n";
                             goto FINISH;
                         }
                     }
-                    elsif ($third_yuyu eq "yes" && $first_yuyu ne "yes" && $second_yuyu ne "yes" && $fourth_yuyu ne "yes" && $third_yuyu2 > 2 && $correction eq $check_dot) 
+                    elsif ($third_yuyu eq "yes" && $first_yuyu ne "yes" && $second_yuyu ne "yes" && $fourth_yuyu ne "yes" && $third_yuyu2 > 3 && $correction eq $check_dot) 
                     {
                         if (@extensions_before > 3)
                         {
@@ -12335,7 +12395,7 @@ print OUTPUT5 $count_all." COUNT_ALL\n";
                             goto FINISH;
                         }
                     }
-                    elsif ($fourth_yuyu eq "yes" && $first_yuyu ne "yes" && $third_yuyu ne "yes" && $second_yuyu ne "yes" && $fourth_yuyu2 > 2 && $correction eq $check_dot)
+                    elsif ($fourth_yuyu eq "yes" && $first_yuyu ne "yes" && $third_yuyu ne "yes" && $second_yuyu ne "yes" && $fourth_yuyu2 > 3 && $correction eq $check_dot)
                     {
                         if (@extensions_before > 3)
                         {
@@ -12590,7 +12650,7 @@ print OUTPUT5 $count_all." COUNT_ALL\n";
                         my $TTTT2 = $best_extension2 =~ tr/T/T/;
                         my $CCCC2 = $best_extension2 =~ tr/C/C/;
                         my $AAAA2 = $best_extension2 =~ tr/A/A/;
-                        if ($GGGG2 eq length($best_extension2) || $TTTT2 eq length($best_extension2) || $CCCC2 eq length($best_extension2) || $AAAA2 eq length($best_extension2))
+                        if (($GGGG2 eq length($best_extension2) || $TTTT2 eq length($best_extension2) || $CCCC2 eq length($best_extension2) || $AAAA2 eq length($best_extension2)) && length($best_extension2) > 2)
                         {
                             $SNR_check2 = '1';
                         }
@@ -12598,7 +12658,7 @@ print OUTPUT5 $count_all." COUNT_ALL\n";
                         my $TTTT1 = $best_extension1 =~ tr/T/T/;
                         my $CCCC1 = $best_extension1 =~ tr/C/C/;
                         my $AAAA1 = $best_extension1 =~ tr/A/A/;
-                        if ($GGGG1 eq length($best_extension1) || $TTTT1 eq length($best_extension1) || $CCCC1 eq length($best_extension1) || $AAAA1 eq length($best_extension1))
+                        if (($GGGG1 eq length($best_extension1) || $TTTT1 eq length($best_extension1) || $CCCC1 eq length($best_extension1) || $AAAA1 eq length($best_extension1)) && length($best_extension1) > 2)
                         {
                             $SNR_check1 = '1';
                         }
@@ -13374,7 +13434,6 @@ AFTER_EXT_BACK:
                                                     }
                                                 }
                                                 
-             
                                             }
  
                                             if ($noback ne "stop" && ($best_extension ne "" && $best_extension ne " "))
@@ -13786,7 +13845,7 @@ FINISH:
                                                 
                                                 my $SNR_skip = "yes";
                                                 my $xy = -($overlap+3);
-                                                my $tt = '-250';
+                                                my $tt = '-200';
                                                 my $second_seed = "";                                           
                                                 my $u = '10';
                                                 while ($SNR_skip eq "yes")
@@ -13844,7 +13903,7 @@ NEXT_SEED:                                      while ($xy > $tt)
                                                                 my $yx = '0';
                                                                 while ($yx < length($seed_tmp2)-($overlap+1))
                                                                 {
-                                                                    my $seed_tmp2_part = substr $seed_tmp2, $yx, $overlap;
+                                                                    my $seed_tmp2_part = substr $seed_tmp2, $yx, $overlap;                                                           
                                                                     if (exists($hash2b{$seed_tmp2_part}))
                                                                     {
                                                                         my $id2 = $hash2b{$seed_tmp2_part};
@@ -13852,12 +13911,7 @@ NEXT_SEED:                                      while ($xy > $tt)
                                                                         my @id_tmp2 = split /,/,$id5;
                                                                         $id = $id_tmp2[0];
                                                                         my $id_b = $id;
-                                                                        my $id_tmp2_end = substr $id_b, -1, 1,"",;
-                                                                        
-                                                                        if ($y > $startprint2)
-                                                                        {
-                                                                            print OUTPUT5 $id_b." ID_B!!!!\n";
-                                                                        }
+                                                                        my $id_tmp2_end = substr $id_b, -1, 1,"",;                                                                                                                                              
                                                                     
                                                                         if ($second_seed eq "ddd")
                                                                         {
@@ -13879,10 +13933,14 @@ NEXT_SEED:                                      while ($xy > $tt)
                                                                             $tt = -length($read);
                                                                             goto NEXT_SEED;
                                                                         }
+                                                                        if ($y > $startprint2)
+                                                                        {
+                                                                            print OUTPUT5 $id_b." ID_B!!!!\n";
+                                                                        }
                                                                         if (exists($id_bad{$id_b}))
                                                                         {
                                                                             goto SAME_ID;
-                                                                        }  
+                                                                        }                                                                
                                                                         elsif (exists($hash{$id_b}))
                                                                         {
                                                                             my @id_b = split /,/, $hash{$id_b};
@@ -13898,7 +13956,6 @@ NEXT_SEED:                                      while ($xy > $tt)
                                                                             {
                                                                                 $seed = decrypt $seed;
                                                                             }
-
                                                                             my $part2 = substr $seed, -$overlap-10;
                                                                             my $s = '0';
                                                                             my $most_match_total = '0';
@@ -13925,31 +13982,43 @@ NEXT_SEED:                                      while ($xy > $tt)
                                                                                 }
                                                                                 $s++;
                                                                             }
-                                                                            if ($most_match_total > 5)
+                                                                            $seed = correct ($seed);
+                                                                            if ($most_match_total > 2)
                                                                             {
+                                                                                my $middle1 = substr $seed, 20, 35;
+                                                                                my $middle2 = substr $seed, -55, 35;
+                                                                                my $check_read1 = $read =~ s/$middle1/$middle1/;
+                                                                                my $check_read2 = $read =~ s/$middle2/$middle2/;
+                                                                                if ($check_read1 > 0 || $check_read2 > 0)
+                                                                                {
+                                                                                    $xy--;
+                                                                                    $id_bad{$id_b} = undef;
+                                                                                    last NEXT_SEED;
+                                                                                }
                                                                             }
                                                                             else
                                                                             {
-                                                                               $xy--;
-                                                                               goto NEXT_SEED;
+                                                                                $xy--;
+                                                                                $id_bad{$id_b} = undef;
+                                                                                goto NEXT_SEED;
                                                                             }
                                                                         }
                                                                         else
                                                                         {
+                                                                           $id_bad{$id_b} = undef;
                                                                            goto SAME_ID;
                                                                         }
                                                                         if ($y > $startprint2)
                                                                         {
                                                                             print OUTPUT5 $id." SECOND!!!!\n";
                                                                             print OUTPUT5 $seed." SEED!!!!\n";
-                                                                            print OUTPUT5 $id_original." ID_O!!!!\n";
                                                                         }
                                                                         delete $seed{$id_original};
                                                                         delete $seed{$id};
                                                                         delete $seed{$id_split1};
                                                                         delete $seed{$id_split2};
                                                                         delete $seed{$id_split3};
-                                                                        $seed = correct ($seed);
+                                                                        
    
                                                                         $id_bad{$id_b} = undef;
                                                                                                                                               
