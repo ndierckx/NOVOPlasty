@@ -3,7 +3,11 @@
 NOVOPlasty is a de novo assembler for short circular genomes.  
 For the moment NOVOPlasty only supports whole genome Illumina paired-end reads as input.
 
-**Last updates: 03/03/17 version 2.5.2**
+**Last updates: 20/03/17 version 2.5.5**
+- It is now possible to use zipped (only .gz extension) read files as input.
+- An extra option is added to the config file (Max memory). This makes you able to choose a maximum memory usage.
+- This max memory option is very handy if you want to subsample your dataset (leave it blank if no limit).
+**03/03/17** 
 - Removed two bugs that caused mistakes in the merging of the contigs.                                                
 **01/03/17** 
 - Seed retrieval has been updated (works on lower coverage now).
@@ -78,7 +82,7 @@ No further installation is necessary:
 
 <code>perl NOVOPlasty.pl -c config.txt</code>
 
-The input reads have to be uncompressed Illumina reads (fastq/fasta files).  
+The input reads have to be uncompressed Illumina reads (fastq/fasta files) or gz zipped files.  
 Either two separate files(forward and reverse) or a merged fastq/fasta file.  
 Multiple libraries as input is not yet supported.
 
