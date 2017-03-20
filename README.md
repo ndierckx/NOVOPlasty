@@ -6,9 +6,9 @@ For the moment NOVOPlasty only supports whole genome Illumina paired-end reads a
 **Last updates: 20/03/17 version 2.5.5**
 - It is now possible to use zipped (only .gz extension) read files as input.
 - An extra option is added to the config file (Max memory). This makes you able to choose a maximum memory usage.
-- This max memory option is very handy if you want to subsample your dataset (leave it blank if no limit).
+- This max memory option is very handy if you want to subsample your dataset (leave it blank if no limit).                      
 **03/03/17** 
-- Removed two bugs that caused mistakes in the merging of the contigs.                                                
+- Removed two bugs that caused mistakes in the merging of the contigs.                                                                    
 **01/03/17** 
 - Seed retrieval has been updated (works on lower coverage now).
 - A bug is resolved that made seed files of one line terminating the assembly.
@@ -161,6 +161,7 @@ K-mer                = 39
 Insert Range         = 1.6
 Insert Range strict  = 1.2
 Single/Paired        = PE
+Max memory           =
 Coverage Cut off     = 1000
 Extended log         = 0
 Combined reads       = /path/to/reads/AOB_reads.fastq
@@ -189,6 +190,9 @@ Insert Range         = This variation on the insert size, could lower it when th
                        coverage is too low (Default: 1.6). 
 Insert Range strict  = Strict variation to resolve repetitive regions (Default: 1.2). 
 Single/Paired        = For the moment only paired end reads are supported.
+Max memory           = You can choose a max memory usage, suitable to automatically subsample the data or when you have limited                      
+                       memory capacity. If you have sufficient memory, leave it blank, else write your available memory in GB
+                       (if you have for example a 8 GB RAM laptop, put down 7 or 7.5 (don't add the unit in the config file))
 Coverage Cut off     = You can speed up the assembly by lowering the coverage cut off, standard it will use up to 1000 coverage
 Extended log         = Prints out a very extensive log, could be useful to send me when there is a problem  (0/1).
 Combined reads       = The path to the file that contains the combined reads (forward and reverse in 1 file)
