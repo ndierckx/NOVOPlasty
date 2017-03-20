@@ -3158,6 +3158,7 @@ ALREADY_X0b:  while ($v0b < $u0b)
                         {
                             $noforward = "stop";
                             $noforward{$id} = "stop";
+                            $no_next_seed = "yes";
                             $read = substr $read, 0, -$read_length;
                             if ($y > $startprint2)
                             {
