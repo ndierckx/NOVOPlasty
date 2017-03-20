@@ -328,7 +328,7 @@ close CONFIG;
 if ($print_log eq '1' || $print_log eq '2')
 {
     $startprint2 = '0';
-    $startprint = '1000000';
+    $startprint = '1000000000';
 }
 
 my $USAGE = "\nUsage: perl NOVOPlasty.pl -c config_example.txt";
@@ -1648,6 +1648,7 @@ my $count_char = '0';
 my $count_hash_element = '0';
 my $out_of_memory;
 my $memory_max_current;
+my $skipped_reads = '0';
 
 foreach my $reads_tmp (@reads_tmp)
 {
@@ -1741,6 +1742,10 @@ foreach my $reads_tmp (@reads_tmp)
                     $count_hash_element++;
                     $memory_max_current = ((($count_hash_element/4805)*4.5) + ($count_char/1312123))/1000;
                 }
+                elsif ($code_end eq "1" && $out_of_memory eq "yes")
+                {
+                    $skipped_reads++;
+                } 
                 if ($code_end eq "2" )
                 {
                     my $code1 = substr $code2, 0, $type_of_file;
@@ -1802,8 +1807,12 @@ foreach my $reads_tmp (@reads_tmp)
     $file_count++;
     close INPUT;
 }
-print "...OK\n";
+print "...OK\n\n";
 
+my $size2 = keys %hash;
+my $percentage_usedb = $size2*100/($skipped_reads+$size2);
+my $percentage_used = sprintf("%.2f", $percentage_usedb);
+print "Subsampled fraction: ".$percentage_used." %\n";
 
 select(STDERR);
 $| = 1;
@@ -3043,10 +3052,10 @@ ALREADY_X0b:  while ($v0b < $u0b)
                 }
                 elsif (length($read) > $insert_size+100)
                 {
-                    substr $read, 0, $read_length, "";
+                    substr $read, 0, ($read_length+50), "";
                     $seed{$id} = $read;
                     $seeds_check{$id} = undef;
-                    $position_back{$id} = $position_back-$read_length;
+                    $position_back{$id} = $position_back-($read_length+50);
                     $rep_return_back{$id} = $position_back;
                     if ($y > $startprint2)
                     {
@@ -3123,10 +3132,10 @@ ALREADY_X0b:  while ($v0b < $u0b)
                 }
                 elsif (length($read) > $insert_size+100)
                 {
-                    substr $read, -$read_length, $read_length, "";
+                    substr $read, -($read_length+50), ($read_length+50), "";
                     $seed{$id} = $read;
                     $seeds_check{$id} = undef;
-                    $position{$id} = $position-$read_length;
+                    $position{$id} = $position-($read_length+50);
                     $rep_return{$id} = $position;
                     if ($y > $startprint2)
                     {
@@ -5196,8 +5205,6 @@ SKIP3:
                     $m_reverse =~ tr/ACTG/TGAC/;
                     my $mp_reverse = reverse($matchesb[4]);
                     $mp_reverse =~ tr/ACTG/TGAC/;
-                    print OUTPUT5 $matchesb[0].",".$matchesb[1]."\n";
-                    print OUTPUT5 $m_reverse." MATCH_REVERSE\n";
                 }               
             }
             
