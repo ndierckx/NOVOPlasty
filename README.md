@@ -3,7 +3,7 @@
 NOVOPlasty is a de novo assembler for short circular genomes.  
 For the moment NOVOPlasty only supports whole genome Illumina paired-end reads as input.
 
-**Last updates: 20/03/17 version 2.5.5**
+**Last updates: 22/03/17 version 2.5.6**
 - It is now possible to use zipped (only .gz extension) read files as input.
 - An extra option is added to the config file (Max memory). This makes you able to choose a maximum memory usage.
 - This max memory option is very handy if you want to subsample your dataset (leave it blank if no limit).                      
