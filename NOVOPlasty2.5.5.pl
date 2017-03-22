@@ -335,12 +335,12 @@ my $USAGE = "\nUsage: perl NOVOPlasty.pl -c config_example.txt";
 
 print "\n\n-----------------------------------------------";
 print "\nNOVOPlasty: The Organelle Assembler\n";
-print "Version 2.5.5\n";
+print "Version 2.5.6\n";
 print "Author: Nicolas Dierckxsens, (c) 2015-2016\n";
 print "-----------------------------------------------\n\n";
 print OUTPUT4 "\n\n-----------------------------------------------";
 print OUTPUT4 "\nNOVOPlasty: The Organelle Assembler\n";
-print OUTPUT4 "Version 2.5.5\n";
+print OUTPUT4 "Version 2.5.6\n";
 print OUTPUT4 "Author: Nicolas Dierckxsens, (c) 2015-2016\n";
 print OUTPUT4 "-----------------------------------------------\n\n";
 
@@ -1557,7 +1557,7 @@ print "Chloroplast sequence = ".$cp_input."\n\n";
 
 print OUTPUT4 "\n\n-----------------------------------------------";
 print OUTPUT4 "\nNOVOPlasty: The Organelle Assembler\n";
-print OUTPUT4 "Version 2.5.5\n";
+print OUTPUT4 "Version 2.5.6\n";
 print OUTPUT4 "Author: Nicolas Dierckxsens, (c) 2015-2016\n";
 print OUTPUT4 "-----------------------------------------------\n\n";
 
@@ -5330,8 +5330,9 @@ SNR1:               foreach my $extensions (@extensions)
                         if (length($extensions) eq $check_only_SNR)
                         {
                             $G2++;
+                            next SNR1;
                         }
-                        $G++;
+                        $G++;            
                         if ($second_round eq "")
                         {
                             $no_SNR1 = "yes";
@@ -5365,7 +5366,7 @@ SNR1:               foreach my $extensions (@extensions)
                             $first = $SNR_length_count;
                         }
                     }
-                    my @SNR_length = split/,/, $SNR_length_reads;
+                    my @SNR_length = split /,/, $SNR_length_reads;
                     my $repetitive_test = substr $read_short_end2, -10, 10;
                     my $SNR_checkSNR = $repetitive_test =~ s/$SNR_nucleo/$SNR_nucleo/g;
                     
@@ -5381,9 +5382,9 @@ SNR1:               foreach my $extensions (@extensions)
                     }
                     if ($y > $startprint2)
                     {
-                        print OUTPUT5 $first." 1 ".$SNR_length_count2." 2 ".$G." G\n";
+                        print OUTPUT5 $first." 1 ".$most_SNR." 2 ".$G." G\n";
                     }
-                    if ($first < 0.8*$G && $second_round eq "" && $first > 0.35*$G && $SNR_length_count2 > 0.35*($G-$G2))
+                    if ($first < 0.8*$G && $second_round eq "" && $first > 0.35*$G && $SNR_length_count2 > 0.35*$G)
                     {                
                         $no_SNR = "yes";
                         if ($y > $startprint2)
@@ -5405,6 +5406,25 @@ SNR1:               foreach my $extensions (@extensions)
                         undef %SNR_count;
                         undef %SNR_length;
                         goto SNR1;
+                    }
+                    elsif ($first <= 0.35*$G && $second_round eq "jf")
+                    {
+                        if ($y > $startprint2)
+                        {
+                            print OUTPUT5 "SNR_NEXT_SEED1\n";
+                        }
+                        $SNR_next_seed = "yes";
+                        $noforward{$id} = "stop";
+                        delete $seed{$id_split2};
+                        delete $seed{$id};
+                        delete $seed{$id_split1};
+                        delete $seed{$id_split3};
+                        $noforward = "stop";
+                        if ($y > $startprint2)
+                        {
+                            print OUTPUT5 "SNR_NEXT_SEED\n";
+                        }
+                        goto BACK;
                     }
                     else
                     {
@@ -9018,6 +9038,16 @@ REP_CHECK0:                         foreach my $exts (keys %extensions_original)
                     if ($SNR_read eq "yes" && length($best_extension1) < 7 && length($best_extension2) < 7)
                     {
                         $SNR_next_seed = "yes";
+                        $noforward{$id} = "stop";
+                        delete $seed{$id_split2};
+                        delete $seed{$id};
+                        delete $seed{$id_split1};
+                        delete $seed{$id_split3};
+                        $noforward = "stop";
+                        if ($y > $startprint2)
+                        {
+                            print OUTPUT5 "SNR_NEXT_SEED\n";
+                        }
                         goto BACK;
                     }
                     if ($y > $startprint2)
@@ -13808,7 +13838,7 @@ FINISH:
                                                     print OUTPUT5 "FINISH1\n";
                                                 }
                                             } 
-                                            elsif ($merge ne "yes" && $circle eq "" && ($noback ne "stop" || ($noforward ne "stop" && $delete_first ne "yes2")) && $AT_rich ne "yes" && $bad_read ne "yes" && $SNR_next_seed ne "yes")
+                                            elsif ($merge ne "yes" && $circle eq "" && (($noback ne "stop" || ($noforward ne "stop" && $delete_first ne "yes2"))) && ($AT_rich ne "yes" || $noback ne "stop") && $bad_read ne "yes")
                                             {
                                                 delete $seed{$id};                                         
                                                 $seed{$id} = $read_new;
@@ -13830,7 +13860,7 @@ FINISH:
                                             }
 
                                             
-                                            elsif ($no_next_seed ne "yes" && ($SNR_next_seed eq "yes" || ($nosecond eq "" && $CP_check ne "yes" && length($read) > $read_length+150 && $circle eq "" && (($last_chance eq "yes" || $noforward eq "stop") && ($last_chance_back eq "yes" || $noback eq "stop")) || ($AT_rich eq "yes" && $count_seed ne "0") || ($bad_read eq "yes" && $count_seed ne "0"))))
+                                            elsif ($no_next_seed ne "yes" && (($SNR_next_seed eq "yes" && ($last_chance_back eq "yes" || $noback eq "stop")) || ($nosecond eq "" && $CP_check ne "yes" && length($read) > $read_length+150 && $circle eq "" && (($last_chance eq "yes" || $noforward eq "stop") && ($last_chance_back eq "yes" || $noback eq "stop")) || ($AT_rich eq "yes" && $count_seed ne "0") || ($bad_read eq "yes" && $count_seed ne "0"))))
                                             {
                                                 if ($id_original eq "")
                                                 {
@@ -14028,7 +14058,7 @@ NEXT_SEED:                                      while ($xy > $tt)
                                                                             {
                                                                                 $seed = decrypt $seed;
                                                                             }
-                                                                            my $part2 = substr $seed, -$overlap-10;
+                                                                            my $part2 = substr $seed, -$overlap-15;
                                                                             my $s = '0';
                                                                             my $most_match_total = '0';
                                                                             while ($s < length($part2)-$overlap)
@@ -14053,19 +14083,35 @@ NEXT_SEED:                                      while ($xy > $tt)
                                                                                     $most_match_total++;
                                                                                 }
                                                                                 $s++;
-                                                                            }
-                                                                            $seed = correct ($seed);
+                                                                            }                                                                          
                                                                             if ($most_match_total > 2)
                                                                             {
-                                                                                my $middle1 = substr $seed, 20, 35;
-                                                                                my $middle2 = substr $seed, -55, 35;
-                                                                                my $check_read1 = $read =~ s/$middle1/$middle1/;
-                                                                                my $check_read2 = $read =~ s/$middle2/$middle2/;
-                                                                                if ($check_read1 > 0 || $check_read2 > 0)
+                                                                                $seed = correct ($seed);
+                                                                                my $f = '0';
+                                                                                my $read_part = substr $read, -$insert_size*1.6;
+                                                                                while ($f < length($seed)-30)
+                                                                                {
+                                                                                    my $middle1 = substr $seed, $f, 30;
+                                                                                    my $check_read1 = $read_part =~ s/$middle1/$middle1/;
+                                                                                    if ($check_read1 > 0)
+                                                                                    {
+                                                                                        $xy--;
+                                                                                        $id_bad{$id_b} = undef;
+                                                                                        last NEXT_SEED;
+                                                                                    }
+                                                                                    $f += 10;
+                                                                                }
+                                                                                my $seed_test = substr $seed, -$overlap-30;
+                                                                                my $A_rich_test3 = $seed_test =~ tr/A/A/;
+                                                                                my $T_rich_test3 = $seed_test =~ tr/T/T/;
+                                                                                my $G_rich_test3 = $seed_test =~ tr/G/G/;
+                                                                                my $C_rich_test3 = $seed_test =~ tr/C/C/;
+                                                                                my $dot_rich_test3 = $seed_test =~ tr/\./\./;
+                                                                                if ($A_rich_test3+$dot_rich_test3 > length($seed_test)-5 || $T_rich_test3+$dot_rich_test3 > length($seed_test)-5 || $G_rich_test3+$dot_rich_test3 > length($seed_test)-5 || $C_rich_test3+$dot_rich_test3 > length($seed_test)-5)
                                                                                 {
                                                                                     $xy--;
                                                                                     $id_bad{$id_b} = undef;
-                                                                                    last NEXT_SEED;
+                                                                                    goto NEXT_SEED;
                                                                                 }
                                                                             }
                                                                             else
