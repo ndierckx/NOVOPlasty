@@ -6,7 +6,7 @@ For the moment NOVOPlasty only supports whole genome Illumina paired-end reads a
 **Last updates: 21/04/17 version 2.5.7**
 - It is now possible to use bz2 zipped read files as input.
 - Long repeats (> 400 bp) won't make the assembly get stuck in a loop anymore
-- Several read id's were added to the library.
+- Several read id's were added to the library.                                          
 **22/03/17** 
 - It is now possible to use zipped (only .gz extension) read files as input.
 - An extra option is added to the config file (Max memory). This makes you able to choose a maximum memory usage.
