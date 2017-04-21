@@ -284,7 +284,7 @@ while (my $line = <CONFIG>)
     if ($ln eq '10')
     {
         $max_memory = substr $line, 23;
-        chomp $max_memory;
+        chomp $max_memory;    
     }
     if ($ln eq '11')
     {
@@ -335,12 +335,12 @@ my $USAGE = "\nUsage: perl NOVOPlasty.pl -c config_example.txt";
 
 print "\n\n-----------------------------------------------";
 print "\nNOVOPlasty: The Organelle Assembler\n";
-print "Version 2.5.6\n";
+print "Version 2.5.7\n";
 print "Author: Nicolas Dierckxsens, (c) 2015-2016\n";
 print "-----------------------------------------------\n\n";
 print OUTPUT4 "\n\n-----------------------------------------------";
 print OUTPUT4 "\nNOVOPlasty: The Organelle Assembler\n";
-print OUTPUT4 "Version 2.5.6\n";
+print OUTPUT4 "Version 2.5.7\n";
 print OUTPUT4 "Author: Nicolas Dierckxsens, (c) 2015-2016\n";
 print OUTPUT4 "-----------------------------------------------\n\n";
 
@@ -1438,6 +1438,7 @@ my $output_file6  = "contigs_tmp_".$project.".txt";
 my $output_file7  = "Merged_contigs_".$project.".txt";
 
 my $check_zip = substr $reads_tmp[0], -2;
+my $check_zip2 = substr $reads_tmp[0], -3;
 my $firstLine;
 my $secondLine;
 my $thirdLine;
@@ -1450,6 +1451,18 @@ if ($check_zip eq "gz")
     $secondLine = <$FILE>;
     chomp $secondLine;
     $thirdLine = <$FILE>;
+    chomp $thirdLine;
+    close $FILE;
+}
+elsif ($check_zip2 eq "bz2")
+{
+    open (my $FILE, '-|', 'bzip2', '-dc', $reads_tmp[0]) or die "Can't open file $reads_tmp[0], $!\n";
+    $firstLine = <$FILE>;
+    chomp $firstLine;
+    $secondLine = <$FILE>;
+    chomp $secondLine;
+    $thirdLine = <$FILE>;
+    chomp $thirdLine;
     close $FILE;
 }
 else
@@ -1460,11 +1473,11 @@ else
     $secondLine = <INPUT>;
     chomp $secondLine;
     $thirdLine = <INPUT>;
+    chomp $thirdLine;
     close INPUT;
 }
 
-open(INPUT, $reads_tmp[0]) or die "\nNo input file found, make sure it are fastq files $!\n";
-open(INPUT3, $seed_input0)  or die "\nCan't open the seed file, $!\n";
+open(INPUT3, $seed_input0) or die "\nCan't open the seed file, $!\n";
 open(OUTPUT4, ">" .$output_file4) or die "\nCan't open file $output_file4, $!\n";
 open(OUTPUT6, ">" .$output_file6) or die "\nCan't open file $output_file6, $!\n";
 
@@ -1493,6 +1506,10 @@ my $no_quality_score = substr $thirdLine, 0, 1;
 my $type_of_file;
 my $code_before_end = substr $firstLine, -2,1;
 if ($code_before_end eq "/" && $firstLine_reverse ne $firstLine)
+{
+    $type_of_file = '-1';
+}
+elsif ($code_before_end eq "R" && $firstLine_reverse ne $firstLine)
 {
     $type_of_file = '-1';
 }
@@ -1557,7 +1574,7 @@ print "Chloroplast sequence = ".$cp_input."\n\n";
 
 print OUTPUT4 "\n\n-----------------------------------------------";
 print OUTPUT4 "\nNOVOPlasty: The Organelle Assembler\n";
-print OUTPUT4 "Version 2.5.6\n";
+print OUTPUT4 "Version 2.5.7\n";
 print OUTPUT4 "Author: Nicolas Dierckxsens, (c) 2015-2016\n";
 print OUTPUT4 "-----------------------------------------------\n\n";
 
@@ -1656,6 +1673,10 @@ foreach my $reads_tmp (@reads_tmp)
     if ($check_zip eq "gz")
     {
         open ($FILE, '-|', 'gzip', '-dc', $reads_tmp) or die "Can't open file $reads_tmp, $!\n";
+    }
+    elsif ($check_zip2 eq "bz2")
+    {
+        open ($FILE, '-|', 'bzip2', '-dc', $reads_tmp) or die "Can't open file $reads_tmp, $!\n";
     }
     else
     {
@@ -1805,7 +1826,7 @@ foreach my $reads_tmp (@reads_tmp)
         } 
     }
     $file_count++;
-    close INPUT;
+    close $FILE;
 }
 print "...OK\n\n";
 
@@ -3007,7 +3028,9 @@ ALREADY_X0b:  while ($v0b < $u0b)
         if ($noback ne "stop")
         {
             my $start_repetitive = substr $read, $overlap, $insert_size+100;
+            my $start_repetitiveb = substr $read, 200, 5000;
             my $repetitive_test = substr $read_short_start2, 0, 15;
+            my $repetitive_testb = substr $read_short_start2, 0, 200;
             my $SNR_skip = "yes";                                        
             my $u = '0';
             while ($SNR_skip eq "yes")
@@ -3029,7 +3052,10 @@ ALREADY_X0b:  while ($v0b < $u0b)
                 }
             }
             $repetitive_test =~ tr/\*//d;
+            $repetitive_testb =~ tr/\*//d;
+            $start_repetitiveb =~ tr/\*//d;
             my $check_repetitive = $start_repetitive =~ s/$repetitive_test/$repetitive_test/g;
+            my $check_repetitiveb = $start_repetitiveb =~ s/$repetitive_testb/$repetitive_testb/g;
             
             if (exists ($rep_return_back{$id}))
             {
@@ -3044,11 +3070,10 @@ ALREADY_X0b:  while ($v0b < $u0b)
                     print OUTPUT5 $start_repetitive." START_READ\n";
                 }
             }
-            if ($check_repetitive > 0)
+            if ($check_repetitive > 0 || $check_repetitiveb > 0)
             {
                 if (exists ($rep_return_back{$id}))
-                {
-                    
+                {               
                 }
                 elsif (length($read) > $insert_size+100)
                 {
@@ -3069,16 +3094,32 @@ ALREADY_X0b:  while ($v0b < $u0b)
                     print OUTPUT5 "DETECT_REPETITIVE_back\n";
                     print OUTPUT5 $start_repetitive." START_READ\n";
                 }
-                if ($check_repetitive > 1)
+                if ($check_repetitive > 1 || $check_repetitiveb > 1)
                 {
                     my $start_repetitive1 = substr $read, $insert_size+50, 300;
                     my $check_repetitive1= $start_repetitive1 =~ s/$repetitive_test/$repetitive_test/g;
-                    if ($check_repetitive > 1)
+                    
+                    if ($check_repetitive1 > 1 || $check_repetitiveb > 1)
                     {
                         $repetitive_detect_back2 = "yes";
                         if ($y > $startprint2)
                         {
                             print OUTPUT5 "DETECT_REPETITIVE_back2\n";
+                        }
+                        my $repetitive_test_stop = substr $read_short_start2, 0, 30;
+                        my $start_repetitive_stop = substr $read, 0, $insert_size+550;
+                        my $start_repetitive_stopb = substr $read, 200, 8000;
+                        my $check_repetitive_stop = $start_repetitive_stop =~ s/$repetitive_test_stop/$repetitive_test_stop/g;
+                        my $check_repetitive_stopb = $start_repetitive_stopb =~ s/$repetitive_testb/$repetitive_testb/g;
+                        if ($check_repetitive_stop > 3 || $check_repetitive_stopb > 2)
+                        {
+                            $noback = "stop";
+                            $noback{$id} = "stop";
+                            $read = substr $read, $read_length;
+                            if ($y > $startprint2)
+                            {
+                                print OUTPUT5 "STUCK_IN_REP_BACK\n";
+                            }
                         }
                     }
                 }
@@ -3087,7 +3128,9 @@ ALREADY_X0b:  while ($v0b < $u0b)
         if ($noforward ne "stop")
         {
             my $end_repetitive = substr $read, -$insert_size-100,-$overlap;
+            my $end_repetitiveb = substr $read, -5000,-200;
             my $repetitive_test2 = substr $read_short_end2, -15;
+            my $repetitive_test2b = substr $read_short_end2, -200;
             my $SNR_skip = "yes";                                        
             my $u = '15';
             while ($SNR_skip eq "yes")
@@ -3109,7 +3152,11 @@ ALREADY_X0b:  while ($v0b < $u0b)
                 }
             }
             $repetitive_test2 =~ tr/\*//d;
+            $repetitive_test2b =~ tr/\*//d;
+            $end_repetitiveb =~ tr/\*//d;
+            
             my $check_repetitive2 = $end_repetitive =~ s/$repetitive_test2/$repetitive_test2/g;
+            my $check_repetitive2b = $end_repetitiveb =~ s/$repetitive_test2b/$repetitive_test2b/g;
 
             if (exists ($rep_return{$id}))
             {
@@ -3124,7 +3171,7 @@ ALREADY_X0b:  while ($v0b < $u0b)
                     delete $rep_return{$id};
                 }
             }
-            if ($check_repetitive2 > 0)
+            if ($check_repetitive2 > 0 || $check_repetitive2b > 0)
             {
                 if (exists ($rep_return{$id}))
                 {
@@ -3149,11 +3196,12 @@ ALREADY_X0b:  while ($v0b < $u0b)
                     print OUTPUT5 "DETECT_REPETITIVE\n";
                     print OUTPUT5 $end_repetitive." END_READ\n";
                 }
-                if ($check_repetitive2 > 1)
+                if ($check_repetitive2 > 1 || $check_repetitive2b > 1)
                 {
                     my $end_repetitive1 = substr $read, -$insert_size-350, 300;
                     my $check_repetitive21 = $end_repetitive1 =~ s/$repetitive_test2/$repetitive_test2/g;
-                    if ($check_repetitive21 > 1)
+                    
+                    if ($check_repetitive21 > 1 || $check_repetitive2b > 1)
                     {
                         $repetitive_detect2 = "yes";
                         if ($y > $startprint2)
@@ -3162,8 +3210,10 @@ ALREADY_X0b:  while ($v0b < $u0b)
                         }
                         my $repetitive_test_stop = substr $read_short_end2, -30;
                         my $end_repetitive_stop = substr $read, -$insert_size-550;
+                        my $end_repetitive_stopb = substr $read, -8000,-200;
                         my $check_repetitive_stop = $end_repetitive_stop =~ s/$repetitive_test_stop/$repetitive_test_stop/g;
-                        if ($check_repetitive_stop > 3)
+                        my $check_repetitive_stopb = $end_repetitive_stopb =~ s/$repetitive_test2b/$repetitive_test2b/g;
+                        if ($check_repetitive_stop > 3 || $check_repetitive_stopb > 2)
                         {
                             $noforward = "stop";
                             $noforward{$id} = "stop";
@@ -6394,7 +6444,7 @@ NUCLEO:     while ($l < $read_length - ($overlap+$left-1) + $extra_l)
                         my $contigs_end0 = substr $read_end, -15;
                         my $repetitive_test = $contigs_end0.$contigs_end1;
                         my $end_repetitive = $read_short_end2;
-                        my $check_repetitive = $end_repetitive =~ s/$repetitive_test/$repetitive_test/g;
+                        my $check_repetitive = $end_repetitive =~ s/.$repetitive_test/$repetitive_test/g;
                         if ($check_repetitive > 1)
                         {
                             $delete_first = "yes";
@@ -6502,7 +6552,7 @@ NUCLEO:     while ($l < $read_length - ($overlap+$left-1) + $extra_l)
                         my $contigs_end0 = substr $read_end, -15;
                         my $repetitive_test = $contigs_end0.$contigs_end1;
                         my $end_repetitive = $read_short_end2;
-                        my $check_repetitive = $end_repetitive =~ s/$repetitive_test/$repetitive_test/g;
+                        my $check_repetitive = $end_repetitive =~ s/.$repetitive_test/$repetitive_test/g;
                         if ($check_repetitive > 1)
                         {
                             if ($y > $startprint2)
@@ -7278,7 +7328,7 @@ BEFORE_EXTRA:
                         {
                             $yuyu2 =~ tr/N/\./;
                             my $yuyu2_tmp = $yuyu2;
-                            my $check_yuyuy2 = $yuyu2_tmp =~ s/$end_short_tmp_part/$end_short_tmp_part/;
+                            my $check_yuyuy2 = $yuyu2_tmp =~ s/.$end_short_tmp_part/$end_short_tmp_part/;
 
                             if ($check_yuyuy2 > 0)
                             {
@@ -7324,7 +7374,7 @@ BEFORE_EXTRA:
                         {
                             $yuyu1 =~ tr/N/\./;
                             my $yuyu1_tmp = $yuyu1;
-                            my $check_yuyuy = $yuyu1_tmp =~ s/$end_short_tmp_part/$end_short_tmp_part/;
+                            my $check_yuyuy = $yuyu1_tmp =~ s/.$end_short_tmp_part/$end_short_tmp_part/;
                             
                             if ($check_yuyuy > 0)
                             {
@@ -7370,7 +7420,7 @@ BEFORE_EXTRA:
                         {
                             $yuyu3 =~ tr/N/\./;
                             my $yuyu3_tmp = $yuyu3;
-                            my $check_yuyuy = $yuyu3_tmp =~ s/$end_short_tmp_part/$end_short_tmp_part/;
+                            my $check_yuyuy = $yuyu3_tmp =~ s/.$end_short_tmp_part/$end_short_tmp_part/;
                             
                             if ($check_yuyuy > 0)
                             {
@@ -7416,7 +7466,7 @@ BEFORE_EXTRA:
                         {
                             $yuyu4 =~ tr/N/\./;
                             my $yuyu4_tmp = $yuyu4;
-                            my $check_yuyuy = $yuyu4_tmp =~ s/$end_short_tmp_part/$end_short_tmp_part/;
+                            my $check_yuyuy = $yuyu4_tmp =~ s/.$end_short_tmp_part/$end_short_tmp_part/;
                             
                             if ($check_yuyuy > 0)
                             {
@@ -7532,7 +7582,7 @@ print OUTPUT5 $count_all." COUNT_ALL\n";
                                         my $check_star2_part_tmp1 = $check_star2_part;
                                         $check_star2_part_tmp1 =~ tr/\*//d;
                                         my $dot_before2_tmp = $dot_before2;
-                                        my $check_star1 = $dot_before2_tmp =~ s/$check_star2_part_tmp1/$check_star2_part_tmp1/;
+                                        my $check_star1 = $dot_before2_tmp =~ s/.$check_star2_part_tmp1/$check_star2_part_tmp1/;
                                         if ($check_star1 > 0)
                                         {
                                             $dot = substr $dot_before2, $length_total-$check_star2, 1;
