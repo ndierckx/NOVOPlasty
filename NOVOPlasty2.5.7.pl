@@ -39,6 +39,7 @@ my $type;
 my $encrypt = "no";
 my $paired;
 my $print_log;
+my $save_reads;
 my $bad_read;
 my %contigs_id;
 my %contigs_end;
@@ -298,25 +299,30 @@ while (my $line = <CONFIG>)
     }
     if ($ln eq '13')
     {
+        $save_reads = substr $line, 23;
+        chomp $save_reads;
+    }
+    if ($ln eq '14')
+    {
         $reads12 = substr $line, 23;
         chomp $reads12;
     }
-    if ($ln eq '14')
+    if ($ln eq '15')
     {
         $reads1 = substr $line, 23;
         chomp $reads1;
     }
-    if ($ln eq '15')
+    if ($ln eq '16')
     {
         $reads2 = substr $line, 23;
         chomp $reads2;
     }
-    if ($ln eq '16')
+    if ($ln eq '17')
     {
         $seed_input0 = substr $line, 23;
         chomp $seed_input0;
     }
-    if ($ln eq '17')
+    if ($ln eq '18')
     {
         $cp_input = substr $line, 23;
         chomp $seed_input0;
@@ -335,12 +341,12 @@ my $USAGE = "\nUsage: perl NOVOPlasty.pl -c config_example.txt";
 
 print "\n\n-----------------------------------------------";
 print "\nNOVOPlasty: The Organelle Assembler\n";
-print "Version 2.5.7\n";
+print "Version 2.5.8\n";
 print "Author: Nicolas Dierckxsens, (c) 2015-2016\n";
 print "-----------------------------------------------\n\n";
 print OUTPUT4 "\n\n-----------------------------------------------";
 print OUTPUT4 "\nNOVOPlasty: The Organelle Assembler\n";
-print OUTPUT4 "Version 2.5.7\n";
+print OUTPUT4 "Version 2.5.8\n";
 print OUTPUT4 "Author: Nicolas Dierckxsens, (c) 2015-2016\n";
 print OUTPUT4 "-----------------------------------------------\n\n";
 
@@ -1436,12 +1442,16 @@ my $output_file4  = "log_".$project.".txt";
 my $output_file5  = "log_extended_".$project.".txt";
 my $output_file6  = "contigs_tmp_".$project.".txt";
 my $output_file7  = "Merged_contigs_".$project.".txt";
+my $output_file10 = "Assembled_reads_".$project."_R1.fasta";
+my $output_file11 = "Assembled_reads_".$project."_R2.fasta";
 
 my $check_zip = substr $reads_tmp[0], -2;
 my $check_zip2 = substr $reads_tmp[0], -3;
 my $firstLine;
 my $secondLine;
 my $thirdLine;
+my $fourthLine;
+my $fifthLine;
 
 if ($check_zip eq "gz")
 {
@@ -1452,6 +1462,10 @@ if ($check_zip eq "gz")
     chomp $secondLine;
     $thirdLine = <$FILE>;
     chomp $thirdLine;
+    $fourthLine = <$FILE>;
+    chomp $fourthLine;
+    $fifthLine = <$FILE>;
+    chomp $fifthLine;
     close $FILE;
 }
 elsif ($check_zip2 eq "bz2")
@@ -1463,6 +1477,10 @@ elsif ($check_zip2 eq "bz2")
     chomp $secondLine;
     $thirdLine = <$FILE>;
     chomp $thirdLine;
+    $fourthLine = <$FILE>;
+    chomp $fourthLine;
+    $fifthLine = <$FILE>;
+    chomp $fifthLine;
     close $FILE;
 }
 else
@@ -1474,6 +1492,10 @@ else
     chomp $secondLine;
     $thirdLine = <INPUT>;
     chomp $thirdLine;
+    $fourthLine = <INPUT>;
+    chomp $fourthLine;
+    $fifthLine = <INPUT>;
+    chomp $fifthLine;
     close INPUT;
 }
 
@@ -1485,8 +1507,12 @@ if ($print_log eq '1' || $print_log eq '2')
 {
     open(OUTPUT5, ">" .$output_file5) or die "\nCan't open file $output_file5, $!\n";
 }
-
 open(OUTPUT7, ">" .$output_file7) or die "\nCan't open file $output_file7, $!\n";
+if ($save_reads eq "yes")
+{
+    open(OUTPUT10, ">" .$output_file10) or die "Can't open saved reads1 file $output_file10, $!\n";
+    open(OUTPUT11, ">" .$output_file11) or die "Can't open saved reads2 file $output_file11, $!\n";
+}
 
 select(STDERR);
 $| = 1;
@@ -1517,7 +1543,7 @@ elsif($firstLine =~ m/.*(_|\s)(1)(:N.*\d+\s*\t*)$/ && $firstLine_reverse ne $fir
 {
     $type_of_file = "yes";
 }
-elsif($firstLine =~ m/.*\s(1)(.*)$/ && $firstLine_reverse ne $firstLine)
+elsif($firstLine =~ m/.*\s(1)(\S*)$/ && $firstLine_reverse ne $firstLine)
 {
     $type_of_file = -length($2)-1;
 }
@@ -1529,13 +1555,19 @@ elsif($firstLine =~ m/.*\.(1)(\s(\d+)\s.*)$/ && $firstLine_reverse ne $firstLine
 {
     $type_of_file = -length($2)-1;
 }
-elsif($firstLine =~ m/.*\.(1)(\s(.+)\s.+)$/ && $firstLine_reverse ne $firstLine)
+elsif($fifthLine =~ m/.*\.(1)(\s(.+)\s.+)$/ && $firstLine_reverse ne $firstLine)
 {
     $type_of_file = -length($2)-1;
 }
 elsif($firstLine_reverse eq $firstLine)
 {
     $type_of_file = "identical";
+}
+elsif($reads12 ne "")
+{
+    print "\n\nCOMBINED FILE NOT SUPPORTED, PLEASE TRY SEPERATE FILES FOR THE FORWARD AND REVERSE READS!\n\n";
+    print OUTPUT4 "\n\nCOMBINED FILE NOT SUPPORTED, PLEASE TRY SEPERATE FILES FOR THE FORWARD AND REVERSE READS!\n\n";
+    exit;
 }
 else
 {
@@ -1566,6 +1598,7 @@ print "Paired/Single        = ".$paired."\n";
 print "Max memory           = ".$max_memory."\n";
 print "Coverage Cut off     = ".$coverage_cut_off."\n";
 print "Extended log         = ".$print_log."\n";
+print "Save assembled reads = ".$save_reads."\n";
 print "Combined reads       = ".$reads12."\n";
 print "Forward reads        = ".$reads1."\n";
 print "Reverse reads        = ".$reads2."\n";
@@ -1574,7 +1607,7 @@ print "Chloroplast sequence = ".$cp_input."\n\n";
 
 print OUTPUT4 "\n\n-----------------------------------------------";
 print OUTPUT4 "\nNOVOPlasty: The Organelle Assembler\n";
-print OUTPUT4 "Version 2.5.7\n";
+print OUTPUT4 "Version 2.5.8\n";
 print OUTPUT4 "Author: Nicolas Dierckxsens, (c) 2015-2016\n";
 print OUTPUT4 "-----------------------------------------------\n\n";
 
@@ -1592,6 +1625,7 @@ print OUTPUT4 "Paired/Single        = ".$paired."\n";
 print OUTPUT4 "Max memory           = ".$max_memory."\n";
 print OUTPUT4 "Coverage Cut off     = ".$coverage_cut_off."\n";
 print OUTPUT4 "Extended log         = ".$print_log."\n";
+print OUTPUT4 "Save assembled reads = ".$save_reads."\n";
 print OUTPUT4 "Combined reads       = ".$reads12."\n";
 print OUTPUT4 "Forward reads        = ".$reads1."\n";
 print OUTPUT4 "Reverse reads        = ".$reads2."\n";
@@ -1686,7 +1720,7 @@ foreach my $reads_tmp (@reads_tmp)
     my $N = '0';
     my $f = "";
     my $code = "";
-    my $code_new = '0';
+    my $code_new = '1';
     my $value = "";
     
     while (my $line = <$FILE>)
@@ -3350,7 +3384,12 @@ MERGE:
             }
             elsif ((($noback eq "stop" || $position_back >= ($insert_size*3)) && $position > $insert_size+200) || $merge_now ne "")
             {
-                $tree{$old_id{$id}} = $id."REP";
+                my $id_tmp = $id;
+                if ($id =~ m/.*_(\d+)$/)
+                {
+                    $id_tmp = $1;
+                }
+                $tree{$old_id{$id}} = $id_tmp."REP";
                 $noback{$id} = "stop";
                 $noback = "stop";
                 $merge_extra = $position;
@@ -3552,6 +3591,8 @@ MERGE:
                 $hasL = "yes";
                 foreach my $tree_tmp (keys %tree)
                 {
+                    print OUTPUT5 $tree_tmp." TREE_TMP\n";
+                    print OUTPUT5 $tree{$tree_tmp}." TREE_TMP2\n";
                     my $old = $old_id{$id};
                     my $tree2 = $tree{$tree_tmp};
                     my $tree3 = $tree{$tree_tmp};
@@ -3567,10 +3608,12 @@ MERGE:
                     my @ids_split = split /\*/, $tree2;
                     foreach my $id_split (@ids_split)
                     {
-                        if ($id_split  =~ m/^$old(REP)*$/)
+                        print OUTPUT5 $id_split." ID_SPLIT\n";
+                        if ($id_split  =~ m/^.*$old(REP)*$/)
                         {
+                            print OUTPUT5 $tree2." ID_SPLIT2\n";
                             if ($tree2 =~ m/^(.*\*)*$old(REP)*(\*.*)*$/)
-                            {
+                            {                    
                                 if (defined($1))
                                 {
                                     $tree3 = $1.$id_tmp;
@@ -3587,6 +3630,7 @@ MERGE:
                                 {
                                     $tree3 = $tree3.$3;
                                 }
+                                print OUTPUT5 $tree3." TREE3\n";
                             }
                         }
                     }
@@ -4825,6 +4869,18 @@ LAST1:                  my $id_match_end = substr $id_match, -1, 1;
                                 }
                                 $extensions2{$extension} = $id_match;
                                 push @extensions2, $extension;
+                                if ($save_reads eq "yes")
+                                {                                  
+                                    my $add_read = substr $id_match, 0, -1;
+                                    print OUTPUT10 ">".$add_read."\/1\n";
+                                    print OUTPUT11 ">".$add_read."\/2\n";
+                                    if (exists($hash{$add_read}))
+                                    {
+                                        my @add_read = split /,/,$hash{$add_read};
+                                        print OUTPUT10 $add_read[0]."\n";
+                                        print OUTPUT11 $add_read[1]."\n";
+                                    }
+                                }
                             }
                         }
                         next NO_MATCH;
@@ -5199,6 +5255,18 @@ SKIP3:
                                     $extensions1{$extension} = $id_match;
                                     $extensions1b{$id_match} = $extension;
                                     push @extensions1, $extension;
+                                    if ($save_reads eq "yes")
+                                    {                                  
+                                        my $add_read = substr $id_match, 0, -1;
+                                        print OUTPUT10 ">".$add_read."\/1\n";
+                                        print OUTPUT11 ">".$add_read."\/2\n";
+                                        if (exists($hash{$add_read}))
+                                        {
+                                            my @add_read = split /,/,$hash{$add_read};
+                                            print OUTPUT10 $add_read[0]."\n";
+                                            print OUTPUT11 $add_read[1]."\n";
+                                        }
+                                    }
                                 }                                                            
                             }                                                                                           
                     }                                  
@@ -6116,7 +6184,12 @@ NUCLEO:     while ($l < $read_length - ($overlap+$left-1) + $extra_l)
     
                     if (exists($contigs_end{$contigs_end0.$contigs_end2}))
                     {
-                        $tree{$id} = $contigs_end{$contigs_end0.$contigs_end2};
+                        my $id_tmp = $id;
+                        if ($id =~ m/.*_(\d+)$/)
+                        {
+                            $id_tmp = $1;
+                        }
+                        $tree{$id_tmp} = $contigs_end{$contigs_end0.$contigs_end2};
                         if ($y > $startprint2)
                         {
                             print OUTPUT5 "\nDELETE BEST EXTENSION 2 (CONTIG_END)\n\n";
@@ -8286,7 +8359,7 @@ FILTER_4:                       foreach my $line (keys %hash_read_short_end)
                                 }
                             }
                             
-                            if ((($count1b > 2 && ($count2b+$count3b+$count4b) eq '0') || $differenceb1 eq "yes"))
+                            if ((($count1b > 2 && ($count2b+$count3b+$count4b) eq '0') || ($differenceb1 eq "yes" && $differenceb2 eq "" && $differenceb3 eq "" && $differenceb4 eq "")))
                             {
                                 if (@extensions_before > 3000000)
                                 {
@@ -8307,7 +8380,7 @@ FILTER_4:                       foreach my $line (keys %hash_read_short_end)
                                 delete $before_shorter_skip{$id};
                                 goto AFTER_EXT;
                             }
-                            elsif ((($count2b > 2 && ($count1b+$count3b+$count4b) eq '0') || $differenceb2 eq "yes"))
+                            elsif ((($count2b > 2 && ($count1b+$count3b+$count4b) eq '0') || ($differenceb2 eq "yes" && $differenceb1 eq "" && $differenceb3 eq "" && $differenceb4 eq "")))
                             {
                                 if (@extensions_before > 3000000)
                                 {
@@ -8339,7 +8412,7 @@ FILTER_4:                       foreach my $line (keys %hash_read_short_end)
                                     goto BACK;
                                 }
                             }
-                            elsif ((($count3b > 2 && ($count1b+$count2b+$count4b) eq '0') || $differenceb3 eq "yes"))
+                            elsif ((($count3b > 2 && ($count1b+$count2b+$count4b) eq '0') || ($differenceb3 eq "yes" && $differenceb2 eq "" && $differenceb1 eq "" && $differenceb4 eq "")))
                             {
                                 if (@extensions_before > 300000)
                                 {
@@ -8371,7 +8444,7 @@ FILTER_4:                       foreach my $line (keys %hash_read_short_end)
                                     goto BACK;
                                 }
                             }
-                            elsif ((($count4b > 2 && ($count1b+$count2b+$count3b) eq '0') || $differenceb4 eq "yes"))
+                            elsif ((($count4b > 2 && ($count1b+$count2b+$count3b) eq '0') || ($differenceb4 eq "yes" && $differenceb2 eq "" && $differenceb3 eq "" && $differenceb1 eq "")))
                             {
                                 if (@extensions_before > 300000)
                                 {
@@ -9125,7 +9198,12 @@ CORRECT:            my $contig_id2_tmp = substr $contig_id2, 0,-1;
                     
                     if (exists($contigs_id{$contig_id2}) || exists($contigs_end{$contigs_end0.$contigs_end2}))
                     {
-                        $tree{$id} = $contigs_end{$contigs_end0.$contigs_end2};
+                        my $id_tmp = $id;
+                        if ($id =~ m/.*_(\d+)$/)
+                        {
+                            $id_tmp = $1;
+                        }
+                        $tree{$id_tmp} = $contigs_end{$contigs_end0.$contigs_end2};
                         $tree_empty = "yes";
                         if ($y > $startprint2)
                         {
@@ -9152,7 +9230,12 @@ CORRECT:            my $contig_id2_tmp = substr $contig_id2, 0,-1;
                         $contigs_id{$contig_id2} = undef;
                         $contigs_end{$contigs_end0.$contigs_end2} = $contig_id2;
                         $correct_after_split = "yes";
-                        $tree{$id} = $contig_id2;
+                        my $id_tmp = $id;
+                        if ($id =~ m/.*_(\d+)$/)
+                        {
+                            $id_tmp = $1;
+                        }
+                        $tree{$id_tmp} = $contig_id2;
                         
                         if ($y > $startprint2)
                         {
@@ -9218,13 +9301,18 @@ CORRECT:            my $contig_id2_tmp = substr $contig_id2, 0,-1;
                     }
                     if (exists($contigs_id{$contig_id1}) || exists($contigs_end{$contigs_end0.$contigs_end1}))
                     {
+                        my $id_tmp = $id;
+                        if ($id =~ m/.*_(\d+)$/)
+                        {
+                            $id_tmp = $1;
+                        }
                         if ($tree_empty eq "yes")
                         {
-                            $tree{$id} = $contigs_end{$contigs_end0.$contigs_end2}."*".$contigs_end{$contigs_end0.$contigs_end1};
+                            $tree{$id_tmp} = $contigs_end{$contigs_end0.$contigs_end2}."*".$contigs_end{$contigs_end0.$contigs_end1};
                         }
                         else
                         {
-                            $tree{$id} = $contig_id2."*".$contigs_end{$contigs_end0.$contigs_end1};
+                            $tree{$id_tmp} = $contig_id2."*".$contigs_end{$contigs_end0.$contigs_end1};
                         }
                     }
                     elsif ($no_contig_id1 eq "yes")
@@ -9245,13 +9333,18 @@ CORRECT:            my $contig_id2_tmp = substr $contig_id2, 0,-1;
                         $contigs_end{$contigs_end0.$contigs_end1} = $contig_id1;
                         $correct_after_split = "yes";
                         
+                        my $id_tmp = $id;
+                        if ($id =~ m/.*_(\d+)$/)
+                        {
+                            $id_tmp = $1;
+                        }
                         if ($tree_empty eq "yes")
                         {
-                            $tree{$id} =  $contigs_end{$contigs_end0.$contigs_end2}."*".$contig_id1;
+                            $tree{$id_tmp} =  $contigs_end{$contigs_end0.$contigs_end2}."*".$contig_id1;
                         }
                         else
                         {
-                            $tree{$id} = $contig_id2."*".$contig_id1;
+                            $tree{$id_tmp} = $contig_id2."*".$contig_id1;
                         }
                                                                     
                         if ($y > $startprint2)
@@ -9747,7 +9840,7 @@ EXTEND_READ:
                                                     print OUTPUT5 "OPTION3\n";
                                                 }
                                             }
-                                            elsif (($use_regex eq "yes" || $repetitive_detect ne "") && $last_chance ne "yes" && $AT_rich_before eq "")
+                                            elsif (($use_regex ne "" || $repetitive_detect ne "") && $last_chance ne "yes" && $AT_rich_before eq "")
                                             {
                                                 $read_new = $read;
                                                 delete $last_chance{$id};
@@ -10000,6 +10093,18 @@ LAST1_BACK:             my $id_match_end = substr $id_match, -1, 1,"",;
                                 else
                                 {
                                     $extensions1b{$id_match} = $extension;
+                                }
+                                if ($save_reads eq "yes")
+                                {                                  
+                                    my $add_read = substr $id_match, 0, -1;
+                                    print OUTPUT10 ">".$add_read."\/1\n";
+                                    print OUTPUT11 ">".$add_read."\/2\n";
+                                    if (exists($hash{$add_read}))
+                                    {
+                                        my @add_read = split /,/,$hash{$add_read};
+                                        print OUTPUT10 $add_read[0]."\n";
+                                        print OUTPUT11 $add_read[1]."\n";
+                                    }
                                 }
                             }
                         }
@@ -10305,6 +10410,18 @@ SKIP_BACK:
                                                         $extensions2{$extension} = $id_match;
                                                         $extensions2b{$id_match} = $extension;
                                                         push @extensions2, $extension;
+                                                        if ($save_reads eq "yes")
+                                                        {                                  
+                                                            my $add_read = substr $id_match, 0, -1;
+                                                            print OUTPUT10 ">".$add_read."\/1\n";
+                                                            print OUTPUT11 ">".$add_read."\/2\n";
+                                                            if (exists($hash{$add_read}))
+                                                            {
+                                                                my @add_read = split /,/,$hash{$add_read};
+                                                                print OUTPUT10 $add_read[0]."\n";
+                                                                print OUTPUT11 $add_read[1]."\n";
+                                                            }
+                                                        }
                                                     }               
                                                 }                                                                                         
         
@@ -13127,7 +13244,7 @@ FILTER_4_BACK:                  foreach my $line (keys %hash_read_short_start)
                                 }
                             }
                             
-                            if (($count1b > 2 && ($count2b+$count3b+$count4b) eq '0') || $differenceb1 eq "yes")
+                            if (($count1b > 2 && ($count2b+$count3b+$count4b) eq '0') || ($differenceb1 eq "yes" && $differenceb2 eq "" && $differenceb3 eq "" && $differenceb4 eq ""))
                             {
                                 if (@extensions_before > 15 && $repetitive_detect_back2 eq "")
                                 {
@@ -13148,7 +13265,7 @@ FILTER_4_BACK:                  foreach my $line (keys %hash_read_short_start)
                                 delete $before_shorter_skip_back{$id};
                                 goto AFTER_EXT_BACK;
                             }
-                            elsif (($count2b > 2 && ($count1b+$count3b+$count4b) eq '0') || $differenceb2 eq "yes")
+                            elsif (($count2b > 2 && ($count1b+$count3b+$count4b) eq '0') || ($differenceb2 eq "yes" && $differenceb1 eq "" && $differenceb3 eq "" && $differenceb4 eq ""))
                             {
                                 if (@extensions_before > 15 && $repetitive_detect_back2 eq "")
                                 {
@@ -13179,7 +13296,7 @@ FILTER_4_BACK:                  foreach my $line (keys %hash_read_short_start)
                                     goto FINISH;
                                 }
                             }
-                            elsif (($count3b > 2 && ($count1b+$count2b+$count4b) eq '0') || $differenceb3 eq "yes")
+                            elsif (($count3b > 2 && ($count1b+$count2b+$count4b) eq '0') || ($differenceb3 eq "yes" && $differenceb2 eq "" && $differenceb1 eq "" && $differenceb4 eq ""))
                             {
                                 if (@extensions_before > 15 && $repetitive_detect_back2 eq "")
                                 {
@@ -13210,7 +13327,7 @@ FILTER_4_BACK:                  foreach my $line (keys %hash_read_short_start)
                                     goto FINISH;
                                 }
                             }
-                            elsif (($count4b > 2 && ($count1b+$count2b+$count3b) eq '0') || $differenceb4 eq "yes")
+                            elsif (($count4b > 2 && ($count1b+$count2b+$count3b) eq '0') || ($differenceb4 eq "yes" && $differenceb2 eq "" && $differenceb3 eq "" && $differenceb1 eq ""))
                             {
                                 if (@extensions_before > 15 && $repetitive_detect_back2 eq "")
                                 {
@@ -13845,6 +13962,17 @@ SKIP1:                                          if ($y > $startprint2)
                                                 
                                                 goto SPLIT_BACK;
                                             }
+        }
+        elsif ($last_chance_back ne "yes" && $noback ne "stop" && $AT_rich_before_back eq "")
+        {
+            $read_new = $read_new1;
+            delete $last_chance_back{$id};
+            $last_chance_back{$id} = "yes";
+            delete $regex_back{$id};
+            if ($y > $startprint2)
+            {
+                print OUTPUT5 "5Bb\n";
+            }
         }
 FINISH:
                                             my $count_seed = '0';
@@ -15066,3 +15194,5 @@ close OUTPUT4;
 close OUTPUT5;
 close OUTPUT6;
 close OUTPUT7;
+close OUTPUT10;
+close OUTPUT11;
