@@ -341,12 +341,12 @@ my $USAGE = "\nUsage: perl NOVOPlasty.pl -c config_example.txt";
 
 print "\n\n-----------------------------------------------";
 print "\nNOVOPlasty: The Organelle Assembler\n";
-print "Version 2.5.8\n";
+print "Version 2.5.9\n";
 print "Author: Nicolas Dierckxsens, (c) 2015-2016\n";
 print "-----------------------------------------------\n\n";
 print OUTPUT4 "\n\n-----------------------------------------------";
 print OUTPUT4 "\nNOVOPlasty: The Organelle Assembler\n";
-print OUTPUT4 "Version 2.5.8\n";
+print OUTPUT4 "Version 2.5.9\n";
 print OUTPUT4 "Author: Nicolas Dierckxsens, (c) 2015-2016\n";
 print OUTPUT4 "-----------------------------------------------\n\n";
 
@@ -1531,6 +1531,7 @@ close INPUT2;
 my $no_quality_score = substr $thirdLine, 0, 1;
 my $type_of_file;
 my $code_before_end = substr $firstLine, -2,1;
+my $SRA = "";
 if ($code_before_end eq "/" && $firstLine_reverse ne $firstLine)
 {
     $type_of_file = '-1';
@@ -1551,9 +1552,23 @@ elsif($firstLine =~ m/.*_(1)(:N.*)$/ && $firstLine_reverse ne $firstLine)
 {
     $type_of_file = -length($2)-1;
 }
-elsif($firstLine =~ m/.*\.(1)(\s(\d+)\s.*)$/ && $firstLine_reverse ne $firstLine)
+elsif($firstLine =~ m/\S*\.(1)(\s(\d+)\s.*)$/ && $firstLine_reverse ne $firstLine)
 {
-    $type_of_file = -length($2)-1;
+    my $test1 = $3;
+    if($fifthLine =~ m/\S*\.(1)(\s(\d+)(\s.*))$/ && $firstLine_reverse ne $firstLine)
+    {
+         my $test2 = $3;
+         if ($test2 eq $test1)
+         {
+            $type_of_file = -length($2)-1;
+         }
+         else
+         {
+            $type_of_file = -length($4);
+            $SRA = "yes";
+         }
+    }
+    print "TEST\n";
 }
 elsif($fifthLine =~ m/.*\.(1)(\s(.+)\s.+)$/ && $firstLine_reverse ne $firstLine)
 {
@@ -1607,7 +1622,7 @@ print "Chloroplast sequence = ".$cp_input."\n\n";
 
 print OUTPUT4 "\n\n-----------------------------------------------";
 print OUTPUT4 "\nNOVOPlasty: The Organelle Assembler\n";
-print OUTPUT4 "Version 2.5.8\n";
+print OUTPUT4 "Version 2.5.9\n";
 print OUTPUT4 "Author: Nicolas Dierckxsens, (c) 2015-2016\n";
 print OUTPUT4 "-----------------------------------------------\n\n";
 
@@ -1755,6 +1770,15 @@ foreach my $reads_tmp (@reads_tmp)
                 }
                 my $code2 = $code;
                 my $code_end = substr $code2, $type_of_file,1;
+                my $code0_SRA;
+
+                if ($SRA eq "yes")
+                {
+                    my $code_SRA = substr $code2, 0, $type_of_file;
+                    my @code_SRA = split / /, $code_SRA;
+                    $code0_SRA = $code_SRA[0];
+                    $code_end = substr $code0_SRA, -1, 1, "";
+                }
                             
                 if ($type_of_file eq "identical")
                 {
@@ -1778,6 +1802,10 @@ foreach my $reads_tmp (@reads_tmp)
                 if ($code_end eq "1" && $out_of_memory ne "yes")
                 {
                     my $code0 = substr $code2, 0, $type_of_file;
+                    if ($SRA eq "yes")
+                    {
+                        $code0 = $code0_SRA;
+                    }
                     
                     if ($type_of_file eq "identical")
                     {
@@ -1804,6 +1832,10 @@ foreach my $reads_tmp (@reads_tmp)
                 if ($code_end eq "2" )
                 {
                     my $code1 = substr $code2, 0, $type_of_file;
+                    if ($SRA eq "yes")
+                    {
+                        $code1 = $code0_SRA;
+                    }
                     
                     if ($type_of_file eq "identical")
                     {
@@ -7197,6 +7229,19 @@ BEFORE:
                                                 $filter_before4_pair{$search} = $found_tmp;
                                                 $before4B{$search} = $found_tmp;
                                             }
+                                            if ($save_reads eq "yes")
+                                            {                                  
+                                                my $add_read = $search_tmp;
+                                                print OUTPUT10 ">".$add_read."\/1\n";
+                                                print OUTPUT11 ">".$add_read."\/2\n";
+                                                if (exists($hash{$add_read}))
+                                                {
+                                                    my @add_read = split /,/,$hash{$add_read};
+                                                    print OUTPUT10 $add_read[0]."\n";
+                                                    print OUTPUT11 $add_read[1]."\n";
+                                                }
+                                            }
+
                                         }
                                     }
                                 }
@@ -7337,6 +7382,19 @@ BEFORE:
                                                 my $found_rev2 = reverse($found_rev);
                                                 $repetitive_pair{$found_rev2} = $search_rev;
                                             }
+                                            if ($save_reads eq "yes")
+                                            {                                  
+                                                my $add_read = $search_tmp;
+                                                print OUTPUT10 ">".$add_read."\/1\n";
+                                                print OUTPUT11 ">".$add_read."\/2\n";
+                                                if (exists($hash{$add_read}))
+                                                {
+                                                    my @add_read = split /,/,$hash{$add_read};
+                                                    print OUTPUT10 $add_read[0]."\n";
+                                                    print OUTPUT11 $add_read[1]."\n";
+                                                }
+                                            }
+
                                         }
                                     }
                                 }
@@ -8952,6 +9010,7 @@ REP_CHECK0:                         foreach my $exts (keys %extensions_original)
                                             $best_extension = "";
                                             goto BACK;
                                         }
+                                        $noforward{$id} = "stop";
                                     }
                                 }
                                 
@@ -9773,6 +9832,7 @@ EXTEND_READ:
                                                     delete $yuyu_option{$id.'C'};
                                                     delete $yuyu_option{$id.'T'};
                                                     delete $yuyu_option{$id.'G'};
+                                                    delete $before_shorter_skip{$id};
                                                 }
                                                 $use_regex = "";
                                                 if ($SNR_read ne "" && $last_chance eq "yes")
@@ -12084,6 +12144,18 @@ BEFORE_BACK:
                                                 }
                                                 $before4B{$search} = $found_reverse;
                                             }
+                                            if ($save_reads eq "yes")
+                                            {                                  
+                                                my $add_read = $search_tmp;
+                                                print OUTPUT10 ">".$add_read."\/1\n";
+                                                print OUTPUT11 ">".$add_read."\/2\n";
+                                                if (exists($hash{$add_read}))
+                                                {
+                                                    my @add_read = split /,/,$hash{$add_read};
+                                                    print OUTPUT10 $add_read[0]."\n";
+                                                    print OUTPUT11 $add_read[1]."\n";
+                                                }
+                                            }
                                         }
                                     }
                                 }
@@ -12207,6 +12279,19 @@ BEFORE_BACK:
                                                 $filter_before4_pair{$search} = $found_new;
                                                 $before4F{$search} = $found_new;
                                             }
+                                            if ($save_reads eq "yes")
+                                            {                                  
+                                                my $add_read = $search_tmp;
+                                                print OUTPUT10 ">".$add_read."\/1\n";
+                                                print OUTPUT11 ">".$add_read."\/2\n";
+                                                if (exists($hash{$add_read}))
+                                                {
+                                                    my @add_read = split /,/,$hash{$add_read};
+                                                    print OUTPUT10 $add_read[0]."\n";
+                                                    print OUTPUT11 $add_read[1]."\n";
+                                                }
+                                            }
+
                                         }
                                     }
                                 }
@@ -13739,6 +13824,7 @@ AFTER_EXT_BACK:
                                                     delete $yuyu_option_back{$id.'C'};
                                                     delete $yuyu_option_back{$id.'T'};
                                                     delete $yuyu_option_back{$id.'G'};
+                                                    delete $before_shorter_skip_back{$id};
                                                 }
                                                 if ($split eq "")
                                                 {
