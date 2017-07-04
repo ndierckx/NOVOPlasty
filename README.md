@@ -7,7 +7,8 @@ For the moment NOVOPlasty only supports whole genome Illumina paired-end reads a
 - New Reference option available, only been tested on references of thesame genus (UPDATED CONFIG FILE!).
 - This reference option will be used to resolve duplicated regions or inverted repeats, the assembly will still be de novo
 - Improved plant mitochondria option, reduced assembly of chloroplast sequences in "mito_plant" mode
-- But you first have to assemble the chloroplast before the mitochondria in plants! ("mito_plant" mode will be further improved)
+- But you first have to assemble the chloroplast before the mitochondria in plants! 
+- "mito_plant" mode will be further improved.                                                                    
 **04/05/17** 
 - Improved save assembled reads optin
 - Seed errors related to incompatible reads ids solved (was only partially solved in previous update).                                  
