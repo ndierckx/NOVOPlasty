@@ -306,45 +306,40 @@ while (my $line = <CONFIG>)
     }
     if ($ln eq '11')
     {
-        $coverage_cut_off = substr $line, 23;
-        chomp $coverage_cut_off;
-    }
-    if ($ln eq '12')
-    {
         $print_log = substr $line, 23;
         chomp $print_log;
     }
-    if ($ln eq '13')
+    if ($ln eq '12')
     {
         $save_reads = substr $line, 23;
         chomp $save_reads;
     }
-    if ($ln eq '14')
+    if ($ln eq '13')
     {
         $reads12 = substr $line, 23;
         chomp $reads12;
     }
-    if ($ln eq '15')
+    if ($ln eq '14')
     {
         $reads1 = substr $line, 23;
         chomp $reads1;
     }
-    if ($ln eq '16')
+    if ($ln eq '15')
     {
         $reads2 = substr $line, 23;
         chomp $reads2;
     }
-    if ($ln eq '17')
+    if ($ln eq '16')
     {
         $seed_input0 = substr $line, 23;
         chomp $seed_input0;
     }
-    if ($ln eq '18')
+    if ($ln eq '17')
     {
         $reference = substr $line, 23;
         chomp $reference;
     }
-    if ($ln eq '19')
+    if ($ln eq '18')
     {
         $cp_input = substr $line, 23;
         chomp $cp_input;
@@ -1678,7 +1673,6 @@ print "Insert range         = ".$insert_range_b."\n";
 print "Insert range strict  = ".$insert_range_c."\n";
 print "Paired/Single        = ".$paired."\n";
 print "Max memory           = ".$max_memory."\n";
-print "Coverage Cut off     = ".$coverage_cut_off."\n";
 print "Extended log         = ".$print_log."\n";
 print "Save assembled reads = ".$save_reads."\n";
 print "Combined reads       = ".$reads12."\n";
@@ -1706,7 +1700,6 @@ print OUTPUT4 "Insert range         = ".$insert_range_b."\n";
 print OUTPUT4 "Insert range strict  = ".$insert_range_c."\n";
 print OUTPUT4 "Paired/Single        = ".$paired."\n";
 print OUTPUT4 "Max memory           = ".$max_memory."\n";
-print OUTPUT4 "Coverage Cut off     = ".$coverage_cut_off."\n";
 print OUTPUT4 "Extended log         = ".$print_log."\n";
 print OUTPUT4 "Save assembled reads = ".$save_reads."\n";
 print OUTPUT4 "Combined reads       = ".$reads12."\n";
