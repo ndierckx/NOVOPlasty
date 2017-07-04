@@ -9,14 +9,14 @@ Insert Range         = 1.6
 Insert Range strict  = 1.2
 Single/Paired        = PE
 Max memory           =
-Coverage Cut off     = 1000
 Extended log         = 0
 Save assembled reads = no
 Combined reads       = /path/to/reads/AOB_reads.fastq
 Forward reads        = 
 Reverse reads        = 
 Seed Input           = Seed_AOB.fasta
-Chloroplast sequence =
+Reference            = /path/to/reference_file/reference.fasta (optional)
+Chloroplast sequence = /path/to/chloroplast_file/chloroplast.fasta (only for "mito_plant" option)
 
 
 Project name         = Choose a name for your project, it will be used for the output files.
@@ -39,11 +39,15 @@ Single/Paired        = For the moment only paired end reads are supported.
 Max memory           = You can choose a max memory usage, suitable to automatically subsample the data or when you have limited                      
                        memory capacity. If you have sufficient memory, leave it blank, else write your available memory in GB
                        (if you have for example a 8 GB RAM laptop, put down 7 or 7.5 (don't add the unit in the config file))
-Coverage Cut off     = You can speed up the assembly by lowering the coverage cut off, standard it will use up to 1000 coverage
 Extended log         = Prints out a very extensive log, could be useful to send me when there is a problem  (0/1).
 Save assembled reads = All the reads used for the assembly will be stored in seperate files (yes/no)
 Combined reads       = The path to the file that contains the combined reads (forward and reverse in 1 file)
 Forward reads        = The path to the file that contains the forward reads (not necessary when there is a merged file)
 Reverse reads        = The path to the file that contains the reverse reads (not necessary when there is a merged file)
 Seed Input           = The path to the file that contains the seed sequence.
+Reference (optional) = If a reference is available, you can give here the path to the fasta file.
+                       The assembly will still be de novo, but references of the same genus can be used as a guide to resolve 
+                       duplicated regions in the plant mitochondria or the inverted repeat in the chloroplast. 
+                       References from different genus haven't beeen tested yet.
 Chloroplast sequence = The path to the file that contains the chloroplast sequence (Only for mito_plant mode).
+                       You have to assemble the chloroplast before you assemble the mitochondria of plants!
