@@ -10,7 +10,7 @@ For the moment NOVOPlasty only supports whole genome Illumina paired-end reads a
 - But you first have to assemble the chloroplast before the mitochondria in plants! 
 - "mito_plant" mode will be further improved.                                                                    
 **04/05/17** 
-- Improved save assembled reads optin
+- Improved save assembled reads option
 - Seed errors related to incompatible reads ids solved (was only partially solved in previous update).                                  
 **28/04/17** 
 - A new option to save the assembled reads in seperate files (UPDATED CONFIG FILE!).
