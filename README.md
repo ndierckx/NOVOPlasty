@@ -4,7 +4,7 @@ NOVOPlasty is a de novo assembler for short circular genomes.
 For the moment NOVOPlasty only supports whole genome Illumina paired-end reads as input.
 
 **Last updates: 05/07/17 version 2.6**
-- New Reference option available, only been tested on references of thesame genus (UPDATED CONFIG FILE!).
+- New Reference option available, only been tested on references of the same genus (UPDATED CONFIG FILE!).
 - This reference option will be used to resolve duplicated regions or inverted repeats, the assembly will still be de novo
 - Improved plant mitochondria option, reduced assembly of chloroplast sequences in "mito_plant" mode
 - But you first have to assemble the chloroplast before the mitochondria in plants! 
