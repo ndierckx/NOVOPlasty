@@ -2761,7 +2761,7 @@ ALREADY_X0:  while ($v0 < $u0)
                     }
                     last ALREADY_X0;
                 }
-                if ($SNR_end0[$u0-$v0-1] eq "." || $SNR_end0[$u0-$v0] eq ".")
+                if ($SNR_end0[$u0-$v0] eq ".")
                 {
                     $count_dot++;
                 }
@@ -2846,7 +2846,7 @@ ALREADY_X0b:  while ($v0b < $u0b)
                     }
                     last ALREADY_X0b;
                 }
-                if ($SNR_end0b[$v0b] eq "." || $SNR_end0b[$v0b-1] eq ".")
+                if ($SNR_end0b[$v0b-1] eq ".")
                 {
                     $count_dotb++;
                 }
