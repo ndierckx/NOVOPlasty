@@ -358,12 +358,12 @@ my $USAGE = "\nUsage: perl NOVOPlasty.pl -c config_example.txt";
 
 print "\n\n-----------------------------------------------";
 print "\nNOVOPlasty: The Organelle Assembler\n";
-print "Version 2.6\n";
+print "Version 2.6.1\n";
 print "Author: Nicolas Dierckxsens, (c) 2015-2016\n";
 print "-----------------------------------------------\n\n";
 print OUTPUT4 "\n\n-----------------------------------------------";
 print OUTPUT4 "\nNOVOPlasty: The Organelle Assembler\n";
-print OUTPUT4 "Version 2.6\n";
+print OUTPUT4 "Version 2.6.1\n";
 print OUTPUT4 "Author: Nicolas Dierckxsens, (c) 2015-2016\n";
 print OUTPUT4 "-----------------------------------------------\n\n";
 
@@ -1684,7 +1684,7 @@ print "Chloroplast sequence = ".$cp_input."\n\n";
 
 print OUTPUT4 "\n\n-----------------------------------------------";
 print OUTPUT4 "\nNOVOPlasty: The Organelle Assembler\n";
-print OUTPUT4 "Version 2.6\n";
+print OUTPUT4 "Version 2.6.1\n";
 print OUTPUT4 "Author: Nicolas Dierckxsens, (c) 2015-2016\n";
 print OUTPUT4 "-----------------------------------------------\n\n";
 
@@ -1800,9 +1800,9 @@ if ($reference ne "")
             $line3 = $value_ref2.$line;
         }
         
-        while (length($line3) > ((40*3)-1))
+        while (length($line3) > ((30*3)-1))
         {
-            my $value_ref2b = substr $line3, 0, 40;
+            my $value_ref2b = substr $line3, 0, 30;
             my $line2 = $line3;
             $line3 = substr $line2, 1;
             
@@ -3244,6 +3244,8 @@ ALREADY_X0b:  while ($v0b < $u0b)
         {
             my $start_repetitive = substr $read, $overlap, $insert_size+100;
             my $start_repetitiveb = substr $read, 200, 5000;
+            $start_repetitive =~ tr/N|K|R|Y|S|W|M|B|D|H|V/\./;
+            $start_repetitiveb =~ tr/N|K|R|Y|S|W|M|B|D|H|V/\./;
             my $repetitive_test = substr $read_short_start2, 0, 15;
             my $repetitive_testb = substr $read_short_start2, 0, 200;
             my $SNR_skip = "yes";                                        
@@ -3342,6 +3344,8 @@ ALREADY_X0b:  while ($v0b < $u0b)
         {
             my $end_repetitive = substr $read, -$insert_size-100,-$overlap;
             my $end_repetitiveb = substr $read, -5000,-200;
+            $end_repetitive =~ tr/N|K|R|Y|S|W|M|B|D|H|V/\./;
+            $end_repetitiveb =~ tr/N|K|R|Y|S|W|M|B|D|H|V/\./;
             my $repetitive_test2 = substr $read_short_end2, -15;
             my $repetitive_test2b = substr $read_short_end2, -200;
             my $SNR_skip = "yes";                                        
@@ -7233,7 +7237,7 @@ INDEL3:                         while ($f < @chars3)
                 }
                 if (((length($best_extension1) > 4 && length($best_extension2) > 4) || (length($best_extension_old1) > 4 && length($best_extension_old2) > 4)) && $reference ne "" && $SNP_active eq "yes" && $repetitive_detect eq "")
                 {
-                    my $p = -40;
+                    my $p = -30;
                     if ($y > $startprint2)
                     {
                         print OUTPUT5 "CHECK_REFERENCE\n\n";
@@ -7244,19 +7248,19 @@ INDEL3:                         while ($f < @chars3)
                     my @ref_id3;
                     my $further = "";
 
-CHECK_REF:          while ($p > (-40*2))
+CHECK_REF:          while ($p > (-30*4))
                     {
-                        my $ref_part2 = substr $read_short_end2, $p, 40;
+                        my $ref_part2 = substr $read_short_end2, $p, 30;
                         my $star2;
                         if ($containX_short_end2 > 0)
                         {
                             my $star = $ref_part2 =~ tr/\*/\*/;
 
-                            $ref_part2 = substr $read_short_end2, -(-$p+($star*2)), 40+($star*2);
+                            $ref_part2 = substr $read_short_end2, -(-$p+($star*2)), 30+($star*2);
                             $star2 = $ref_part2 =~ tr/\*/\*/;                                                
                             while ($star2 > $star)
                             {
-                                $ref_part2 = substr $read_short_end2, -(-$p+($star*2)+(($star2-$star)*2)), 40+($star*2)+(($star2-$star)*2);
+                                $ref_part2 = substr $read_short_end2, -(-$p+($star*2)+(($star2-$star)*2)), 30+($star*2)+(($star2-$star)*2);
                                 $star = $star2;
                                 $star2 = $ref_part2 =~ tr/\*/\*/;
                             }   
@@ -15833,6 +15837,25 @@ FINISH:
                                             {
                                                 print OUTPUT5 $search_rev." ";
                                                 print OUTPUT5 $found_rev2." FOUND1F\n";
+                                            }
+                                        }
+                                        if ($save_reads eq "yes")
+                                        {                                  
+                                            my $add_read = $search_tmp;
+                                            if (exists($save_reads{$add_read}))
+                                            {
+                                            }
+                                            else
+                                            {
+                                                $save_reads{$add_read} = undef;
+                                                print OUTPUT10 ">".$add_read."\/1\n";
+                                                print OUTPUT11 ">".$add_read."\/2\n";
+                                                if (exists($hash{$add_read}))
+                                                {
+                                                    my @add_read = split /,/,$hash{$add_read};
+                                                    print OUTPUT10 $add_read[0]."\n";
+                                                    print OUTPUT11 $add_read[1]."\n";
+                                                }
                                             }
                                         }
                                     }
