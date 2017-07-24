@@ -358,13 +358,13 @@ my $USAGE = "\nUsage: perl NOVOPlasty.pl -c config_example.txt";
 
 print "\n\n-----------------------------------------------";
 print "\nNOVOPlasty: The Organelle Assembler\n";
-print "Version 2.6.1\n";
-print "Author: Nicolas Dierckxsens, (c) 2015-2016\n";
+print "Version 2.6.2\n";
+print "Author: Nicolas Dierckxsens, (c) 2015-2017\n";
 print "-----------------------------------------------\n\n";
 print OUTPUT4 "\n\n-----------------------------------------------";
 print OUTPUT4 "\nNOVOPlasty: The Organelle Assembler\n";
-print OUTPUT4 "Version 2.6.1\n";
-print OUTPUT4 "Author: Nicolas Dierckxsens, (c) 2015-2016\n";
+print OUTPUT4 "Version 2.6.2\n";
+print OUTPUT4 "Author: Nicolas Dierckxsens, (c) 2015-2017\n";
 print OUTPUT4 "-----------------------------------------------\n\n";
 
 
@@ -1360,6 +1360,26 @@ sub correct
                 push @read_matches2, $extensions;
             }
         }
+        my $count_cor2 = '0';
+        $count_cor2++ for (@read_matches2);
+
+        if ($count_cor2 < 4)
+        {
+            if ($y > $startprint2)
+            {
+                print OUTPUT5 "\nBAD_READ\n";
+            }
+            if ($y eq '1')
+            {
+                $bad_read = "yes";
+                goto FIRST_SEED;
+            }
+            else
+            {
+                goto CORRECT_END;
+            }
+        }
+        
         my $l = '0';
         while ($l < length($read_correct))
         {
@@ -1684,7 +1704,7 @@ print "Chloroplast sequence = ".$cp_input."\n\n";
 
 print OUTPUT4 "\n\n-----------------------------------------------";
 print OUTPUT4 "\nNOVOPlasty: The Organelle Assembler\n";
-print OUTPUT4 "Version 2.6.1\n";
+print OUTPUT4 "Version 2.6.2\n";
 print OUTPUT4 "Author: Nicolas Dierckxsens, (c) 2015-2016\n";
 print OUTPUT4 "-----------------------------------------------\n\n";
 
@@ -3424,11 +3444,9 @@ ALREADY_X0b:  while ($v0b < $u0b)
                         print OUTPUT5 "DETECT_REPETITIVE2\n";
                     }
                     my $repetitive_test_stop = substr $read_short_end2, -30;
-                    my $end_repetitive_stop = substr $read, -$insert_size-550;
                     my $end_repetitive_stopb = substr $read, -8000,-200;
-                    my $check_repetitive_stop = $end_repetitive_stop =~ s/$repetitive_test_stop/$repetitive_test_stop/g;
                     my $check_repetitive_stopb = $end_repetitive_stopb =~ s/$repetitive_test2b/$repetitive_test2b/g;
-                    if ($check_repetitive_stop > 3 || $check_repetitive_stopb > 2)
+                    if ($check_repetitive_stopb > 2)
                     {
                         $noforward = "stop";
                         $noforward{$id} = "stop";
@@ -8082,6 +8100,28 @@ INDELa:
                         print OUTPUT5 "\nDELETE SPLIT2\n\n";
                     }
                 }
+                else
+                {
+                    my $best_extension1_tmpi = $best_extension1;
+                    my $best_extension2_tmpi = $best_extension2;
+                    $best_extension1_tmpi =~ tr/N|K|R|Y|S|W|M|B|D|H|V|\.//d;
+                    $best_extension2_tmpi =~ tr/N|K|R|Y|S|W|M|B|D|H|V|\.//d;
+                    if ($SNR_read eq "yes" && length($best_extension1_tmpi) < 7 && length($best_extension2_tmpi) < 7)
+                    {
+                        $SNR_next_seed = "yes";
+                        $noforward{$id} = "stop";
+                        delete $seed{$id_split2};
+                        delete $seed{$id};
+                        delete $seed{$id_split1};
+                        delete $seed{$id_split3};
+                        $noforward = "stop";
+                        if ($y > $startprint2)
+                        {
+                            print OUTPUT5 "SNR_NEXT_SEED\n";
+                        }
+                        goto BACK;
+                    }
+                }
 INDEL:
                 $id             = $id_original;
                 $split          = "";
@@ -10364,9 +10404,13 @@ REP_CHECK0:                         foreach my $exts (keys %extensions_original)
                     $seed{$id} = $read;
                     $seeds_check{$id} = undef;
                     $read_new = $read;
-                    $read_new1 = $read;                 
+                    $read_new1 = $read;
                     
-                    if ($SNR_read eq "yes" && length($best_extension1) < 7 && length($best_extension2) < 7)
+                    my $best_extension1_tmpi = $best_extension1;
+                    my $best_extension2_tmpi = $best_extension2;
+                    $best_extension1_tmpi =~ tr/N|K|R|Y|S|W|M|B|D|H|V|\.//d;
+                    $best_extension2_tmpi =~ tr/N|K|R|Y|S|W|M|B|D|H|V|\.//d;
+                    if ($SNR_read eq "yes" && length($best_extension1_tmpi) < 7 && length($best_extension2_tmpi) < 7)
                     {
                         $SNR_next_seed = "yes";
                         $noforward{$id} = "stop";
@@ -15621,6 +15665,54 @@ FINISH:
                                                     print OUTPUT5 "FINISH3\n";
                                                 }
                                             }
+                                            elsif ($no_next_seed ne "yes" && $contig_num eq '1' && exists($old_id{$id}) && (($SNR_next_seed eq "yes" && ($last_chance_back eq "yes" || $noback eq "stop")) || ($nosecond eq "" && $CP_check ne "yes" && length($read) > $read_length+150 && $circle eq "" && (($last_chance eq "yes" || $noforward eq "stop") && ($last_chance_back eq "yes" || $noback eq "stop")) || ($AT_rich eq "yes" && $count_seed ne "0") || ($bad_read eq "yes" && $count_seed ne "0"))))
+                                            {
+                                                my $start_point = '500';
+                                                my $check_repetitive = '3';
+                                                                            
+                                                while ($check_repetitive > 2)
+                                                {
+                                                    my $check_for_rep = substr $seed_old{$old_id{$id}}, 0, $start_point+200;
+                                                    my $repetitive = substr $check_for_rep, $start_point, 15;
+                                                    $check_repetitive = $check_for_rep =~ s/$repetitive/$repetitive/g;
+                                                    if ($check_repetitive > 2)
+                                                    {
+                                                        $start_point += 20;
+                                                        if ($y > $startprint2)
+                                                        {
+                                                            print OUTPUT5 "DETECT_REPETITIVE_IN_START_SEQUENCE\n";
+                                                        }
+                                                    } 
+                                                }
+                                                $first_contig_start = substr $seed_old{$old_id{$id}}, $start_point, $overlap;
+                                                my $check_start = $first_contig_start =~ tr/N|K|R|Y|S|W|M|B|D|H|V|\.//;
+                                                while ($check_start > 0)
+                                                {
+                                                    $start_point += 10;
+                                                    $first_contig_start = substr $seed_old{$old_id{$id}}, $start_point, $overlap;
+                                                    $check_start = $first_contig_start =~ tr/N|K|R|Y|S|W|M|B|D|H|V|\.//;
+                                                }
+                                                if ($y > $startprint2)
+                                                {
+                                                    print OUTPUT5 $first_contig_start." CONTIG_START6a\n";
+                                                }
+                                                
+                                                foreach my $seedie (keys %seed)
+                                                {
+                                                    my $seedie_part = substr $seed{$seedie}, 0, 1000;
+                                                    my $check_seedie = $seedie_part =~ s/$first_contig_start/$first_contig_start/;
+                                                    if ($check_seedie > 0)
+                                                    {
+                                                        delete $seed{$seedie};
+                                                    }
+                                                }
+                                                $merge_now = "yes2";
+                                                if ($y > $startprint2)
+                                                {
+                                                    print OUTPUT5 "MERGE NOW\n";
+                                                }
+                                                goto MERGE;
+                                            }
 
                                             
                                             elsif ($no_next_seed ne "yes" && (($SNR_next_seed eq "yes" && ($last_chance_back eq "yes" || $noback eq "stop")) || ($nosecond eq "" && $CP_check ne "yes" && length($read) > $read_length+150 && $circle eq "" && (($last_chance eq "yes" || $noforward eq "stop") && ($last_chance_back eq "yes" || $noback eq "stop")) || ($AT_rich eq "yes" && $count_seed ne "0") || ($bad_read eq "yes" && $count_seed ne "0"))))
@@ -16718,9 +16810,9 @@ TERMINATE:                                      while (keys %node)
                         $start_next_contig =~ tr/N|K|R|Y|S|W|M|B|D|H|V/\./;
                         my $start_next_contig2 = $start_next_contig;
                         my $x1 = length($start_next_contig);
-                        $start_next_contig =~ s/.*.$end_assembly//;
+                        $start_next_contig =~ s/.*$end_assembly//;
                         my $x2 = length($start_next_contig);                       
-                        $start_next_contig2 =~ s/.*.$end_assembly2//;
+                        $start_next_contig2 =~ s/.*$end_assembly2//;
                         my $x2b = length($start_next_contig2);
                         if ($x1-$x2 ne '0')
                         {
