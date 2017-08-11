@@ -15969,10 +15969,10 @@ BEFORE_NEXT_SEED:   foreach my $before_pair (keys %before_pair)
                         my $read_end_test4 = substr $read_short_end2, -100, 13;
                         
                         my $next_seed_tmp = $next_seed;
-                        my $check_test1 = $next_seed_tmp =~ s/$read_end_test1/$read_end_test1/;
-                        my $check_test2 = $next_seed_tmp =~ s/$read_end_test2/$read_end_test2/;
-                        my $check_test3 = $next_seed_tmp =~ s/$read_end_test3/$read_end_test3/;
-                        my $check_test4 = $next_seed_tmp =~ s/$read_end_test4/$read_end_test4/;
+                        my $check_test1 = $next_seed_tmp =~ s/(.)$read_end_test1/$1.$read_end_test1/;
+                        my $check_test2 = $next_seed_tmp =~ s/(.)$read_end_test2/$1.$read_end_test2/;
+                        my $check_test3 = $next_seed_tmp =~ s/(.)$read_end_test3/$1.$read_end_test3/;
+                        my $check_test4 = $next_seed_tmp =~ s/(.)$read_end_test4/$1.$read_end_test4/;
                         
                         if (($check_dot < 2 || $check_dot eq "") && $next_seed ne "" && $check_test1 eq "" && $check_test2 eq "" && $check_test3 eq "" && $check_test4 eq "")
                         {
