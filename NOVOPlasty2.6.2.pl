@@ -19,7 +19,7 @@ my $iterations = "1000000";
 my $startprint = "1000000";
 my $startprint2 = "1000000";
 my $high_coverage = "yes";
-my $coverage_cut_off = '1000';
+my $coverage_cut_off = '10000';
 my $max_memory;
 my $option = '1';
 my $count_coverage = '0';
