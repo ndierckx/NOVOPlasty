@@ -3,19 +3,16 @@
 NOVOPlasty is a de novo assembler for short circular genomes.  
 For the moment NOVOPlasty only supports whole genome Illumina paired-end reads as input.
 
-**Last updates: 11/07/17 version 2.6.2**
-- Resolved bugs in the merging of contigs.                                                                 
-**24/07/17** 
-- Reference option will work with more distant genomes.                                                                                                    
+**Last updates: 28/08/17 version 2.6.3**
+- Improved Seed retrieval.                                                                                  
+- Indicates when the coverage is too low (it gave a seed error before).                                
+- Resolved some bugs and small improvements.                                                                                                                                                      
 **05/07/17** 
 - New Reference option available, only been tested on references of the same genus (UPDATED CONFIG FILE!).
 - This reference option will be used to resolve duplicated regions or inverted repeats, the assembly will still be de novo
 - Improved plant mitochondria option, reduced assembly of chloroplast sequences in "mito_plant" mode
 - But you first have to assemble the chloroplast before the mitochondria in plants! 
-- "mito_plant" mode will be further improved.                                                                    
-**04/05/17** 
-- Improved save assembled reads option
-- Seed errors related to incompatible reads ids solved (was only partially solved in previous update).                                  
+- "mito_plant" mode will be further improved.                                                                                              
 **28/04/17** 
 - A new option to save the assembled reads in seperate files (UPDATED CONFIG FILE!).
 - Seed errors related to incompatible reads ids solved (SRA data files were often incompatible).                                  
