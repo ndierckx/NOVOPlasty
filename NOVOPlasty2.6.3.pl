@@ -5898,7 +5898,7 @@ NUCLEO:     while ($l < $ll)
                 my $T = '0';
                 my $G = '0';
                 
-                if ($SNR_read ne "" && $l > 0)
+                if ($SNR_read ne "" && $l > 0 && $split eq "")
                 {
                     my $best_extension_tmp8 = $best_extension;
                     $best_extension_tmp8 =~ tr/N|K|R|Y|S|W|M|B|D|H|V/\./;
@@ -12258,7 +12258,7 @@ NUCLEO_BACK: while ($l < $read_length - ($overlap+$left-1) + $extra_l)
                 my $T = '0';
                 my $G = '0';
                 
-                if ($SNR_read_back ne "" && $l > 0)
+                if ($SNR_read_back ne "" && $l > 0 && $split eq "")
                 {
                     my $best_extension_tmp8 = $best_extension;
                     $best_extension_tmp8 =~ tr/N|K|R|Y|S|W|M|B|D|H|V/\./;
