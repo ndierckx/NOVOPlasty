@@ -7020,7 +7020,7 @@ NUCLEO:     while ($l < $ll)
                 
                 my $read_part_tmp = substr $read_short_end2, -$read_length;
                 my $star_check = $read_part_tmp =~ tr/\*/\*/;
-                if ($SNP_active eq "yes" && ($before eq "yes" || $extensions_before eq "yes") && $count_split eq '2' && $star_check eq 0)
+                if ($SNP_active eq "yes" && ($before eq "yes" || $extensions_before eq "yes") && $count_split eq '2' && $star_check eq 0 && $ext < $average_coverage_ext*3)
                 {
                     my @chars;
                     my @chars2;
@@ -13020,7 +13020,7 @@ NUCLEO_BACK: while ($l < $read_length - ($overlap+$left-1) + $extra_l)
                         goto SEED;    
                     }  
                 }
-                if ($SNP_active_back eq "yes" && ($before_back eq "yes" || $extensions_before eq "yes") && $count_split eq '2' && $SNR_read_back eq "yes")
+                if ($SNP_active_back eq "yes" && ($before_back eq "yes" || $extensions_before eq "yes") && $count_split eq '2' && $SNR_read_back eq "yes" && $ext < $average_coverage_ext*3)
                 {
                     my @chars;
                     my @chars2;
