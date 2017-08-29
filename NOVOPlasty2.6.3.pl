@@ -7280,8 +7280,11 @@ INDEL3:                         while ($f < @chars3)
 
 CHECK_REF:          while ($p > (-30*4))
                     {
-                        undef @ref_id3;
-                        undef %ref_id3;
+                        if ($found_further_back ne "yes")
+                        {
+                            undef @ref_id3;
+                            undef %ref_id3;
+                        }
                         my $ref_part2 = substr $read_short_end2, $p, 30;
                         my $star2;
                         if ($containX_short_end2 > 0)
