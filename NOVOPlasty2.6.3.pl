@@ -15879,6 +15879,12 @@ FINISH:
                                                     $id_old = $id;
                                                 }                                     
                                                 
+                                                delete $seed{$id};
+                                                if (exists($seed_old{$id}))
+                                                {
+                                                    $seed_old{$id} = $read;
+                                                }
+                                                
                                                 my $SNR_skip = "yes";
                                                 my $xy = -($overlap+3);
                                                 my $tt = '-200';
@@ -15918,19 +15924,20 @@ FINISH:
                     }
                     my %extensions_yuyu_next;
                     my %before_pair;
-                    my $overhang = 20;
-                    my $before_split = substr $read_short_end2, -($read_length-$left-1)-$u, $overhang+$overlap;
+                    my $overhang = 40;
+                    my $before_split = substr $read_short_end2, -($read_length-$left-1)-$u-$overhang, $overhang+$overlap+$u;
                     my $star3 = '0';
                     my $next_seed;
                     if ($containX_short_end2 > 0)
                     {
-                        my $before_split2 = substr $read_short_end2, -($read_length-$left-1)-$u, -$u;
+                        my $before_split2 = substr $read_short_end2, -($read_length-$left-1)-$u-$overhang, $overhang+$overlap+$u;
                         $star3 = $before_split2 =~ tr/\*/\*/;
                         if ($star3 > 0)
                         {
-                            $before_split = substr $read_short_end2, -($read_length-$left-1+($star3*2))-$u, $overhang+$overlap+($star3*2);
+                            $before_split = substr $read_short_end2, -($read_length-$left-1+($star3*2))-$u-$overhang, $overhang+$overlap+$u+($star3*2);
                         }
                     }
+                    
                     while ($s <= length($before_split)-$overlap)
                     {
                         my $line_tmp = substr $before_split, $s, $overlap;
@@ -15984,25 +15991,20 @@ FINISH:
                                         }
                                         my $found_new;
                                         my $first_nuc;
-                                        
-                                        my $last_10 = substr $found, -(11+$s), 10;
-                                        my $last_10b = substr $found,  -(11+$s-($star3)), 10;
-                                        my $last_10_read_end = substr $read_short_end2, -9-$u, 9;
-                                        my $check_last10 = $last_10 =~ s/(.)$last_10_read_end/$1$last_10_read_end/;
-                                        my $check_last10b = $last_10b =~ s/(.)$last_10_read_end/$1$last_10_read_end/;
-                                        if ($check_last10 > 0 || $check_last10b > 0)
+
+                                        my $middle = substr $found, $left, -18;
+                                        my $middle_read_end = substr $read_short_end2, -($read_length-$left-1)+$s-$u-$overhang+2, length($middle)-4;
+                                        my $check_middle = $middle =~ s/(.)$middle_read_end/$1$middle_read_end/;
+                                                                                
+
+                                        if ($check_middle > 0)
                                         {
                                             my $extension_yuyu = $found;
                                             $extensions_yuyu_next{$search} = $extension_yuyu;
                                             
                                             $found_rev  =~ tr/ACTG/TGAC/;
                                             my $found_rev2 = reverse($found_rev);
-                                            $before_pair{$found_rev2} = $search;
-                                            if ($y > $startprint2)
-                                            {
-                                                print OUTPUT5 $search_rev." ";
-                                                print OUTPUT5 $found_rev2." FOUND1F\n";
-                                            }
+                                            $before_pair{$found_rev2} = $search_rev;                                      
                                         }
                                         if ($save_reads eq "yes")
                                         {                                  
@@ -16030,31 +16032,57 @@ FINISH:
                         $s++;
                     }
                     my $id_tmp;
-BEFORE_NEXT_SEED:   foreach my $before_pair (keys %before_pair)
+                    my %before_pair_final;
+                    foreach my $before_pair (keys %before_pair)
                     {
                         $id_tmp = $before_pair{$before_pair};
+                        if ($y > $startprint2)
+                        {
+                            print OUTPUT5 $before_pair." FOUND1F\n";
+                        }
                         $next_seed = correct ($before_pair, \%before_pair);
+                        if ($y > $startprint2)
+                        {
+                            print OUTPUT5 $next_seed." FOUND1F\n";
+                        }
                         my $check_dot = $next_seed =~ tr/\./\./;
                         
-                        my $read_end_test1 = substr $read_short_end2, -13;
                         my $read_end_test2 = substr $read_short_end2, -30, 13;
                         my $read_end_test3 = substr $read_short_end2, -60, 13;
                         my $read_end_test4 = substr $read_short_end2, -100, 13;
                         
-                        my $next_seed_tmp = $next_seed;
-                        my $check_test1 = $next_seed_tmp =~ s/(.)$read_end_test1/$1.$read_end_test1/;
+                        my $next_seed_tmp = substr $next_seed, 25;
                         my $check_test2 = $next_seed_tmp =~ s/(.)$read_end_test2/$1.$read_end_test2/;
                         my $check_test3 = $next_seed_tmp =~ s/(.)$read_end_test3/$1.$read_end_test3/;
                         my $check_test4 = $next_seed_tmp =~ s/(.)$read_end_test4/$1.$read_end_test4/;
                         
-                        if (($check_dot < 2 || $check_dot eq "") && $next_seed ne "" && $check_test1 eq "" && $check_test2 eq "" && $check_test3 eq "" && $check_test4 eq "")
+                        if (($check_dot < 3 || $check_dot eq "") && $next_seed ne "" && $check_test2 eq "" && $check_test3 eq "" && $check_test4 eq "")
                         {
-                            last BEFORE_NEXT_SEED;
+                            $before_pair_final{$next_seed} = $id_tmp;
                         }
-                        else
+                    }
+                    my $count_match = '0';
+                    my $count_match_tmp = '0';
+                    foreach my $before_pair_final (keys %before_pair_final)
+                    {
+                        my $pair_test1 = substr $before_pair_final, 17, 30;
+                        my $pair_test2 = substr $before_pair_final, -47, 30;
+                        foreach my $before_pair_final_tmp (keys %before_pair_final)
                         {
-                            $next_seed = "";
+                            my $check_test1 = $before_pair_final_tmp =~ s/(.)$pair_test1/$1.$pair_test1/;
+                            my $check_test2 = $before_pair_final_tmp =~ s/(.)$pair_test2/$1.$pair_test2/;
+                            if ($check_test1 > 0 || $check_test2 > 0)
+                            {
+                                $count_match_tmp++;
+                            }
                         }
+                        if ($count_match_tmp > $count_match)
+                        {
+                            $count_match = $count_match_tmp;
+                            $next_seed = $before_pair_final;
+                            $id_tmp = $before_pair_final{$before_pair_final};
+                        }
+                        $count_match_tmp = '0';
                     }
                     if ($y > $startprint2)
                     {
@@ -16068,10 +16096,12 @@ BEFORE_NEXT_SEED:   foreach my $before_pair (keys %before_pair)
                         delete $seed{$id_split1};
                         delete $seed{$id_split2};
                         delete $seed{$id_split3};
-                        $id = $id_tmp;
+                        
+                        $id = $id_tmp;                 
                         
                                                                                                                                                   
                         $seed{$id} = $next_seed;
+                        $seed_id = $id;
                         $seeds_check{$id} = undef;
                         $position{$id} = length($next_seed);
                         $old_id{$id} = $id_old;
@@ -16092,8 +16122,7 @@ BEFORE_NEXT_SEED:   foreach my $before_pair (keys %before_pair)
                         $contig_count{$id} = $contig_count;
                         goto ITERATION;
                     }
-
-                        
+                    
 
                                                 
 NEXT_SEED:                                      while ($xy > $tt)
@@ -16139,8 +16168,7 @@ NEXT_SEED:                                      while ($xy > $tt)
                                                                         my $id2 = $hash2b{$seed_tmp2_part};
                                                                         my $id5 = substr $id2, 1;
                                                                         my @id_tmp2 = split /,/,$id5;
-                                                                        $id = $id_tmp2[0];
-                                                                        my $id_b = $id;
+                                                                        my $id_b = $id_tmp2[0];
                                                                         my $id_tmp2_end = substr $id_b, -1, 1,"",;                                                                                                                                              
                                                                     
                                                                         if ($second_seed eq "ddd")
@@ -16211,12 +16239,12 @@ NEXT_SEED:                                      while ($xy > $tt)
                                                                                     $most_match_total++;
                                                                                 }
                                                                                 $s++;
-                                                                            }                                                                          
+                                                                            }
                                                                             if ($most_match_total > 2)
                                                                             {
                                                                                 my %empty_hash;
                                                                                 $empty_hash{$seed} = undef;
-                                                                                $seed = correct ($seed , \%empty_hash);
+                                                                                $seed = correct ($seed, \%empty_hash);
                                                                                 my $f = '0';
                                                                                 my $read_part = substr $read, -$insert_size*1.6;
                                                                                 while ($f < length($seed)-30)
@@ -16230,7 +16258,8 @@ NEXT_SEED:                                      while ($xy > $tt)
                                                                                         last NEXT_SEED;
                                                                                     }
                                                                                     $f += 10;
-                                                                                }
+                                                                                }                                                                              
+                                                                                
                                                                                 my $seed_test = substr $seed, -$overlap-30;
                                                                                 my $A_rich_test3 = $seed_test =~ tr/A/A/;
                                                                                 my $T_rich_test3 = $seed_test =~ tr/T/T/;
