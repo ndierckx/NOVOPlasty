@@ -111,7 +111,7 @@ If non of the above files are outputted or are empty, you can retrieve some cont
 ### 1. General
 
 #### *  
-A '*' in the fasta output files indicates that the nucleotide before is a possible deletion/insertion. This can occur when the exact length of single nucleotide repeat can't be determined exactly due to systemic Illumina sequencing errors. Since this sign can interfere with post processing algorithms it is best resolve them manually or to delete them. 
+A '*' in the fasta output files indicates that the nucleotide before is a possible deletion/insertion. This can occur when the exact length of single nucleotide repeat can't be determined exactly due to systemic Illumina sequencing errors or within repetitive regions. Since this sign can interfere with post processing algorithms it is best resolve them manually or to delete them. 
 
 #### Gaps  
 Most gaps are caused by Single Nucleotide Repeats (SNR). Illumina seqeuncers have a high rate of systemic errors after SNR's and are therefore hard to assemble. NOVOPlasty is cabale of assembling these regions as correct as possible by approaching these regions from both sides (sequencing errors commence once in the SNR). If this region is not too long, NOVOPlasty can automaticallly merge both sides, otherwise it will output a gap. Although this gap can often be closed automatically (if both sides overlap).  
