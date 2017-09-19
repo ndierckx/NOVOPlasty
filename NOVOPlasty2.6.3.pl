@@ -1494,6 +1494,7 @@ POINT:      foreach my $extensions (@read_matches2)
     $seeds_check{$id} = undef;
     
     delete $seed_old{$id_pair};
+    $bad_read = "";
     return $read_correct;
 CORRECT_END:
 }
