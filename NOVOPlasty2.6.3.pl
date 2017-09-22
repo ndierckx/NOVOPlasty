@@ -16918,9 +16918,9 @@ TERMINATE:                                      while (keys %node)
                         $start_next_contig =~ tr/N|K|R|Y|S|W|M|B|D|H|V/\./;
                         my $start_next_contig2 = $start_next_contig;
                         my $x1 = length($start_next_contig);
-                        $start_next_contig =~ s/.*$end_assembly//;
+                        $start_next_contig =~ s/.*.$end_assembly//;
                         my $x2 = length($start_next_contig);                       
-                        $start_next_contig2 =~ s/.*$end_assembly2//;
+                        $start_next_contig2 =~ s/.*.$end_assembly2//;
                         my $x2b = length($start_next_contig2);
                         if ($x1-$x2 ne '0')
                         {
