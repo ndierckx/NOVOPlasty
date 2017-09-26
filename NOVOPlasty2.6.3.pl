@@ -13026,7 +13026,7 @@ NUCLEO_BACK: while ($l < $read_length - ($overlap+$left-1) + $extra_l)
                         goto SEED;    
                     }  
                 }
-                if ($SNP_active_back eq "yes" && ($before_back eq "yes" || $extensions_before eq "yes") && $count_split eq '2' && $SNR_read_back eq "yes" && $ext < $average_coverage_ext*3)
+                if ($SNP_active_back eq "yes" && ($before_back eq "yes" || $extensions_before eq "yes") && $count_split eq '2' && $ext < $average_coverage_ext*3)
                 {
                     my @chars;
                     my @chars2;
