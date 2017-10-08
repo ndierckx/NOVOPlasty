@@ -1,6 +1,6 @@
 # NOVOPlasty - The organelle assembler
 
-NOVOPlasty is a de novo assembler for short circular genomes.  
+NOVOPlasty is a de novo assembler and variance caller for short circular genomes.  
 For the moment NOVOPlasty only supports whole genome Illumina paired-end reads as input.
 
 **Last updates: 28/08/17 version 2.6.3**
