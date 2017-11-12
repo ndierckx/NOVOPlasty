@@ -3,6 +3,8 @@
 NOVOPlasty is a de novo assembler and variance caller for short circular genomes.  
 For the moment NOVOPlasty only supports whole genome Illumina paired-end reads as input.
 
+***If you are interested in beta testing the new version with a heteroplasmy detector and variance caller, pleasme contact me***
+
 **Last updates: 28/08/17 version 2.6.3**
 - Improved Seed retrieval.                                                                                  
 - Indicates when the coverage is too low (it gave a seed error before).                                
