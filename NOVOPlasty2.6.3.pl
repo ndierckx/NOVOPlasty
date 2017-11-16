@@ -5419,7 +5419,7 @@ CHECK_PAIR:                         while ($gh < length($line)-length($match_pai
                                         {
                                             my $read_short_end_part = substr $read_short_end_tempie, $ff, length($match_pair_middle);
                                                                            
-                                            $hash_read_short_end{$read_short_end_part} = undef;
+                                            $hash_read_short_end{$read_short_end_part} = $ff;
                                             $ff++;
                                         }
                                     }
@@ -5444,7 +5444,7 @@ CHECK_PAIR:                         while ($gh < length($line)-length($match_pai
                                                 {
                                                     $cal = '0';
                                                 }
-                                                my $insert_size_tmp = length($extension) - $cal + 8 + length($match_pair_middle) + length($line_tmp);
+                                                my $insert_size_tmp = length($extension) - $cal + 9 + length($read_short_end_tempie) -$hash_read_short_end{$line};
     
                                                 push @insert_size, $insert_size_tmp;
                                             }
