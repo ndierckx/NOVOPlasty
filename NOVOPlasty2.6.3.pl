@@ -1607,12 +1607,17 @@ close INPUT2;
 my $no_quality_score = substr $thirdLine, 0, 1;
 my $type_of_file;
 my $code_before_end = substr $firstLine, -2,1;
+my $code_before_end0 = substr $firstLine, -1,1;
 my $SRA = "";
-if ($code_before_end eq "/" && $firstLine_reverse ne $firstLine)
+if ($paired eq "SE")
+{
+    $type_of_file = '0';
+}
+elsif (($code_before_end eq "/" || $code_before_end eq "R") && $firstLine_reverse ne $firstLine)
 {
     $type_of_file = '-1';
 }
-elsif ($code_before_end eq "R" && $firstLine_reverse ne $firstLine)
+elsif ($code_before_end eq ":" && $code_before_end0 eq "1" && $firstLine_reverse ne $firstLine)
 {
     $type_of_file = '-1';
 }
