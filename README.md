@@ -5,7 +5,12 @@ For the moment NOVOPlasty only supports whole genome Illumina paired-end reads a
 
 ***If you are interested in beta testing the new version with a heteroplasmy detector and variance caller, pleasme contact me***
 
-**Last updates: 28/08/17 version 2.6.3**
+**Last updates: 20/02/18 version 2.6.4**
+- UPDATED CONFIG FILE!                                                                                  
+- There are two new options, a basic variance and heteroplasmy caller
+- Improved reference guidance
+- Resolved some bugs and small improvements. 
+**28/08/17** 
 - Improved Seed retrieval.                                                                                  
 - Indicates when the coverage is too low (it gave a seed error before).                                
 - Resolved some bugs and small improvements.                                                                                                                                                      
@@ -22,10 +27,7 @@ For the moment NOVOPlasty only supports whole genome Illumina paired-end reads a
 - It is now possible to use bz2 zipped read files as input.
 - Long repeats (> 400 bp) won't make the assembly get stuck in a loop anymore.
 - Several read id's were added to the library.                                          
-**22/03/17** 
-- It is now possible to use zipped (only .gz extension) read files as input.
-- An extra option is added to the config file (Max memory). This makes you able to choose a maximum memory usage.
-- This max memory option is very handy if you want to subsample your dataset (leave it blank if no limit).                                                                                                  
+                                                                                             
 
 ## Cite
 
@@ -147,33 +149,45 @@ To make the assembler work, your configuration file has to have the exact same s
 
 **1. Example of configuration file:**
 <pre>
-Project name         = AOB_chloro
-Insert size          = 300
-Insert size aut      = yes
-Read Length          = 101
-Type                 = chloro
-Genome Range         = 120000-200000
-K-mer                = 39
-Insert Range         = 1.6
-Insert Range strict  = 1.2
-Single/Paired        = PE
-Max memory           =
-Extended log         = 0
-Save assembled reads = no
-Combined reads       = /path/to/reads/AOB_reads.fastq
-Forward reads        = 
-Reverse reads        = 
-Seed Input           = Seed_AOB.fasta
-Reference            = /path/to/reference_file/reference.fasta (optional)
-Chloroplast sequence = /path/to/chloroplast_file/chloroplast.fasta (only for "mito_plant" option)
+
+Project:
+-----------------------
+Project name          = Test
+Type                  = mito
+Genome Range          = 12000-22000
+K-mer                 = 39
+Max memory            = 
+Extended log          = 0
+Save assembled reads  = no
+Seed Input            = Seed.fasta
+Reference sequence    = /path/to/reference_file/reference.fasta (optional)
+Variance detection    = no
+Heteroplasmy          = 
+Chloroplast sequence  = /path/to/chloroplast_file/chloroplast.fasta (only for "mito_plant" option)
+
+Dataset 1:
+-----------------------
+Read Length           = 151
+Insert size           = 300
+Platform              = illumina
+Single/Paired         = PE
+Combined reads        =
+Forward reads         = /path/to/reads/reads_1.fastq
+Reverse reads         = /path/to/reads/reads_2.fastq
+
+Optional:
+-----------------------
+Insert size auto      = yes
+Insert Range          = 1.8
+Insert Range strict = 1.3
 </pre>
 
 **2. Explanation parameters:**
 <pre>
+
+Project:
+-----------------------
 Project name         = Choose a name for your project, it will be used for the output files.
-Insert size          = Total insert size of your paired end reads, it doesn't have to be accurate but should be close enough.
-Insert size auto     = (yes/no) This will finetune your insert size automatically (Default: yes)
-Read Length          = The read length of your reads.
 Type                 = (chloro/mito/mito_plant) "chloro" for chloroplast assembly, "mito" for mitochondrial assembly and 
                        "mito_plant" for mitochondrial assembly in plants.
 Genome Range         = (minimum genome size-maximum genome size) The expected genome size range of the genome.
@@ -183,24 +197,39 @@ Genome Range         = (minimum genome size-maximum genome size) The expected ge
 K-mer                = (integer) This is the length of the overlap between matching reads (Default: 39). 
                        If reads are shorter then 90 bp or you have low coverage data, this value should be decreased down to 23. 
                        For reads longer then 101 bp, this value can be increased, but this is not necessary.
-Insert Range         = This variation on the insert size, could lower it when the coverage is very high or raise it when the
-                       coverage is too low (Default: 1.6). 
-Insert Range strict  = Strict variation to resolve repetitive regions (Default: 1.2). 
-Single/Paired        = For the moment only paired end reads are supported.
 Max memory           = You can choose a max memory usage, suitable to automatically subsample the data or when you have limited                      
                        memory capacity. If you have sufficient memory, leave it blank, else write your available memory in GB
-                       (if you have for example a 8 GB RAM laptop, put down 7 or 7.5 (don't add the unit in the config file)).
+                       (if you have for example a 8 GB RAM laptop, put down 7 or 7.5 (don't add the unit in the config file))
 Extended log         = Prints out a very extensive log, could be useful to send me when there is a problem  (0/1).
-Save assembled reads = All the reads used for the assembly will be stored in seperate files (yes/no).
-Combined reads       = The path to the file that contains the combined reads (forward and reverse in 1 file).
-Forward reads        = The path to the file that contains the forward reads (not necessary when there is a merged file).
-Reverse reads        = The path to the file that contains the reverse reads (not necessary when there is a merged file).
+Save assembled reads = All the reads used for the assembly will be stored in seperate files (yes/no)
 Seed Input           = The path to the file that contains the seed sequence.
 Reference (optional) = If a reference is available, you can give here the path to the fasta file.
                        The assembly will still be de novo, but references of the same genus can be used as a guide to resolve 
                        duplicated regions in the plant mitochondria or the inverted repeat in the chloroplast. 
                        References from different genus haven't beeen tested yet.
+Variance detection   = If you select yes, you should also have a reference sequence (previous line). It will create a vcf file                
+                       with all the variances compared to the give reference (yes/no)
+Heteroplasmy         = If yo uwant to detect heteroplasmy,first assemble the genome without this option. Then give the resulting                         
+                       sequence as a reference and as a seed input. And give the minimum minor allele frequency for this option 
+                       (0.01 will detect heteroplasmy of >1%)
 Chloroplast sequence = The path to the file that contains the chloroplast sequence (Only for mito_plant mode).
                        You have to assemble the chloroplast before you assemble the mitochondria of plants!
+
+Dataset 1:
+-----------------------
+Read Length          = The read length of your reads.
+Insert size          = Total insert size of your paired end reads, it doesn't have to be accurate but should be close enough.
+Platform             = illumina is for now the only option
+Single/Paired        = For the moment only paired end reads are supported.
+Combined reads       = The path to the file that contains the combined reads (forward and reverse in 1 file)
+Forward reads        = The path to the file that contains the forward reads (not necessary when there is a merged file)
+Reverse reads        = The path to the file that contains the reverse reads (not necessary when there is a merged file)
+
+Optional:
+-----------------------
+Insert size auto     = (yes/no) This will finetune your insert size automatically (Default: yes)
+Insert Range         = This variation on the insert size, could lower it when the coverage is very high or raise it when the
+                       coverage is too low (Default: 1.6). 
+Insert Range strict = Strict variation to resolve repetitive regions (Default: 1.2). 
 </pre>
 </html>
