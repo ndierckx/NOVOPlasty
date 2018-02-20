@@ -9,7 +9,7 @@ For the moment NOVOPlasty only supports whole genome Illumina paired-end reads a
 - UPDATED CONFIG FILE!                                                                                  
 - There are two new options, a basic variance and heteroplasmy caller
 - Improved reference guidance
-- Resolved some bugs and small improvements. 
+- Resolved some bugs and small improvements.                                                                          
 **28/08/17** 
 - Improved Seed retrieval.                                                                                  
 - Indicates when the coverage is too low (it gave a seed error before).                                
