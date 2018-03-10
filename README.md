@@ -5,7 +5,10 @@ For the moment NOVOPlasty only supports whole genome Illumina paired-end reads a
 
 ***If you are interested in beta testing the new version with a heteroplasmy detector and variance caller, pleasme contact me***
 
-**Last updates: 20/02/18 version 2.6.4**
+**Last updates: 10/03/18 version 2.6.5**
+- Resolved some bugs and small improvements.  
+- Improved Heteroplamsy calling                                                          
+**20/02/18**                                                                                     
 - UPDATED CONFIG FILE!                                                                                  
 - There are two new options, a basic variance and heteroplasmy caller
 - Improved reference guidance
