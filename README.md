@@ -3,7 +3,9 @@
 NOVOPlasty is a de novo assembler and variance caller for short circular genomes.  
 For the moment NOVOPlasty only supports whole genome Illumina paired-end reads as input.
 
-**Last updates: 11/03/18 version 2.6.5**
+**Last updates: 16/04/18 version 2.6.7**                                                   
+- Read ids that end with '1:N:0:1' lead to errenous results with versions 2.6.5 and 2.6.6                                  
+**11/03/18**                                                                                       
 - Automatic insert size was inaccurate for version 2.6.4 (fixed)
 - Resolved some bugs and small improvements.  
 - Improved Heteroplamsy calling                                                          
