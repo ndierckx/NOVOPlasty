@@ -27,11 +27,7 @@ For the moment NOVOPlasty only supports whole genome Illumina paired-end reads a
 **28/04/17** 
 - A new option to save the assembled reads in seperate files (UPDATED CONFIG FILE!).
 - Seed errors related to incompatible reads ids solved (SRA data files were often incompatible).                                  
-**21/04/17** 
-- It is now possible to use bz2 zipped read files as input.
-- Long repeats (> 400 bp) won't make the assembly get stuck in a loop anymore.
-- Several read id's were added to the library.                                          
-                                                                                             
+                                   
 
 ## Cite
 
@@ -114,6 +110,20 @@ All possible contig combinations will have a seperate fasta file.
 
 If non of the above files are outputted or are empty, you can retrieve some contigs from this file.
 
+----------------------------------------------------------------------------------------------------------
+### 5. Heteroplasmy detection
+
+#### 1. Assemble the organelle genome
+
+First assemble the organelle genome with NOVOPlasty but without the heteroplasmy function.
+
+#### 2. Prepare the reference sequence
+
+For heteroplasmy detection, you have to use the same sequence as reference AND as seed!
+This sequence should always be from the assembled genome in the previous step.
+If there are no repetitive regions, you can use the complete sequence, otherwise you should remove these regions.
+
+&nbsp;
 ## Interpretation and post-processing
 
 ### 1. General
