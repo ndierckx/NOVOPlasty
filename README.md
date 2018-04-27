@@ -131,7 +131,7 @@ Only potential mutations above this frequency will be detected (Value for the "H
 Heteroplasmy detection will be activated by giving a value for this option in the config file.
 
 A value of 0.01 will detect heteroplasmy above 1%, a value of 0.2 will detect heteropalsmy above 20%.
-If you want to detect low frequencies around 1%, you should not go lower than 0.007. And only go thos low when you have very high coverage (>1000X). The higher the coverage the more accurate!
+If you want to detect low frequencies around 1%, you should not go lower than 0.007. And only go this low when you have very high coverage (>1000X). The higher the coverage the more accurate!
 
 &nbsp;
 ## Interpretation and post-processing
