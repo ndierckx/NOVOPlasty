@@ -113,6 +113,8 @@ If non of the above files are outputted or are empty, you can retrieve some cont
 ----------------------------------------------------------------------------------------------------------
 ### 5. Heteroplasmy detection
 
+Only use heteropalsmy detection when you have enough coverage (>100X)!
+
 #### 1. Assemble the organelle genome
 
 First assemble the organelle genome with NOVOPlasty but without the heteroplasmy function.
@@ -122,6 +124,14 @@ First assemble the organelle genome with NOVOPlasty but without the heteroplasmy
 For heteroplasmy detection, you have to use the same sequence as reference AND as seed!
 This sequence should always be from the assembled genome in the previous step.
 If there are no repetitive regions, you can use the complete sequence, otherwise you should remove these regions.
+
+#### 3. Minimum minor allele frequency
+
+Only potential mutations above this frequency will be detected (Value for the "Heteroplasmy" option in the config file)
+Heteroplasmy detection will be activated by giving a value for this option in the config file.
+
+A value of 0.01 will detect heteroplasmy above 1%, a value of 0.2 will detect heteropalsmy above 20%.
+If you want to detect low frequencies around 1%, you should not go lower than 0.007. And only go thos low when you have very high coverage (>1000X). The higher the coverage the more accurate!
 
 &nbsp;
 ## Interpretation and post-processing
@@ -223,7 +233,7 @@ Reference (optional) = If a reference is available, you can give here the path t
                        References from different genus haven't beeen tested yet.
 Variance detection   = If you select yes, you should also have a reference sequence (previous line). It will create a vcf file                
                        with all the variances compared to the give reference (yes/no)
-Heteroplasmy         = If yo uwant to detect heteroplasmy,first assemble the genome without this option. Then give the resulting                         
+Heteroplasmy         = If you want to detect heteroplasmy,first assemble the genome without this option. Then give the resulting                         
                        sequence as a reference and as a seed input. And give the minimum minor allele frequency for this option 
                        (0.01 will detect heteroplasmy of >1%)
 Chloroplast sequence = The path to the file that contains the chloroplast sequence (Only for mito_plant mode).
