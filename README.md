@@ -4,7 +4,8 @@ NOVOPlasty is a de novo assembler and variance caller for short circular genomes
 For the moment NOVOPlasty only supports whole genome Illumina paired-end reads as input.
 
 **Last updates: 19/05/18 version 2.6.8**  
-- Forgot to delete a line of code that prevented to use more than 15 GB of RAM, use version 2.6.8. or higher!     
+- Forgot to delete a line of code that prevented to use more than 15 GB of RAM, use version 2.6.8. or higher! 
+- Problems with incorrect reading of the config file (especially with Windows) should be resolved
 - UPDATED CONFIG FILE!   
 **16/04/18**                                                                                            
 - Read ids that end with '1:N:0:1' lead to errenous results with versions 2.6.5 and 2.6.6                                  
@@ -190,6 +191,7 @@ Seed Input            = Seed.fasta
 Reference sequence    = /path/to/reference_file/reference.fasta (optional)
 Variance detection    = no
 Heteroplasmy          = 
+HP exclude list       =
 Chloroplast sequence  = /path/to/chloroplast_file/chloroplast.fasta (only for "mito_plant" option)
 
 Dataset 1:
@@ -239,6 +241,7 @@ Variance detection   = If you select yes, you should also have a reference seque
 Heteroplasmy         = If you want to detect heteroplasmy,first assemble the genome without this option. Then give the resulting                         
                        sequence as a reference and as a seed input. And give the minimum minor allele frequency for this option 
                        (0.01 will detect heteroplasmy of >1%)
+HP exclude list      = Option not yet available                      
 Chloroplast sequence = The path to the file that contains the chloroplast sequence (Only for mito_plant mode).
                        You have to assemble the chloroplast before you assemble the mitochondria of plants!
 
