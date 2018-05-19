@@ -11,6 +11,7 @@ Seed Input            = Seed.fasta
 Reference sequence    = /path/to/reference_file/reference.fasta (optional)
 Variance detection    = no
 Heteroplasmy          = 
+HP exclude list       =
 Chloroplast sequence  = /path/to/chloroplast_file/chloroplast.fasta (only for "mito_plant" option)
 
 Dataset 1:
@@ -57,6 +58,7 @@ Variance detection   = If you select yes, you should also have a reference seque
 Heteroplasmy         = If yo uwant to detect heteroplasmy,first assemble the genome without this option. Then give the resulting                         
                        sequence as a reference and as a seed input. And give the minimum minor allele frequency for this option 
                        (0.01 will detect heteroplasmy of >1%)
+HP exclude list      = Option not yet available  
 Chloroplast sequence = The path to the file that contains the chloroplast sequence (Only for mito_plant mode).
                        You have to assemble the chloroplast before you assemble the mitochondria of plants!
 
