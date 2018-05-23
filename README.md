@@ -3,7 +3,9 @@
 NOVOPlasty is a de novo assembler and variance caller for short circular genomes.  
 For the moment NOVOPlasty only supports whole genome Illumina paired-end reads as input.
 
-**Last updates: 19/05/18 version 2.6.8**  
+**Last updates: 23/05/18 version 2.6.9**  
+- Improved assembly in SNR regions                                                              
+**19/05/18**                                                                                            
 - Forgot to delete a line of code that prevented to use more than 15 GB of RAM, use version 2.6.8. or higher! 
 - Problems with incorrect reading of the config file (especially with Windows) should be resolved
 - UPDATED CONFIG FILE!   
@@ -17,21 +19,7 @@ For the moment NOVOPlasty only supports whole genome Illumina paired-end reads a
 - UPDATED CONFIG FILE!                                                                                  
 - There are two new options, a basic variance and heteroplasmy caller
 - Improved reference guidance
-- Resolved some bugs and small improvements.                                                                          
-**28/08/17** 
-- Improved Seed retrieval.                                                                                  
-- Indicates when the coverage is too low (it gave a seed error before).                                
-- Resolved some bugs and small improvements.                                                                                                                                                      
-**05/07/17** 
-- New Reference option available, only been tested on references of the same genus (UPDATED CONFIG FILE!).
-- This reference option will be used to resolve duplicated regions or inverted repeats, the assembly will still be de novo
-- Improved plant mitochondria option, reduced assembly of chloroplast sequences in "mito_plant" mode
-- But you first have to assemble the chloroplast before the mitochondria in plants! 
-- "mito_plant" mode will be further improved.                                                                                              
-**28/04/17** 
-- A new option to save the assembled reads in seperate files (UPDATED CONFIG FILE!).
-- Seed errors related to incompatible reads ids solved (SRA data files were often incompatible).                                  
-                                   
+- Resolved some bugs and small improvements.                                                                                                                                                                                                                                                                                                                                                                          
 
 ## Cite
 
