@@ -29,7 +29,7 @@ Optional:
 Insert size auto      = yes
 Insert Range          = 1.8
 Insert Range strict   = 1.3
-Use Quality           = no
+Use Quality Scores    = no
 
 
 Project:
@@ -79,7 +79,7 @@ Insert size auto     = (yes/no) This will finetune your insert size automaticall
 Insert Range         = This variation on the insert size, could lower it when the coverage is very high or raise it when the
                        coverage is too low (Default: 1.6). 
 Insert Range strict  = Strict variation to resolve repetitive regions (Default: 1.2).                                
-Use Quality          = It will take in account the quality scores, only use this when reads have low quality, like with the    
+Use Quality Scores   = It will take in account the quality scores, only use this when reads have low quality, like with the    
                        300 bp reads of Illumina (yes/no)
 
 
