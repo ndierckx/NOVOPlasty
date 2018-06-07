@@ -3,7 +3,10 @@
 NOVOPlasty is a de novo assembler and variance caller for short circular genomes.  
 For the moment NOVOPlasty only supports whole genome Illumina paired-end reads as input.
 
-**Last updates: 24/05/18 version 2.7.0**                                                        
+**Last updates: 07/06/18 version 2.7.1**                                                        
+- There was a bug since version 2.2.3 that made seed files, where the bases weren't in CAPs (actg in stead of ACTG), unreadable    and outputted INVALID SEED ERROR.
+- A new option was added to the config file (Use Quality Scores), Use this option for the 300 bp Illumina reads (as long as their high error rates aren't fixed) UPDATE CONFIG FILE!                                                                      
+**24/05/18**                                                                                                  
 - Version 2.6.8 and 2.6.9 had a bug that read the discriptions of the config file in stead of your input                  
 **23/05/18**                                                                                                         
 - Improved assembly in SNR regions                                                              
@@ -199,7 +202,7 @@ Optional:
 Insert size auto      = yes
 Insert Range          = 1.8
 Insert Range strict   = 1.3
-Use Quality           = no
+Use Quality Scores    = no
 </pre>
 
 **2. Explanation parameters:**
@@ -251,8 +254,8 @@ Optional:
 Insert size auto     = (yes/no) This will finetune your insert size automatically (Default: yes)
 Insert Range         = This variation on the insert size, could lower it when the coverage is very high or raise it when the
                        coverage is too low (Default: 1.6). 
-Insert Range strict = Strict variation to resolve repetitive regions (Default: 1.2).          
-Use Quality          = It will take in account the quality scores, only use this when reads have low quality, like with the    
+Insert Range strict  = Strict variation to resolve repetitive regions (Default: 1.2).          
+Use Quality Scores   = It will take in account the quality scores, only use this when reads have low quality, like with the    
                        300 bp reads of Illumina (yes/no)
 </pre>
 </html>
