@@ -37,7 +37,7 @@ Any issues/requests/problems/comments that are not yet addressed on this page ca
 
 Or you can contact me directly through the following email address:
 
-nicolasdierckxsens@hotmail.com 
+nicolasdierckxsens at hotmail dot com 
 
 If your assembly was unsuccessful, you could already add the log file and the configuration file to the mail, this could help me to identify the problem!
 
