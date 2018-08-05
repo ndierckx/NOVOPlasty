@@ -3,7 +3,10 @@
 NOVOPlasty is a de novo assembler and variance caller for short circular genomes.  
 For the moment NOVOPlasty only supports whole genome Illumina paired-end reads as input.
 
-**Last updates: 07/06/18 version 2.7.1**                                                        
+**Last updates: 04/08/18 version 2.7.2**  
+- A bug in the variance caller is resolved
+- Added new read ids                                                                       
+**07/06/18**                                                                                      
 - There was a bug since version 2.2.3 that made seed files, where the bases weren't in CAPs (actg in stead of ACTG), unreadable    and outputted INVALID SEED ERROR.
 - A new option was added to the config file (Use Quality Scores), Use this option for the 300 bp Illumina reads (as long as their high error rates aren't fixed) UPDATE CONFIG FILE!                                                                      
 **24/05/18**                                                                                                  
