@@ -8,32 +8,7 @@ For the moment NOVOPlasty only supports whole genome Illumina paired-end reads a
 - New heteroplasmy function (can link heteroplasmic mutations by local assembly)
 - New batch function   
 - Small improvements in assembly                                                                                         
-**04/08/18**                                                                                             
-- A bug in the variance caller is resolved
-- Added new read ids                                                                       
-**07/06/18**                                                                                      
-- There was a bug since version 2.2.3 that made seed files, where the bases weren't in CAPs (actg in stead of ACTG), unreadable    and outputted INVALID SEED ERROR.
-- A new option was added to the config file (Use Quality Scores), Use this option for the 300 bp Illumina reads (as long as their high error rates aren't fixed) UPDATE CONFIG FILE!                                                                      
-**24/05/18**                                                                                                  
-- Version 2.6.8 and 2.6.9 had a bug that read the discriptions of the config file in stead of your input                  
-**23/05/18**                                                                                                         
-- Improved assembly in SNR regions                                                              
-**19/05/18**                                                                                            
-- Forgot to delete a line of code that prevented to use more than 15 GB of RAM, use version 2.6.8. or higher! 
-- Problems with incorrect reading of the config file (especially with Windows) should be resolved
-- UPDATED CONFIG FILE!   
-**16/04/18**                                                                                            
-- Read ids that end with '1:N:0:1' lead to errenous results with versions 2.6.5 and 2.6.6                                  
-**11/03/18**                                                                                       
-- Automatic insert size was inaccurate for version 2.6.4 (fixed)
-- Resolved some bugs and small improvements.  
-- Improved Heteroplamsy calling                                                          
-**20/02/18**                                                                                     
-- UPDATED CONFIG FILE!                                                                                  
-- There are two new options, a basic variance and heteroplasmy caller
-- Improved reference guidance
-- Resolved some bugs and small improvements.                                                                                                                                                                                                                                                                                                                                                                          
-
+                                                                                                                                                                                                                                                         
 ## Cite
 
 <a href="http://nar.oxfordjournals.org/content/early/2016/10/24/nar.gkw955.full">Dierckxsens N., Mardulyn P. and Smits G. (2016) NOVOPlasty: De novo assembly of organelle genomes from whole genome data. <i>Nucleic Acids Research</i>, doi: 10.1093/nar/gkw955<a>
