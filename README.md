@@ -7,7 +7,7 @@ For the moment NOVOPlasty only supports whole genome Illumina paired-end reads a
 - UPDATED CONFIG FILE!                                                                     
 - New heteroplasmy function (can link heteroplasmic mutations by local assembly)
 - New batch function   
-- Small improvements in assembly
+- Small improvements in assembly                                                                                         
 **04/08/18**                                                                                             
 - A bug in the variance caller is resolved
 - Added new read ids                                                                       
