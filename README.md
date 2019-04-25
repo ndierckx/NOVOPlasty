@@ -1,7 +1,6 @@
-# NOVOPlasty - The organelle assembler
+# NOVOPlasty - The organelle assembler and heteroplasmy caller
 
-NOVOPlasty is a de novo assembler and variance caller for short circular genomes.  
-For the moment NOVOPlasty only supports whole genome Illumina paired-end reads as input.
+NOVOPlasty is a de novo assembler and heteroplasmy/variance caller for short circular genomes.  
 
 **Last updates: 24/04/19 version 3.0** 
 - UPDATED CONFIG FILE!                                                                     
@@ -38,7 +37,7 @@ Perl
 ### 1. Find a suitable seed
 
 There are different types of seed possible:
-- A single read from the dataset that originates from the organelle plastid.
+- A single read from the dataset that originates from the organelle genome.
 - A organelle sequence derived from the same or a related species.
 - A complete organelle sequence of a more distant species (recommended when there is no close related sequence available)
 
@@ -57,17 +56,18 @@ Every parameter of the configuration file is explained below.
 
 No further installation is necessary:
 
-<code>perl NOVOPlasty.pl -c config.txt</code>
+<code>perl NOVOPlasty3.0.pl -c config.txt</code>
 
-The input reads have to be uncompressed Illumina reads (fastq/fasta files) or gz zipped files.  
+The input reads have to be uncompressed Illumina reads (fastq/fasta files) or gz/bz2 zipped files.  
+There is also an Ion Torrent option, but it does not produce the best results. 
 Either two separate files(forward and reverse) or a merged fastq/fasta file.  
 Multiple libraries as input is not yet supported.
 
 DO NOT filter or quality trim the reads!!! Use the raw whole genome dataset (Only adapters should be removed)!
 
-You can subsample to speed up the process and to reduce the memory requirements. But it is recommended to use as much reads as possible, especially when the organelle genome contains AT-rich stretches.
+You can subsample to speed up the process and to reduce the memory requirements. This also possible by using the max memory option in the config file. But it is recommended to use as much reads as possible, especially when the organelle genome contains AT-rich stretches.
 
-You can always try different K-mer's. In the case of low coverage problems or seed errors, it's recommended to lower the K-mer (set between 25-39)!!!.
+You can always try different K-mer's. In the case of low coverage problems or seed errors, it's recommended to lower the K-mer (set between 21-39)!!!.
 
 ### 4. Output files
 
