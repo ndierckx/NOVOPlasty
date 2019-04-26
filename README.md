@@ -31,8 +31,11 @@ If your assembly was unsuccessful, you could already add the log file and the co
 
 Perl
 
+A more complete manual can found under the wiki section!
 
 ## Instructions
+
+**A more complete manual can found under the wiki section!**
 
 ### 1. Find a suitable seed
 
