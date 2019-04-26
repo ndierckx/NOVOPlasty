@@ -72,25 +72,6 @@ You can subsample to speed up the process and to reduce the memory requirements.
 
 You can always try different K-mer's. In the case of low coverage problems or seed errors, it's recommended to lower the K-mer (set between 21-39)!!!.
 
-### 4. Output files
-
-NOVOPlasty outputs four types of files:
-
-#### 1. Contigs_projectname.txt
-
-This file contains the contigs of the assemblies.
-
-#### 2. Merged_contigs_projectname.txt
-
-When there are multiple contigs, NOVOPlasty will try to combine all contigs in to a complete circular genome, all the different possibilities can be found in this file.
-
-#### 3. Option_nr_projectname.txt
-
-All possible contig combinations will have a seperate fasta file.
-
-#### 4. contigs_tmp_projectname.txt
-
-If non of the above files are outputted or are empty, you can retrieve some contigs from this file.
 
 ----------------------------------------------------------------------------------------------------------
 ### 5. Heteroplasmy detection
