@@ -25,6 +25,7 @@ If your assembly was unsuccessful, you could already add the log file and the co
 
 <a href="http://www.huderf.be/" target="_blank"><img border="0" src="http://cdn.prezly.com/08/500080108e11e68f98cbaed0afad97/HUDERF-LOGO_cmyb_4_www.jpg" width=auto height="95" ></a>
 <a href="http://ebe.ulb.ac.be/ebe/ebe-Welcome.html" target="_blank"><img border="0" src="https://www.ulb.ac.be/dre/com/docs/logo3lg.jpg" width=auto height="95" ></a>
+<a href="http://www.belgiankidsfund.be" target="_blank"><img border="0" src="http://www.belgiankidsfund.be/images/logo.png" width=auto height="95" ></a>  
 
 
 ## Prerequisites
