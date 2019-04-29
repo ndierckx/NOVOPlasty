@@ -74,27 +74,6 @@ You can always try different K-mer's. In the case of low coverage problems or se
 
 
 ----------------------------------------------------------------------------------------------------------
-### 5. Heteroplasmy detection
-
-Only use heteropalsmy detection when you have enough coverage (>100X)!
-
-#### 1. Assemble the organelle genome
-
-First assemble the organelle genome with NOVOPlasty but without the heteroplasmy function.
-
-#### 2. Prepare the reference sequence
-
-For heteroplasmy detection, you have to use the same sequence as reference AND as seed!
-This sequence should always be from the assembled genome in the previous step.
-If there are no repetitive regions, you can use the complete sequence, otherwise you should remove these regions.
-
-#### 3. Minimum minor allele frequency
-
-Only potential mutations above this frequency will be detected (Value for the "Heteroplasmy" option in the config file)
-Heteroplasmy detection will be activated by giving a value for this option in the config file.
-
-A value of 0.01 will detect heteroplasmy above 1%, a value of 0.2 will detect heteropalsmy above 20%.
-If you want to detect low frequencies around 1%, you should not go lower than 0.007. And only go this low when you have very high coverage (>1000X). The higher the coverage the more accurate!
 
 &nbsp;
 ## Interpretation and post-processing
