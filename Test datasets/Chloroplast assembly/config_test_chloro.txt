@@ -1,0 +1,36 @@
+Project:
+-----------------------
+Project name          = test_chloro
+Type                  = chloro
+Genome Range          = 120000-180000
+K-mer                 = 39
+Max memory            = 
+Extended log          = 
+Save assembled reads  = 
+Seed Input            = Seed_RUBP.fasta
+Reference sequence    =
+Variance detection    =
+Chloroplast sequence  =
+
+Dataset 1:
+-----------------------
+Read Length           = 151
+Insert size           = 450
+Platform              = illumina
+Single/Paired         = PE
+Combined reads        = 
+Forward reads         = SRR1328237_1.fasta.gz
+Reverse reads         = SRR1328237_2.fasta.gz
+
+Heteroplasmy:
+-----------------------
+MAF                   = 
+HP exclude list       = 
+PCR-free              = 
+
+Optional:
+-----------------------
+Insert size auto      = yes
+Insert Range          = 1.9
+Insert Range strict   = 1.3
+Use Quality Scores    =
