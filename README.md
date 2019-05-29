@@ -2,7 +2,9 @@
 
 NOVOPlasty is a de novo assembler and heteroplasmy/variance caller for short circular genomes.  
 
-**Last updates: 24/04/19 version 3.0** 
+**Last updates: 24/04/19 version 3.2** 
+- Resolved several bugs                                                                              
+**24/04/19** 
 - UPDATED CONFIG FILE!                                                                     
 - New heteroplasmy function (can link heteroplasmic mutations by local assembly)
 - New batch function   
@@ -59,7 +61,7 @@ Every parameter of the configuration file is explained below.
 
 No further installation is necessary:
 
-<code>perl NOVOPlasty3.0.pl -c config.txt</code>
+<code>perl NOVOPlasty3.2.pl -c config.txt</code>
 
 The input reads have to be uncompressed Illumina reads (fastq/fasta files) or gz/bz2 zipped files.  
 There is also an Ion Torrent option, but it does not produce the best results. 
