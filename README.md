@@ -190,8 +190,8 @@ Dataset 1:
 -----------------------
 Read Length          = The read length of your reads.
 Insert size          = Total insert size of your paired end reads, it doesn't have to be accurate but should be close enough.
-Platform             = illumina is for now the only option
-Single/Paired        = For the moment only paired end reads are supported.
+Platform             = illumina/ion The performance of the Ion torrent is limited
+Single/Paired        = PE/SE.
 Combined reads       = The path to the file that contains the combined reads (forward and reverse in 1 file)
 Forward reads        = The path to the file that contains the forward reads (not necessary when there is a merged file)
 Reverse reads        = The path to the file that contains the reverse reads (not necessary when there is a merged file)
