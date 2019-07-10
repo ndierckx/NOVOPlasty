@@ -4,7 +4,7 @@ NOVOPlasty is a de novo assembler and heteroplasmy/variance caller for short cir
 
 **Last updates: 10/07/19 version 3.4** 
 - Resolved several bugs
-- There were some problems with high memory usage, should be resolved now
+- There were some problems with high memory usage, should be resolved now                                               
 **24/04/19** 
 - UPDATED CONFIG FILE!                                                                     
 - New heteroplasmy function (can link heteroplasmic mutations by local assembly)
