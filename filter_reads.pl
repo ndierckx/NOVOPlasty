@@ -14,7 +14,7 @@ my $reads12 = "";
 my $reads1 = "";
 my $reads2 = "";
 my $reference = "";
-my $kmer = '13';
+my $kmer = '16';
 
 GetOptions (
             "1=s" => \$reads1,
@@ -348,7 +348,7 @@ foreach my $reads_tmp (@reads_tmp)
             {
                 if (exists($hash_pairs_ids{$id2}))
                 {
-                    $save_read = "yes";
+                    $save_read = "yes2";
                 }
             }
         }
@@ -370,9 +370,12 @@ READ:       while ($t < length($line)-$kmer && $save_read eq "")
                     }
                     else
                     {
-                        $hash_pairs_ids{$id2} = undef;
+                        $hash_pairs_ids{$id2} = undef;  
                     }
-                    $save_read = "yes";
+                    if ($save_read eq "")
+                    {
+                        $save_read = "yes";
+                    }
                     last READ;
                 }
                 $t += 4;
@@ -380,28 +383,31 @@ READ:       while ($t < length($line)-$kmer && $save_read eq "")
         }
         elsif ($line_order eq '4')
         {
-            if ($save_read eq "yes")
+            if ($save_read ne "")
             {
                 $quality_score = $line;
                 if ($file eq '1')
                 {
-                    $id1{$id2} = $id;
-                    $read1{$id2} = $sequence;
-                    $quality1{$id2} = $quality_score;
-                    #print OUTPUT10 $id."\n";
-                    #print OUTPUT10 $sequence."\n";
-                    #print OUTPUT10 "+\n";
-                    #print OUTPUT10 $quality_score."\n";
+                    #$id1{$id2} = $id;
+                    #$read1{$id2} = $sequence;
+                    #$quality1{$id2} = $quality_score;
+                    print OUTPUT10 $id."\n";
+                    print OUTPUT10 $sequence."\n";
+                    print OUTPUT10 "+\n";
+                    print OUTPUT10 $quality_score."\n";
                 }
-                elsif ($file eq '2')
+                elsif ($file eq '2' && $save_read eq "yes")
                 {
                     $id2{$id2} = $id;
                     $read2{$id2} = $sequence;
                     $quality2{$id2} = $quality_score;
-                    #print OUTPUT11 $id."\n";
-                    #print OUTPUT11 $sequence."\n";
-                    #print OUTPUT11 "+\n";
-                    #print OUTPUT11 $quality_score."\n";
+                }
+                elsif ($file eq '2' && $save_read eq "yes2")
+                {
+                    print OUTPUT11 $id."\n";
+                    print OUTPUT11 $sequence."\n";
+                    print OUTPUT11 "+\n";
+                    print OUTPUT11 $quality_score."\n";
                 }
                 $count_filtered_reads++;
                 $save_read = "";
@@ -413,7 +419,7 @@ READ:       while ($t < length($line)-$kmer && $save_read eq "")
     close $FILE;
     print "...OK\n";
 }
-
+%hash_pairs_ids = ();
 my $FILE2;
 if ($check_zip eq "gz")
 {
