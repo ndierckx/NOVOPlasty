@@ -147,6 +147,7 @@ my $code_before_end0_reverse = substr $firstLine_reverse, -1,1;
 
 my $SRA = "";
 
+
 if (($code_before_end eq "/" || $code_before_end eq "R" || $code_before_end eq "#") && $firstLine_reverse ne $firstLine && $code_before_end0 eq "1")
 {
     $type_of_file = '-1';
@@ -155,9 +156,9 @@ elsif ($code_before_end eq ":" && $code_before_end0 eq "1" && $firstLine_reverse
 {
     $type_of_file = '-1';
 }
-elsif($firstLine =~ m/(.*)(_|\s)(1)(:\w.*\d+:*(\s.*)*\s*\t*)$/ && $firstLine_reverse ne $firstLine)
+elsif($firstLine =~ m/.*(_|\s)(1)(:\w.*\d+:*(\s.*)*\s*\t*)$/ && $firstLine_reverse ne $firstLine)
 {
-    $type_of_file = length($1);
+    $type_of_file = "yes";
 }
 elsif ($code_before_end eq ":" && $code_before_end0 eq "1" && $firstLine_reverse ne $firstLine && $firstLine_reverse eq "")
 {
@@ -166,7 +167,12 @@ elsif ($code_before_end eq ":" && $code_before_end0 eq "1" && $firstLine_reverse
 elsif($firstLine =~ m/.*\s(1)(\S*)$/ && $firstLine_reverse ne $firstLine)
 {
     my $firstLine_tmp = $firstLine;
+    my $test_space = $firstLine_tmp =~ tr/ //;
     $type_of_file = -length($2)-1;
+    if ($test_space eq '1')
+    {
+        $type_of_file = "split";
+    }
 }
 elsif($firstLine =~ m/.*_(1)(:N.*)$/ && $firstLine_reverse ne $firstLine)
 {
@@ -195,7 +201,7 @@ elsif($fifthLine =~ m/.*\.(1)(\s(.+)\s.+)$/ && $firstLine_reverse ne $firstLine)
 }
 elsif($firstLine_reverse eq $firstLine)
 {
-    $type_of_file = "-1";
+    $type_of_file = "identical";
 }
 elsif($reads12 ne "")
 {
@@ -216,7 +222,6 @@ if ($last_character =~ m/\s|\t/g)
     #print OUTPUT5 $last_character." LAST2\n";
     $space_at_end = "yes";
 }
-
 select(STDERR);
 $| = 1;
 select(STDOUT); # default
@@ -292,7 +297,7 @@ my $output_file11 = "Filtered_reads_".$project."_R2.fastq";
 open(OUTPUT10, ">" .$output_file10) or die "Can't open saved reads1 file $output_file10, $!\n";
 open(OUTPUT11, ">" .$output_file11) or die "Can't open saved reads2 file $output_file11, $!\n";
 
-
+my $type_of_file2 = "";
 my $file = "0";
 my $count_all_reads = '0';
 my $count_filtered_reads = '0';
@@ -342,8 +347,46 @@ foreach my $reads_tmp (@reads_tmp)
         if ($line_order eq '1')
         {
             $id = $line;
-            $id2 = substr $line, 0, $type_of_file;
+            #$id2 = substr $line, 0, $type_of_file;
             
+            my $code0_SRA = "";
+            if ($SRA eq "yes")
+            {
+                my $code_SRA = substr $id, 0, $type_of_file;
+                my @code_SRA = split / /, $code_SRA;
+                $code0_SRA = $code_SRA[0];
+            }                  
+            if ($type_of_file eq "yes")
+            {
+                if($id =~ m/.*(_|\s)(1|2)(:\w.*\d+:*(\s.*)*\s*\t*)$/)
+                {
+                    $type_of_file2 = -length($3)-1;
+                }   
+            }
+            if ($type_of_file eq "split")
+            {
+                my @split = split / /, $id;
+                $type_of_file2 = $split[0];
+            }
+            
+            $id2 = substr $id, 0, $type_of_file;
+            if ($SRA eq "yes")
+            {
+                $id2 = $code0_SRA;
+            }
+            
+            if ($type_of_file eq "identical")
+            {
+               $id2 = $id;
+            }
+            if ($type_of_file eq "yes")
+            {
+               $id2 = substr $id, 0, $type_of_file2;
+            }
+            if ($type_of_file eq "split")
+            {
+                $id2 = $type_of_file2;
+            }
             if ($file eq '2')
             {
                 if (exists($hash_pairs_ids{$id2}))
@@ -358,28 +401,32 @@ foreach my $reads_tmp (@reads_tmp)
             $count_all_reads++;
             $sequence = $line;
             
-READ:       while ($t < length($line)-$kmer && $save_read eq "")
+            if ($save_read ne "yes2")
             {
-                my $line_part = substr $line, $t, $kmer;
-
-                if (exists($hashref{$line_part}))
-                {                   
-                    if ($file eq '2')
-                    {
-                        $hash_pairs_ids2{$id2} = undef;
+    READ:       while ($t < length($line)-$kmer && $save_read eq "")
+                {
+                    my $line_part = substr $line, $t, $kmer;
+    
+                    if (exists($hashref{$line_part}))
+                    {                   
+                        if ($file eq '2')
+                        {
+                            $hash_pairs_ids2{$id2} = undef;
+                        }
+                        else
+                        {
+                            $hash_pairs_ids{$id2} = undef;
+                            
+                        }
+                        if ($save_read eq "")
+                        {
+                            $save_read = "yes";
+                        }
+                        last READ;
                     }
-                    else
-                    {
-                        $hash_pairs_ids{$id2} = undef;  
-                    }
-                    if ($save_read eq "")
-                    {
-                        $save_read = "yes";
-                    }
-                    last READ;
+                    $t += 4;
                 }
-                $t += 4;
-            }
+            }    
         }
         elsif ($line_order eq '4')
         {
@@ -445,7 +492,47 @@ while (my $line = <$FILE2>)
     if ($line_order eq '1')
     {
         $id = $line;
-        $id2 = substr $line, 0, $type_of_file;
+        #$id2 = substr $line, 0, $type_of_file;
+        
+        my $code0_SRA = "";
+        if ($SRA eq "yes")
+        {
+            my $code_SRA = substr $id, 0, $type_of_file;
+            my @code_SRA = split / /, $code_SRA;
+            $code0_SRA = $code_SRA[0];
+        }                  
+        if ($type_of_file eq "yes")
+        {
+            if($id =~ m/.*(_|\s)(1|2)(:\w.*\d+:*(\s.*)*\s*\t*)$/)
+            {
+                $type_of_file2 = -length($3)-1;
+            }   
+        }
+        if ($type_of_file eq "split")
+        {
+            my @split = split / /, $id;
+            $type_of_file2 = $split[0];
+        }
+        
+        my $id2 = substr $id, 0, $type_of_file;
+        if ($SRA eq "yes")
+        {
+            $id2 = $code0_SRA;
+        }
+        
+        if ($type_of_file eq "identical")
+        {
+           $id2 = $id;
+        }
+        if ($type_of_file eq "yes")
+        {
+           $id2 = substr $id, 0, $type_of_file2;
+        }
+        if ($type_of_file eq "split")
+        {
+            $id2 = $type_of_file2;
+        }
+
         if (exists($hash_pairs_ids2{$id2}))
         {
             $save_read = "yes";
