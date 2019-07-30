@@ -35,11 +35,6 @@ If your assembly was unsuccessful, you could already add the log file and the co
 <a href="http://www.belgiankidsfund.be" target="_blank"><img border="0" src="http://www.belgiankidsfund.be/images/logo.png" width=auto height="95" ></a>  
 
 
-## Prerequisites
-
-Perl
-
-
 ## Instructions
 
 **!A more complete manual can found under the wiki section!**
