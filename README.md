@@ -37,7 +37,7 @@ If your assembly was unsuccessful, you could already add the log file and the co
 
 ## Instructions
 
-**!A more complete manual can found under the wiki section!**
+**!A more complete manual can found under the [Wiki](https://github.com/ndierckx/NOVOPlasty/wiki) section!**
 
 ### 1. Find a suitable seed
 
