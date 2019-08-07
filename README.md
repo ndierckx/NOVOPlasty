@@ -171,7 +171,8 @@ Max memory           = You can choose a max memory usage, suitable to automatica
                        memory capacity. If you have sufficient memory, leave it blank, else write your available memory in GB
                        (if you have for example a 8 GB RAM laptop, put down 7 or 7.5 (don't add the unit in the config file))
 Extended log         = Prints out a very extensive log, could be useful to send me when there is a problem  (0/1).
-Save assembled reads = All the reads used for the assembly will be stored in seperate files (yes/no)
+Save assembled reads = All the reads used for the assembly will be stored in seperate files; if option 2 is used, the   
+                       original ids will be retained. (yes/no/2)
 Seed Input           = The path to the file that contains the seed sequence.
 Reference (optional) = If a reference is available, you can give here the path to the fasta file.
                        The assembly will still be de novo, but references of the same genus can be used as a guide to resolve 
