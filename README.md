@@ -2,7 +2,9 @@
 
 NOVOPlasty is a de novo assembler and heteroplasmy/variance caller for short circular genomes.  
 
-**Last updates: 30/08/19 version 3.5**                           
+**Last updates: 12/08/19 version 3.6**                                     
+- Improved heteroplasmy calling
+**30/07/19**                                                        
 - Improved heteroplasmy calling
 - Resolved several bugs
 - Batch assemblies won't interrupt anymore after a failed assembly                                                     
