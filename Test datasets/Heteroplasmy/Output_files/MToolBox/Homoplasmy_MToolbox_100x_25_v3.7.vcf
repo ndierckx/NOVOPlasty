@@ -1,0 +1,57 @@
+##fileformat=VCFv4.0
+##fileDate=09:55:4809
+##reference=/media/nicolas/Data/Mappings/Perl/Heteroplasmy/rCRS.fasta
+##INFO=<ID=AF,Number=1,Type=Float,Description="Allele Frequency">
+##INFO=<ID=DP,Number=1,Type=Integer,Description="Raw Depth">
+##INFO=<ID=FR,Number=1,Type=Flag,Description="Detected on the forward(F) and/or reverse(R) strand">
+#CHROM	POS	ID	REF	ALT	QUAL	FILTER	INFO
+mt	73	.	A	G	.	.	AF=1;DP=21;FR=R
+mt	146	.	T	C	.	.	AF=1;DP=38;FR=R
+mt	152	.	T	C	.	.	AF=1;DP=28;FR=R
+mt	195	.	T	C	.	.	AF=1;DP=41;FR=R
+mt	247	.	G	A	.	.	AF=1;DP=45;FR=R
+mt	263	.	A	G	.	.	AF=0.977;DP=43;FR=R
+mt	750	.	A	G	.	.	AF=1;DP=27;FR=R
+mt	769	.	G	A	.	.	AF=1;DP=29;FR=R
+mt	825	.	T	A	.	.	AF=1;DP=33;FR=R
+mt	1018	.	G	A	.	.	AF=1;DP=23;FR=R
+mt	1438	.	A	G	.	.	AF=1;DP=79;FR=R
+mt	2706	.	A	G	.	.	AF=1;DP=29;FR=R
+mt	2758	.	G	A	.	.	AF=1;DP=71;FR=R
+mt	2885	.	T	C	.	.	AF=1;DP=35;FR=R
+mt	3594	.	C	T	.	.	AF=1;DP=33;FR=R
+mt	4104	.	A	G	.	.	AF=1;DP=33;FR=R
+mt	4312	.	C	T	.	.	AF=1;DP=25;FR=R
+mt	4769	.	A	G	.	.	AF=1;DP=29;FR=R
+mt	7028	.	C	T	.	.	AF=1;DP=38;FR=R
+mt	7146	.	A	G	.	.	AF=1;DP=27;FR=R
+mt	7256	.	C	T	.	.	AF=0.986;DP=74;FR=R
+mt	7521	.	G	A	.	.	AF=1;DP=40;FR=R
+mt	8468	.	C	T	.	.	AF=1;DP=25;FR=R
+mt	8655	.	C	T	.	.	AF=1;DP=28;FR=R
+mt	8701	.	A	G	.	.	AF=1;DP=22;FR=R
+mt	8860	.	A	G	.	.	AF=1;DP=20;FR=R
+mt	9540	.	T	C	.	.	AF=1;DP=37;FR=R
+mt	10398	.	A	G	.	.	AF=1;DP=25;FR=R
+mt	10664	.	C	T	.	.	AF=1;DP=32;FR=R
+mt	10688	.	G	A	.	.	AF=1;DP=41;FR=R
+mt	10810	.	T	C	.	.	AF=1;DP=24;FR=R
+mt	10873	.	T	C	.	.	AF=1;DP=67;FR=R
+mt	10915	.	T	C	.	.	AF=1;DP=34;FR=R
+mt	11719	.	G	A	.	.	AF=1;DP=30;FR=R
+mt	11914	.	G	A	.	.	AF=1;DP=29;FR=R
+mt	12705	.	C	T	.	.	AF=1;DP=33;FR=R
+mt	13105	.	A	G	.	.	AF=1;DP=29;FR=R
+mt	13276	.	A	G	.	.	AF=1;DP=34;FR=R
+mt	13506	.	C	T	.	.	AF=1;DP=35;FR=R
+mt	13650	.	C	T	.	.	AF=1;DP=34;FR=R
+mt	14766	.	C	T	.	.	AF=1;DP=27;FR=R
+mt	15326	.	A	G	.	.	AF=1;DP=28;FR=R
+mt	16129	.	G	A	.	.	AF=1;DP=23;FR=R
+mt	16187	.	C	T	.	.	AF=1;DP=30;FR=R
+mt	16189	.	T	C	.	.	AF=1;DP=30;FR=R
+mt	16223	.	C	T	.	.	AF=1;DP=33;FR=R
+mt	16230	.	A	G	.	.	AF=1;DP=29;FR=R
+mt	16278	.	C	T	.	.	AF=0.975;DP=40;FR=R
+mt	16311	.	T	C	.	.	AF=1;DP=31;FR=R
+mt	16519	.	T	C	.	.	AF=1;DP=33;FR=R

@@ -1,0 +1,8 @@
+##fileformat=VCFv4.0
+##fileDate=10:02:4509
+##reference=/media/nicolas/Data/Mappings/Perl/Heteroplasmy/rCRS.fasta
+##INFO=<ID=AF,Number=1,Type=Float,Description="Allele Frequency">
+##INFO=<ID=DP,Number=1,Type=Integer,Description="Raw Depth">
+##INFO=<ID=FR,Number=1,Type=Flag,Description="Detected on the forward(F) and/or reverse(R) strand">
+##INFO=<ID=LCR,Number=1,Type=String,Description="Low Complexity Region">
+#CHROM	POS	ID	REF	ALT	QUAL	FILTER	INFO
