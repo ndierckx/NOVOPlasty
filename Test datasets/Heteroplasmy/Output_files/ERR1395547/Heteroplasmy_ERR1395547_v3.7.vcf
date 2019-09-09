@@ -1,0 +1,28 @@
+##fileformat=VCFv4.0
+##fileDate=19:01:2309
+##reference=/media/nicolas/Data/Mappings/Perl/Heteroplasmy/rCRS.fasta
+##INFO=<ID=AF,Number=1,Type=Float,Description="Allele Frequency">
+##INFO=<ID=DP,Number=1,Type=Integer,Description="Raw Depth">
+##INFO=<ID=FR,Number=1,Type=Flag,Description="Detected on the forward(F) and/or reverse(R) strand">
+##INFO=<ID=LCR,Number=1,Type=String,Description="Low Complexity Region">
+#CHROM	POS	ID	REF	ALT	QUAL	FILTER	INFO
+mt	111	.	A	C	.	.	AF=0.985,0.0104;DP=1805;FR=R;LCR=
+mt	309	.	C	CCT	.	.	AF=;DP=;FR=R;LCR=SNR(C)
+mt	971	.	A	AA	.	.	AF=;DP=;FR=R;LCR=SNR
+mt	4312	.	C	T	.	.	AF=0.00593;DP=2362;FR=F;LCR=
+mt	4318	.	C	T	.	.	AF=0.00689;DP=2324;FR=FR;LCR=
+mt	4456	.	C	T	.	.	AF=0.00813;DP=1968;FR=R;LCR=
+mt	6023	.	G	A	.	.	AF=0.00728;DP=1647;FR=FR;LCR=
+mt	6221	.	T	C	.	.	AF=0.008;DP=1532;FR=F;LCR=
+mt	6242	.	C	T	.	.	AF=0.00927;DP=1507;FR=FR;LCR=
+mt	6266	.	A	C	.	.	AF=0.00939;DP=1488;FR=FR;LCR=
+mt	6272	.	A	G	.	.	AF=0.991;DP=1506;FR=FR;LCR=
+mt	6299	.	A	G	.	.	AF=0.00768;DP=1172;FR=FR;LCR=
+mt	6366	.	G	A	.	.	AF=0.00978;DP=1532;FR=FR;LCR=
+mt	6383	.	G	A	.	.	AF=0.00751;DP=1997;FR=F;LCR=
+mt	6410	.	C	T	.	.	AF=0.00683;DP=2051;FR=F;LCR=
+mt	6641	.	T	C	.	.	AF=0.00827;DP=2056;FR=F;LCR=SNR
+mt	7146	.	A	G	.	.	AF=0.00653;DP=2144;FR=R;LCR=
+mt	7232	.	C	T	.	.	AF=0.00982;DP=1935;FR=FR;LCR=
+mt	7256	.	C	T	.	.	AF=0.00935;DP=1604;FR=FR;LCR=
+mt	7316	.	G	A	.	.	AF=0.00935;DP=1388;FR=FR;LCR=
