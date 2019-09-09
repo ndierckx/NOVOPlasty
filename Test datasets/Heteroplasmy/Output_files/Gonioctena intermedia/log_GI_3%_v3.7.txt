@@ -1,0 +1,89 @@
+
+
+-----------------------------------------------
+NOVOPlasty: The Organelle Assembler
+Version 3.7
+Author: Nicolas Dierckxsens, (c) 2015-2019
+-----------------------------------------------
+
+
+Input parameters from the configuration file:   *** Verify if everything is correct ***
+
+Project:
+----------------------
+Project name          = GI_3%_v3.7
+Type                  = mito
+Genome range          = 12000-20500
+K-mer                 = 39
+Max memory            = 13
+Extended log          = 1
+Save assembled reads  = 
+Seed Input            = mtgenome_individual_1_250bp.fasta
+Reference sequence    = mtgenome_individual_1_250bp.fasta
+Variance detection    = 
+Chloroplast sequence  = 
+
+Dataset 1:
+----------------------
+Read Length           = 251
+Insert size           = 500
+Platform              = illumina
+Single/Paired         = PE
+Combined reads        = 
+Forward reads         = Filtered_reads_GI_250bp_R1.fastq.gz
+Reverse reads         = Filtered_reads_GI_250bp_R2.fastq.gz
+
+Heteroplasmy:
+-----------------------
+Heteroplasmy          = 0.03
+HP exclude list       = 
+PCR-free              = yes
+
+Optional:
+----------------------
+Insert size auto      = yes
+Insert range          = 1.9
+Insert range strict   = 1.3
+Use Quality Scores    = yes
+
+Subsampled fraction: 100.00 %
+
+Retrieve Seed...
+
+Initial read retrieved successfully: AAAATTTAGTGTAAGGTGCCTGATTAAAGGG.AATCTTGATAGGATTGAAAAAGTGTGAATAGCCCCCGCC.CACCCTTACAAAC.TATGTTTAATGGAATTAAACCATTTCTTTAAATATCAAAAATTTTTGTACCTCATATACTAAAACATAAAAAGATAAGCTAAA.AAGCTACTGGGTTCATACCCCATTTATGAAGGTTTT..CCCTTTTCTTTTTAATTTTAAATTT.TATAAAATTTTGTTTTG
+
+Start Assembly...
+
+
+------------------------------------Forward assembly data metrics------------------------------------
+
+Homoplasmic positions   : 0
+
+Heteroplasmic positions : 107
+
+-----------------------------------------------------------------------------------------------------
+
+
+Initial read retrieved successfully: TTAATCCTCCCTAAA.ATTTCGGCCAAACAGAAACATAATAGTTTTTT.GATTATTTTGGATAGCGTCGCCTATACCATATAGTATTAACTATCAAAAATTAATCATAAAAACTATTGAATTCTAAAGTTGAATCTTTTTTGACCCAGTGATCGTTTTTTCACATCACACCAGTGATTTATAAAATAAACCCTCCACATTTTAATCCCATATTAAAATTGTTAATTCTATCAATTTAAATTTAATTA.TAA
+
+Start Assembly...
+
+
+-------------------------------Forward & Reverse assembly data metrics-------------------------------
+
+Homoplasmic positions   : 0
+
+Heteroplasmic positions : 94
+
+-----------------------------------------------------------------------------------------------------
+
+
+
+
+----------------------------------Post NUMT assembly data metrics----------------------------------
+
+Homoplasmic positions   : 0
+
+Heteroplasmic positions : 94
+
+-----------------------------------------------------------------------------------------------------
