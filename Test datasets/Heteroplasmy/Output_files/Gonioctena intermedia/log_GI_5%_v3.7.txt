@@ -11,7 +11,7 @@ Input parameters from the configuration file:   *** Verify if everything is corr
 
 Project:
 ----------------------
-Project name          = GI_3%_v3.7
+Project name          = GI_5%_v3.7
 Type                  = mito
 Genome range          = 12000-20500
 K-mer                 = 39
@@ -35,7 +35,7 @@ Reverse reads         = Filtered_reads_GI_250bp_R2.fastq.gz
 
 Heteroplasmy:
 -----------------------
-Heteroplasmy          = 0.03
+Heteroplasmy          = 0.05
 HP exclude list       = 
 PCR-free              = yes
 
@@ -50,7 +50,7 @@ Subsampled fraction: 100.00 %
 
 Retrieve Seed...
 
-Initial read retrieved successfully: AAAATTTAGTGTAAGGTGCCTGATTAAAGGG.AATCTTGATAGGATTGAAAAAGTGTGAATAGCCCCCGCC.CACCCTTACAAAC.TATGTTTAATGGAATTAAACCATTTCTTTAAATATCAAAAATTTTTGTACCTCATATACTAAAACATAAAAAGATAAGCTAAA.AAGCTACTGGGTTCATACCCCATTTATGAAGGTTTT..CCCTTTTCTTTTTAATTTTAAATTT.TATAAAATTTTGTTTTG
+Initial read retrieved successfully: AAAATTTAGTGTAAGGTGCCTGATTAAAGGGCAATCTTGATAGGATTGAAAAAGTGTGAATAGCCCCCGCC.CACCCTTACAAAC.TATGTTTAATGGAATTAAACCATTTCTTTAAATATCAAAAATTTTTGTACCTCATATACTAAAACATAAAAAGATAAGCTAAAGAAGCTACTGGGTTCATACCCCATTTATGAAGGTTTTACCCCTTTTCTTTTTAATTTTAAATTTATATAAAATTTTGTTTTG
 
 Start Assembly...
 
@@ -59,12 +59,12 @@ Start Assembly...
 
 Homoplasmic positions   : 0
 
-Heteroplasmic positions : 107
+Heteroplasmic positions : 4
 
 -----------------------------------------------------------------------------------------------------
 
 
-Initial read retrieved successfully: TTAATCCTCCCTAAA.ATTTCGGCCAAACAGAAACATAATAGTTTTTT.GATTATTTTGGATAGCGTCGCCTATACCATATAGTATTAACTATCAAAAATTAATCATAAAAACTATTGAATTCTAAAGTTGAATCTTTTTTGACCCAGTGATCGTTTTTTCACATCACACCAGTGATTTATAAAATAAACCCTCCACATTTTAATCCCATATTAAAATTGTTAATTCTATCAATTTAAATTTAATTA.TAA
+Initial read retrieved successfully: TTAATCCTCCCTAAATATTTCGGCCAAACAGAAACATAATAGTTTTTT.GATTATTTTGGATAGCGTCGCCTATACCATATAGTATTAACTATCAAAAATTAATCATAAAAACTATTGAATTCTAAAGTTGAATCTTTTTTGACCCAGTGATCGTTTTTTCACATCACACCAGTGATTTATAAAATAAACCCTCCACATTTTAATCCCATATTAAAATTGTTAATTCTATCAATTTAAATTTAATTA.TAA
 
 Start Assembly...
 
@@ -73,7 +73,7 @@ Start Assembly...
 
 Homoplasmic positions   : 0
 
-Heteroplasmic positions : 94
+Heteroplasmic positions : 3
 
 -----------------------------------------------------------------------------------------------------
 
@@ -84,7 +84,7 @@ Heteroplasmic positions : 94
 
 Homoplasmic positions   : 0
 
-Heteroplasmic positions : 94
+Heteroplasmic positions : 3
 
 -----------------------------------------------------------------------------------------------------
 

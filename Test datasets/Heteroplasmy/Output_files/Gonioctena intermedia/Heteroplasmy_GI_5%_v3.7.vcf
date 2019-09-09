@@ -1,0 +1,11 @@
+##fileformat=VCFv4.0
+##fileDate=05:47:4909
+##reference=/media/nicolas/Data/Mappings/Perl/Heteroplasmy/GI_250bp/mtgenome_individual_1_250bp.fasta
+##INFO=<ID=AF,Number=1,Type=Float,Description="Allele Frequency">
+##INFO=<ID=DP,Number=1,Type=Integer,Description="Raw Depth">
+##INFO=<ID=FR,Number=1,Type=Flag,Description="Detected on the forward(F) and/or reverse(R) strand">
+##INFO=<ID=LCR,Number=1,Type=String,Description="Low Complexity Region">
+#CHROM	POS	ID	REF	ALT	QUAL	FILTER	INFO
+mt	11276	.	A	G	.	.	AF=0.0749;DP=2960;FR=FR;LCR=SNR
+mt	12667	.	C	T	.	.	AF=0.0571;DP=3359;FR=F;LCR=
+mt	14499	.	TT	T	.	.	AF=;DP=;FR=R;LCR=
