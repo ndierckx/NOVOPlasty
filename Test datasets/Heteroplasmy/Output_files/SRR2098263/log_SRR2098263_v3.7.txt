@@ -1,0 +1,89 @@
+
+
+-----------------------------------------------
+NOVOPlasty: The Organelle Assembler
+Version 3.7
+Author: Nicolas Dierckxsens, (c) 2015-2019
+-----------------------------------------------
+
+
+Input parameters from the configuration file:   *** Verify if everything is correct ***
+
+Project:
+----------------------
+Project name          = SRR2098263_v3.7
+Type                  = mito
+Genome range          = 12000-20500
+K-mer                 = 33
+Max memory            = 8
+Extended log          = 1
+Save assembled reads  = 
+Seed Input            = rCRS.fasta
+Reference sequence    = rCRS.fasta
+Variance detection    = 
+Chloroplast sequence  = 
+
+Dataset 1:
+----------------------
+Read Length           = 100
+Insert size           = 300
+Platform              = illumina
+Single/Paired         = PE
+Combined reads        = 
+Forward reads         = Filtered_reads_SRR2098263_R1.fastq.gz
+Reverse reads         = Filtered_reads_SRR2098263_R2.fastq.gz
+
+Heteroplasmy:
+-----------------------
+Heteroplasmy          = 0.006
+HP exclude list       = 
+PCR-free              = yes
+
+Optional:
+----------------------
+Insert size auto      = yes
+Insert range          = 1.9
+Insert range strict   = 1.3
+Use Quality Scores    = yes
+
+Subsampled fraction: 100.00 %
+
+Retrieve Seed...
+
+Initial read retrieved successfully: ATCACGATGGATCACAGGTCTATCACCCTATTAACCACTCACGGGAGCTCTCCATGCATTTGGTATTTTCGTCTGGGGGGTATGCACGCGATAGCATTGC
+
+Start Assembly...
+
+
+------------------------------------Forward assembly data metrics------------------------------------
+
+Homoplasmic positions   : 20
+
+Heteroplasmic positions : 10
+
+-----------------------------------------------------------------------------------------------------
+
+
+Initial read retrieved successfully: ATTAACCACTCACGGGAGCTCTCCATGCATTTGGTATTTTCGTCTGGGGGGTATGCACGCGATAGCATTGCGAGACGCTGGAGCCGGAGCACCCTATGTC
+
+Start Assembly...
+
+
+-------------------------------Forward & Reverse assembly data metrics-------------------------------
+
+Homoplasmic positions   : 20
+
+Heteroplasmic positions : 3
+
+-----------------------------------------------------------------------------------------------------
+
+
+
+
+----------------------------------Post NUMT assembly data metrics----------------------------------
+
+Homoplasmic positions   : 20
+
+Heteroplasmic positions : 3
+
+-----------------------------------------------------------------------------------------------------
