@@ -1,0 +1,27 @@
+##fileformat=VCFv4.0
+##fileDate=20:59:4909
+##reference=/media/nicolas/Data/Mappings/Perl/Heteroplasmy/rCRS.fasta
+##INFO=<ID=AF,Number=1,Type=Float,Description="Allele Frequency">
+##INFO=<ID=DP,Number=1,Type=Integer,Description="Raw Depth">
+##INFO=<ID=FR,Number=1,Type=Flag,Description="Detected on the forward(F) and/or reverse(R) strand">
+#CHROM	POS	ID	REF	ALT	QUAL	FILTER	INFO
+mt	263	.	A	G	.	.	AF=0.998;DP=1639;FR=R
+mt	310	.	T	C	.	.	AF=0.966;DP=378;FR=R
+mt	311	.	C	T	.	.	AF=0.792;DP=307;FR=R
+mt	315	.	C	CCC	.	.	AF=;DP=;FR=R
+mt	750	.	A	G	.	.	AF=1;DP=492;FR=R
+mt	971	.	A	G	.	.	AF=1;DP=806;FR=R
+mt	1438	.	A	G	.	.	AF=0.999;DP=817;FR=R
+mt	3106	.	CN	C	.	.	AF=;DP=;FR=R
+mt	3622	.	C	T	.	.	AF=1;DP=656;FR=R
+mt	4769	.	A	G	.	.	AF=0.999;DP=860;FR=R
+mt	5568	.	A	G	.	.	AF=0.999;DP=939;FR=R
+mt	8206	.	G	A	.	.	AF=1;DP=959;FR=R
+mt	8860	.	A	G	.	.	AF=1;DP=929;FR=R
+mt	9389	.	A	G	.	.	AF=0.997;DP=751;FR=R
+mt	10601	.	T	C	.	.	AF=1;DP=819;FR=R
+mt	14189	.	A	G	.	.	AF=1;DP=883;FR=R
+mt	14872	.	C	T	.	.	AF=0.999;DP=722;FR=R
+mt	15326	.	A	G	.	.	AF=1;DP=793;FR=R
+mt	16192	.	C	T	.	.	AF=0.997;DP=665;FR=R
+mt	16201	.	C	T	.	.	AF=0.999;DP=839;FR=R
