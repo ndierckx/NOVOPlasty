@@ -1,0 +1,40 @@
+##fileformat=VCFv4.0
+##fileDate=06:52:3209
+##reference=/media/nicolas/Data/Mappings/Perl/Heteroplasmy/rCRS.fasta
+##INFO=<ID=AF,Number=1,Type=Float,Description="Allele Frequency">
+##INFO=<ID=DP,Number=1,Type=Integer,Description="Raw Depth">
+##INFO=<ID=FR,Number=1,Type=Flag,Description="Detected on the forward(F) and/or reverse(R) strand">
+##INFO=<ID=LCR,Number=1,Type=String,Description="Low Complexity Region">
+#CHROM	POS	ID	REF	ALT	QUAL	FILTER	INFO
+mt	73	.	A	G	.	.	AF=0.0103;DP=5162;FR=F;LCR=
+mt	151	.	C	T	.	.	AF=0.0102;DP=35263;FR=FR;LCR=
+mt	152	.	T	C	.	.	AF=0.0115;DP=34923;FR=FR;LCR=
+mt	311	.	C	CC	.	.	AF=;DP=;FR=R;LCR=SNR(C)
+mt	477	.	T	C	.	.	AF=0.989;DP=16815;FR=FR;LCR=
+mt	2706	.	A	G	.	.	AF=0.00969;DP=53164;FR=FR;LCR=
+mt	3010	.	G	A	.	.	AF=0.989;DP=30115;FR=FR;LCR=
+mt	3197	.	T	C	.	.	AF=0.011;DP=28615;FR=FR;LCR=
+mt	3768	.	A	G	.	.	AF=0.0105;DP=29516;FR=FR;LCR=
+mt	5979	.	G	A	.	.	AF=0.99;DP=26456;FR=FR;LCR=
+mt	7028	.	C	T	.	.	AF=0.0124;DP=35676;FR=FR;LCR=
+mt	7076	.	A	G	.	.	AF=0.00789;DP=32720;FR=FR;LCR=
+mt	9145	.	G	A	.	.	AF=0.0121;DP=32992;FR=FR;LCR=
+mt	9462	.	T	C	.	.	AF=0.0115;DP=32500;FR=FR;LCR=
+mt	9477	.	G	A	.	.	AF=0.0119;DP=29369;FR=FR;LCR=SNR(T)
+mt	11150	.	G	A	.	.	AF=0.00808;DP=23976;FR=FR;LCR=
+mt	11467	.	A	G	.	.	AF=0.00999;DP=26791;FR=FR;LCR=
+mt	11719	.	G	A	.	.	AF=0.0105;DP=26642;FR=FR;LCR=
+mt	12308	.	A	G	.	.	AF=0.0111;DP=23712;FR=FR;LCR=
+mt	12372	.	G	A	.	.	AF=0.00834;DP=26694;FR=FR;LCR=
+mt	13617	.	T	C	.	.	AF=0.00921;DP=25399;FR=FR;LCR=
+mt	14766	.	C	T	.	.	AF=0.0102;DP=33984;FR=FR;LCR=
+mt	14793	.	A	G	.	.	AF=0.00887;DP=30528;FR=FR;LCR=
+mt	15236	.	A	G	.	.	AF=0.0108;DP=30485;FR=FR;LCR=
+mt	15289	.	T	C	.	.	AF=0.0116;DP=30286;FR=FR;LCR=SNR
+mt	16129	.	G	A	.	.	AF=0.00985;DP=32339;FR=FR;LCR=
+mt	16234	.	C	T	.	.	AF=0.0108;DP=29858;FR=F;LCR=
+mt	16256	.	C	T	.	.	AF=0.0114;DP=30420;FR=FR;LCR=
+mt	16270	.	C	T	.	.	AF=0.0112;DP=27105;FR=FR;LCR=SNR
+mt	16311	.	T	C	.	.	AF=0.0127;DP=33347;FR=FR;LCR=
+mt	16362	.	T	C	.	.	AF=0.012;DP=28948;FR=FR;LCR=
+mt	16526	.	G	A	.	.	AF=0.0113;DP=50321;FR=FR;LCR=
