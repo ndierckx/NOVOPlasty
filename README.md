@@ -20,6 +20,10 @@ NOVOPlasty is a de novo assembler and heteroplasmy/variance caller for short cir
 ## Cite
 
 <a href="http://nar.oxfordjournals.org/content/early/2016/10/24/nar.gkw955.full">Dierckxsens N., Mardulyn P. and Smits G. (2016) NOVOPlasty: De novo assembly of organelle genomes from whole genome data. <i>Nucleic Acids Research</i>, doi: 10.1093/nar/gkw955<a>
+ 
+ If you use the heteroplasmy or variance calling option, please cite both articles:
+ 
+  <a href="https://academic.oup.com/nargab/article/doi/10.1093/nargab/lqz011/5606586?guestAccessKey=46546992-7b07-4a28-82f4-89baea9527f5">Dierckxsens N., Mardulyn P. and Smits G. (2019) Unraveling heteroplasmy patterns with NOVOPlasty. <i>NAR Genomics and Bioinformatics</i>, https://doi.org/10.1093/nargab/lqz011<a>
 
 
 ## Getting help
