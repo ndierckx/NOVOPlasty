@@ -2,10 +2,14 @@
 
 NOVOPlasty is a de novo assembler and heteroplasmy/variance caller for short circular genomes.  
 
-**Last updates: 30/10/19 version 3.7.2**  
-- Improved heteroplasmy detection.                                                              
+**Last updates: 07/01/20 version 3.8**                          
+- UPDATED CONFIG FILE!                                                          
+- Improved heteroplasmy calling
+- Improved organelle assembly
+- NEW FUNCTION: It is now possible to extend a seed directly, this will not correct the given seed, so it may not have mismatches                                                                                                    
 **30/10/19**  
-- Problem with config file in Windows fixed.                                                              
+- Problem with config file in Windows fixed.     
+- Improved heteroplasmy detection.                                                             
 **30/07/19**                                                        
 - Improved heteroplasmy calling
 - Resolved several bugs
@@ -136,6 +140,7 @@ Max memory            =
 Extended log          = 0
 Save assembled reads  = no
 Seed Input            = Seed.fasta
+Extend seed directly  = no
 Reference sequence    = /path/to/reference_file/reference.fasta (optional)
 Variance detection    = no
 Heteroplasmy          = 
@@ -182,6 +187,8 @@ Extended log         = Prints out a very extensive log, could be useful to send 
 Save assembled reads = All the reads used for the assembly will be stored in seperate files; if option 2 is used, the   
                        original ids will be retained. (yes/no/2)
 Seed Input           = The path to the file that contains the seed sequence.
+Extend seed directly = This gives the option to extend the seed directly, in stead of finding matching reads. Only use this when your seed 
+                       originates from the same sample and there are no possible mismatches (yes/no)
 Reference (optional) = If a reference is available, you can give here the path to the fasta file.
                        The assembly will still be de novo, but references of the same genus can be used as a guide to resolve 
                        duplicated regions in the plant mitochondria or the inverted repeat in the chloroplast. 
