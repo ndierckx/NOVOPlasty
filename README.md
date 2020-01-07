@@ -89,38 +89,6 @@ You can always try different K-mer's. In the case of low coverage problems or se
 
 ----------------------------------------------------------------------------------------------------------
 
-&nbsp;
-## Interpretation and post-processing
-
-### 1. General
-
-#### *  
-A '*' in the fasta output files indicates that the nucleotide before is a possible deletion/insertion. This can occur when the exact length of single nucleotide repeat can't be determined exactly due to systemic Illumina sequencing errors or within repetitive regions. Since this sign can interfere with post processing algorithms it is best resolve them manually or to delete them. 
-
-#### Gaps  
-Most gaps are caused by Single Nucleotide Repeats (SNR). Illumina seqeuncers have a high rate of systemic errors after SNR's and are therefore hard to assemble. NOVOPlasty is cabale of assembling these regions as correct as possible by approaching these regions from both sides (sequencing errors commence once in the SNR). If this region is not too long, NOVOPlasty can automaticallly merge both sides, otherwise it will output a gap. Although this gap can often be closed automatically (if both sides overlap).  
-You can find an example (form the Avicennia officinalis chloroplast assembly) below how to do this manually:
-
-These regions are indicated by 15 N's:
-```
-TTCTTGTCATTTCTCCCCCCCCCCCCCBTTTTTTTTTTHAAAAAAAAAAAANNNNNNNNNNNNNNNTTTTTTTCCTTTCCCCCCCCCCCCCCCTTTTTTTTTTCAAAAAAAAAAGAGACGAGAAACTC
-```
-Remove the N's and align both sides (Remember that the end of the first sequence and the start of the second sequence are not reliable):
-```
-TTCTTGTCATTTCTCCCCCCCCCCCCCBTTTTTTTTTTHAAAAAAAAAAAA
- TTTTTTTCCTTTCCCCCCCCCCCCCCCTTTTTTTTTTCAAAAAAAAAAGAGACGAGAAACTCTGAA
-```
-The most likable consensus sequence would be this, so you should correct the assembly like this:
-```
-TTCTTGTCATTTCTCCCCCCCCCCCCCCTTTTTTTTTTCAAAAAAAAAAGAGACGAGAAACTCTGAA
-```
-It is adviced to make these corrections before you verify the assembly by realigning the reads
-
-### 2. Chloroplast assembly
-
-Ideally you will have one or two outputted assemblies. When you have two assemblies from the same length, the only difference will be the orientation of the inverted repeat. This can be resolved manually by mapping the assemblies to the closest reference. (On NCBI's BLAST you can further examine your mapping by clicking on 'Graphics', this will show you which orientation is correct.) Otherwise you can first annotate the two assemblies and compare the gene order.
-
-
 ## Configuration file
 
 This is an example of a configuration file for the assembly of a chloroplast.
