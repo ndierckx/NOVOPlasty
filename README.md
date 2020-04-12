@@ -12,15 +12,7 @@ NOVOPlasty is a de novo assembler and heteroplasmy/variance caller for short cir
 - NEW FUNCTION: It is now possible to extend a seed directly, this will not correct the given seed, so it may not have mismatches                                                                                                    
 **30/10/19**  
 - Problem with config file in Windows fixed.     
-- Improved heteroplasmy detection.                                                             
-**30/07/19**                                                        
-- Improved heteroplasmy calling
-- Resolved several bugs
-- Batch assemblies won't interrupt anymore after a failed assembly                                                     
-**10/07/19**                                                              
-- Resolved several bugs
-- There were some problems with high memory usage, should be resolved now                                               
-**24/04/19** 
+- Improved heteroplasmy detection.                                                                                           **24/04/19** 
 - UPDATED CONFIG FILE!                                                                     
 - New heteroplasmy function (can link heteroplasmic mutations by local assembly)
 - New batch function   
@@ -46,7 +38,7 @@ nicolasdierckxsens at hotmail dot com
 If your assembly was unsuccessful, you could already add the log file and the configuration file to the mail, this could help me to identify the problem!
 
 <a href="http://www.huderf.be/" target="_blank"><img border="0" src="http://cdn.prezly.com/08/500080108e11e68f98cbaed0afad97/HUDERF-LOGO_cmyb_4_www.jpg" width=auto height="95" ></a>
-<a href="http://ebe.ulb.ac.be/ebe/ebe-Welcome.html" target="_blank"><img border="0" src="https://www.ulb.ac.be/dre/com/docs/logo3lg.jpg" width=auto height="95" ></a>
+<a href="http://ebe.ulb.ac.be/ebe/ebe-Welcome.html" target="_blank"><img border="0" src="https://upload.wikimedia.org/wikipedia/commons/thumb/9/99/Universit%C3%A9_libre_de_Bruxelles_logo.svg/1024px-Universit%C3%A9_libre_de_Bruxelles_logo.svg.png" width=auto height="95" ></a>
 <a href="http://www.belgiankidsfund.be" target="_blank"><img border="0" src="http://www.belgiankidsfund.be/images/logo.png" width=auto height="95" ></a>  
 
 
