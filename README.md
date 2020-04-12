@@ -12,7 +12,8 @@ NOVOPlasty is a de novo assembler and heteroplasmy/variance caller for short cir
 - NEW FUNCTION: It is now possible to extend a seed directly, this will not correct the given seed, so it may not have mismatches                                                                                                    
 **30/10/19**  
 - Problem with config file in Windows fixed.     
-- Improved heteroplasmy detection.                                                                                           **24/04/19** 
+- Improved heteroplasmy detection.    
+**24/04/19** 
 - UPDATED CONFIG FILE!                                                                     
 - New heteroplasmy function (can link heteroplasmic mutations by local assembly)
 - New batch function   
