@@ -3,7 +3,7 @@ Project:
 Project name          = Test
 Type                  = mito
 Genome Range          = 12000-22000
-K-mer                 = 39
+K-mer                 = 33
 Max memory            = 
 Extended log          = 0
 Save assembled reads  = no
