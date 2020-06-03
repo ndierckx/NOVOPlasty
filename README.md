@@ -99,7 +99,7 @@ Project:
 Project name          = Test
 Type                  = mito
 Genome Range          = 12000-22000
-K-mer                 = 39
+K-mer                 = 33
 Max memory            = 
 Extended log          = 0
 Save assembled reads  = no
@@ -124,8 +124,6 @@ Reverse reads         = /path/to/reads/reads_2.fastq
 Optional:
 -----------------------
 Insert size auto      = yes
-Insert Range          = 1.8
-Insert Range strict   = 1.3
 Use Quality Scores    = no
 </pre>
 
@@ -178,10 +176,7 @@ Reverse reads        = The path to the file that contains the reverse reads (not
 
 Optional:
 -----------------------
-Insert size auto     = (yes/no) This will finetune your insert size automatically (Default: yes)
-Insert Range         = This variation on the insert size, could lower it when the coverage is very high or raise it when the
-                       coverage is too low (Default: 1.6). 
-Insert Range strict  = Strict variation to resolve repetitive regions (Default: 1.2).          
+Insert size auto     = (yes/no) This will finetune your insert size automatically (Default: yes)       
 Use Quality Scores   = It will take in account the quality scores, only use this when reads have low quality, like with the    
                        300 bp reads of Illumina (yes/no)
 </pre>
