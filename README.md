@@ -71,7 +71,7 @@ Every parameter of the configuration file is explained below.
 
 No further installation is necessary:
 
-<code>perl NOVOPlasty3.2.pl -c config.txt</code>
+<code>perl NOVOPlasty4.3.pl -c config.txt</code>
 
 The input reads have to be uncompressed Illumina reads (fastq/fasta files) or gz/bz2 zipped files.  
 There is also an Ion Torrent option, but it does not produce the best results. 
