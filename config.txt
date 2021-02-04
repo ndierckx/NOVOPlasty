@@ -22,6 +22,7 @@ Single/Paired         = PE
 Combined reads        = 
 Forward reads         = /path/to/reads/reads_1.fastq
 Reverse reads         = /path/to/reads/reads_2.fastq
+Store Hash            =
 
 Heteroplasmy:
 -----------------------
@@ -76,6 +77,8 @@ Single/Paired        = For the moment only paired end reads are supported.
 Combined reads       = The path to the file that contains the combined reads (forward and reverse in 1 file)
 Forward reads        = The path to the file that contains the forward reads (not necessary when there is a merged file)
 Reverse reads        = The path to the file that contains the reverse reads (not necessary when there is a merged file)
+Store Hash           = If you want several runs on one dataset, you can store the hash locally to speed up the process (put "yes" to store the hashes locally)
+                       To run local saved files, goto te wiki section of the github page
 
 Heteroplasmy:
 -----------------------
