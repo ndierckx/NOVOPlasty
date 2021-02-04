@@ -128,6 +128,7 @@ Optional:
 -----------------------
 Insert size auto      = yes
 Use Quality Scores    = no
+Output path           =
 </pre>
 
 **2. Explanation parameters:**
@@ -184,5 +185,6 @@ Optional:
 Insert size auto     = (yes/no) This will finetune your insert size automatically (Default: yes)       
 Use Quality Scores   = It will take in account the quality scores, only use this when reads have low quality, like with the    
                        300 bp reads of Illumina (yes/no)
+Output path           =
 </pre>
 </html>
