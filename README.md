@@ -2,15 +2,12 @@
 
 NOVOPlasty is a de novo assembler and heteroplasmy/variance caller for short circular genomes.  
 
-**Last updates: 03/07/20 version 4.2**  
-- resolved small bugs                                                                                                               
+**Last updates: 04/02/21 version 4.3**  
+- UPDATED CONFIG FILE!                                                                                                                      
 **03/06/20**                                                                                                                                     
 - Improved assembly method                                                                       
 - Improved heteroplasmy detection.                                                               
-- Heteroplasmy output now includes AF and DP for indels.                                               
-**05/02/20**                                                                                       
-- Resolved some bugs                                                                           
-- In some cases, not all the contigs were outputted, should be fixed                         
+- Heteroplasmy output now includes AF and DP for indels.                                                        
 **07/01/20**                                                                     
 - UPDATED CONFIG FILE!                                                          
 - Improved heteroplasmy calling
@@ -123,6 +120,7 @@ Single/Paired         = PE
 Combined reads        =
 Forward reads         = /path/to/reads/reads_1.fastq
 Reverse reads         = /path/to/reads/reads_2.fastq
+Store Hash            =
 
 Optional:
 -----------------------
@@ -176,6 +174,8 @@ Single/Paired        = PE/SE.
 Combined reads       = The path to the file that contains the combined reads (forward and reverse in 1 file)
 Forward reads        = The path to the file that contains the forward reads (not necessary when there is a merged file)
 Reverse reads        = The path to the file that contains the reverse reads (not necessary when there is a merged file)
+Store Hash           = If you want several runs on one dataset, you can store the hash locally to speed up the process (put "yes" to store the hashes locally)
+                       To run local saved files, goto te wiki section of the github page
 
 Optional:
 -----------------------
