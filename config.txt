@@ -1,15 +1,15 @@
 Project:
 -----------------------
-Project name          = Test
-Type                  = mito
-Genome Range          = 12000-22000
+Project name          = pear-cp
+Type                  = chloro
+Genome Range          = 130000-170000
 K-mer                 = 33
-Max memory            = 
+Max memory            = 28
 Extended log          = 0
 Save assembled reads  = no
-Seed Input            = /path/to/seed_file/Seed.fasta
+Seed Input            = ~/anjou-genome/shotgun-dna/chloroplast/rbcl_seed.fasta
 Extend seed directly  = no
-Reference sequence    = /path/to/reference_file/reference.fasta (optional)
+Reference sequence    = 
 Variance detection    = 
 Chloroplast sequence  = /path/to/chloroplast_file/chloroplast.fasta (only for "mito_plant" option)
 
