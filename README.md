@@ -2,7 +2,10 @@
 
 NOVOPlasty is a de novo assembler and heteroplasmy/variance caller for short circular genomes.  
 
-**Last updates: 04/02/21 version 4.3**  
+**Last updates: 20/07/23 version 4.3**  
+- UPDATED CONFIG FILE! 
+
+**04/02/21**  
 - UPDATED CONFIG FILE! 
 - Added an output directory option to the config file
 - Added an store hash locally option to the config file to speed up the assembly when using the same dataset for multiple runs               
@@ -136,6 +139,7 @@ Optional:
 -----------------------
 Insert size auto      = yes
 Use Quality Scores    = no
+Reduce ambigious N's  = 
 Output path           = 
 
 </pre>
@@ -197,6 +201,7 @@ Optional:
 Insert size auto     = (yes/no) This will finetune your insert size automatically (Default: yes)                               
 Use Quality Scores   = It will take in account the quality scores, only use this when reads have low quality, like with the    
                        300 bp reads of Illumina (yes/no)
+Reduce ambigious N's = If you put "yes", it will try to avoid including ambigious nucleotides to the end assembly, useful for PCR amplified samples(yes/no)
 Output path          = You can change the directory where all the output files wil be stored.
 
 </pre>
