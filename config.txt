@@ -34,6 +34,7 @@ Optional:
 -----------------------
 Insert size auto      = yes
 Use Quality Scores    = no
+Reduce ambigious N's  = 
 Output path           = 
 
 
@@ -93,4 +94,5 @@ Optional:
 Insert size auto     = (yes/no) This will finetune your insert size automatically (Default: yes)                               
 Use Quality Scores   = It will take in account the quality scores, only use this when reads have low quality, like with the    
                        300 bp reads of Illumina (yes/no)
+Reduce ambigious N's = If you put "yes", it will try to avoid including ambigious nucleotides to the end assembly, useful for PCR amplified samples(yes/no)
 Output path          = You can change the directory where all the output files wil be stored.
