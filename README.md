@@ -3,8 +3,10 @@
 NOVOPlasty is a de novo assembler and heteroplasmy/variance caller for short circular genomes.  
 
 **Last updates: 20/07/23 version 4.3.3**  
-- UPDATED CONFIG FILE! 
-
+- UPDATED CONFIG FILE!
+- Included a new feature "Reduce ambigious N's", which will avoid ambigious nucleotides by always choosing the majority during consensus calling.
+- Fixed assembly metrics in batch mode
+- Included "Output path" as variable option in batch mode
 **04/02/21**  
 - UPDATED CONFIG FILE! 
 - Added an output directory option to the config file
@@ -17,7 +19,7 @@ NOVOPlasty is a de novo assembler and heteroplasmy/variance caller for short cir
 - UPDATED CONFIG FILE!                                                          
 - Improved heteroplasmy calling
 - Improved organelle assembly
-- NEW FUNCTION: It is now possible to extend a seed directly, this will not correct the given seed, so it may not have mismatches                                                                                                    
+- NEW FUNCTION: It is now possible to extend a seed directly, this will not correct the given seed, so it may not have mismatches                                                                                                       
 **24/04/19** 
 - UPDATED CONFIG FILE!                                                                     
 - New heteroplasmy function (can link heteroplasmic mutations by local assembly)
