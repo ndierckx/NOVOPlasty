@@ -202,6 +202,8 @@ my %nosecond;
 my %repetitive_pair;
 my %count_reads;
 my %count_reads_all;
+undef %count_reads;
+undef %count_reads_all;
 my $assembly_length = '1';
 my $assembly_success = "";
 my %seeds_check;
