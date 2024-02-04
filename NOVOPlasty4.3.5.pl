@@ -12,8 +12,8 @@ use strict;
 
 print "\n\n-----------------------------------------------";
 print "\nNOVOPlasty: The Organelle Assembler\n";
-print "Version 4.3.3\n";
-print "Author: Nicolas Dierckxsens, (c) 2015-2022\n";
+print "Version 4.3.5\n";
+print "Author: Nicolas Dierckxsens, (c) 2015-2024\n";
 print "-----------------------------------------------\n\n";
 
 BATCH:
@@ -517,7 +517,7 @@ GetOptions (
             "c=s" => \$config,
             ) or die "Incorrect usage!\n";
 
-open(CONFIG, $config) or die "Error:Can't open the configuration file, please check the manual!\n\nUsage: perl NOVOPlasty4.3.3.pl -c config.txt\n";
+open(CONFIG, $config) or die "Error:Can't open the configuration file, please check the manual!\n\nUsage: perl NOVOPlasty4.3.5.pl -c config.txt\n";
 
 while (my $line = <CONFIG>)
 {
@@ -1035,8 +1035,8 @@ print "Output path           = ".$output_path."\n\n";
 
 print OUTPUT4 "\n\n-----------------------------------------------";
 print OUTPUT4 "\nNOVOPlasty: The Organelle Assembler\n";
-print OUTPUT4 "Version 4.3.3\n";
-print OUTPUT4 "Author: Nicolas Dierckxsens, (c) 2015-2020\n";
+print OUTPUT4 "Version 4.3.5\n";
+print OUTPUT4 "Author: Nicolas Dierckxsens, (c) 2015-2024\n";
 print OUTPUT4 "-----------------------------------------------\n\n";
 
 print OUTPUT4 "\nInput parameters from the configuration file:   *** Verify if everything is correct ***\n\n";
@@ -1144,7 +1144,7 @@ if ($read_length < 80)
     $right = '5';
 }
 
-my $USAGE = "\nUsage: perl NOVOPlasty4.3.3.pl -c config.txt";
+my $USAGE = "\nUsage: perl NOVOPlasty4.3.5.pl -c config.txt";
 
 #print $USAGE and exit if !$type or !$insert_size or !$read_length;
 
@@ -4096,7 +4096,7 @@ elsif($firstLine =~ m/.*(1)(_|\s)(1)(:\w.*\d+:*(\s.*|\w+)*\s*\t*)$/ && $firstLin
 {
     $type_of_file = "yes";
 }
-elsif($firstLine =~ m/.*(_|\s)(1)(:\w.*\d+:*(\s.*|\w+)*\s*\t*)$/ && $firstLine_reverse ne $firstLine)
+elsif($firstLine =~ m/.*(_|\s)(1)(:\w.*\d+:*(\s.*|\w+|\w+\+\w+)*\s*\t*)$/ && $firstLine_reverse ne $firstLine)
 {
     $type_of_file = "yes";
 }
@@ -4663,12 +4663,12 @@ FILE_LINE:while (my $line = <$FILE>)
             }
             if ($type_of_file eq "yes")
             {
-                if($code2 =~ m/.*(1|2)(_|\s)(1|2)(:\w.*\d+:*(\s.*|\w+)*\s*\t*)$/)
+                if($code2 =~ m/.*(1|2)(_|\s)(1|2)(:\w.*\d+:*(\s.*|\w+|\w+\+\w+)*\s*\t*)$/)
                 {
                     $code_end = $3;
                     $type_of_file2 = -length($4)-4;
                 }   
-                elsif($code2 =~ m/.*(_|\s)(1|2)(:\w.*\d+:*(\s.*|\w+)*\s*\t*)$/)
+                elsif($code2 =~ m/.*(_|\s)(1|2)(:\w.*\d+:*(\s.*|\w+|\w+\+\w+)*\s*\t*)$/)
                 {
                     $code_end = $2;
                     $type_of_file2 = -length($3)-1;
@@ -11405,7 +11405,8 @@ HP_NEXT2:                                                                   fore
                                                                         $s++;
                                                                     }
                                                                     my $count_AFs = keys %deduct_duplications;
-                                                                    if ($count_AFs eq 1 && $variance_detection eq "" && $split_forward_tmp eq "" && $deletion eq "")
+                                                                    if ($count_AFs eq 1 && $variance_detection eq "" && $split_forward_tmp eq "" && $deletion eq ""
+                                                                        && length($best_extension_tmp) > $position_tmp && length($best_extension) > $position_tmp)
                                                                     {
                                                                         foreach my $DD (keys %deduct_duplications)
                                                                         {
