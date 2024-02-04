@@ -10041,13 +10041,14 @@ print OUTPUT5 $A_SNP." A ".$C_SNP." C ".$T_SNP." T ".$G_SNP." G INPUT\n";
                     my @IUPAC = IUPAC($nucs{"A"},$nucs{"C"},$nucs{"T"},$nucs{"G"},$hp);
                     if ($IUPAC[0] eq "A" || $IUPAC[0] eq "C" || $IUPAC[0] eq "T" || $IUPAC[0] eq "G")
                     {
+                        $best_extension = $best_extension.$IUPAC[0]; 
                     }
                     else
                     {
+                        $best_extension = $best_extension."N"; 
                         $SNP++;
                     }
                     $allele_percentage{$l} = $nucs{"A"}."+".$nucs{"C"}."+".$nucs{"T"}."+".$nucs{"G"};
-                    $best_extension = $best_extension.$IUPAC[0]; 
                 }
                 elsif ((($heteroplasmy ne "" && $l < $pos_SNP4+10) || $heteroplasmy eq "") && $SNP eq "4" && ($pos_SNP ne 0 || ($pos_SNP4 > $pos_SNP+12) || ($extensions_before eq "yes" && $l > 12)))
                 {
@@ -18432,13 +18433,14 @@ NUCLEO_BACK: while ($l < $read_length - ($overlap+$left-1) + $extra_l && $l < 14
                     my @IUPAC = IUPAC($A,$C,$T,$G);
                     if ($IUPAC[0] eq "A" || $IUPAC[0] eq "C" || $IUPAC[0] eq "T" || $IUPAC[0] eq "G")
                     {
+                        $best_extension = $best_extension.$IUPAC[0]; 
                     }
                     else
                     {
                         $SNP++;
+                        $best_extension = $best_extension."N"; 
                     }
-                    $allele_percentage_back{$l} = $A."+".$C."+".$T."+".$G;
-                    $best_extension = $best_extension.$IUPAC[0]; 
+                    $allele_percentage_back{$l} = $A."+".$C."+".$T."+".$G;                   
                 }
                 elsif ((($heteroplasmy ne "" && $l < $pos_SNP4+10) || $heteroplasmy eq "") && $SNP eq "4" && ($pos_SNP ne 0 || ($pos_SNP4 > $pos_SNP+12) || ($extensions_before eq "yes" && $l > 12))) 
                 {
